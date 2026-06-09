@@ -1,0 +1,3 @@
+//
+// Define share types here
+//
