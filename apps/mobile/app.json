@@ -39,7 +39,8 @@
           }
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-asset"
     ]
   }
 }
