@@ -27,5 +27,11 @@ export default function RootLayout() {
     TrackPlayer.play()
   }, [])
 
-  return <Stack />
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    />
+  )
 }
