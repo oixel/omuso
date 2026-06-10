@@ -1,12 +1,14 @@
 {
   "expo": {
-    "name": "choral",
+    "name": "Choral",
+    "description": "An OpenSubsonic music player",
     "slug": "choral",
     "scheme": "choral",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "githubUrl": "https://github.com/oixel/choral",
     "ios": {
       "supportsTablet": true
     },
