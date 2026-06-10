@@ -12,6 +12,8 @@
   "private": true,
   "packageManager": "bun@1.3.14",
   "scripts": {
+    "android": "cd apps/mobile && bun run android",
+    "android:rebuild": "cd apps/mobile && bun run android:rebuild",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
