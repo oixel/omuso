@@ -1,3 +1,1 @@
-//
-// Define share types here
-//
+export * from './auth'

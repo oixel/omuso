@@ -1,3 +1,1 @@
-//
-// Add shared API funcitonality here
-//
+export * from './auth'
