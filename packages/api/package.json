@@ -4,8 +4,9 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
+    "@choral/domain": "workspace:*",
     "@choral/types": "workspace:*",
-    "@choral/domain": "workspace:*"
+    "expo-secure-store": "~15.0.8"
   },
   "scripts": {
     "lint": "eslint ."
