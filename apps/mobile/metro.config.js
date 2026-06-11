@@ -18,5 +18,13 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ]
 
+config.resolver.sourceExts = [
+  'native.tsx',
+  'native.ts',
+  'native.js',
+  'native.jsx',
+  ...config.resolver.sourceExts,
+]
+
 // Ensure NativeWind is added
 module.exports = withNativeWind(config, { input: './global.css' })

@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "moduleSuffixes": [".native", ".web", ""]
   }
 }
