@@ -1,2 +1,2 @@
-export * from './secure'
-export * from './state'
+export * from './secure';
+export * from './appState';

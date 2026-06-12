@@ -1,1 +1,1 @@
-export { SecureStorage } from './secureStorage';
+export * from './SecureStorage';
