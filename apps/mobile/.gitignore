@@ -1,2 +1,9 @@
-android/
-ios/
+# Native build outputs
+modules/**/build/
+android/build/
+android/.gradle/
+
+# Keystores for android releases
+android/app/release.keystore
+android/app/*.jks
+release.keystore
