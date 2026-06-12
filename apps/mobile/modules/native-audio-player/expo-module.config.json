@@ -1,9 +1,9 @@
 {
   "platforms": ["apple", "android"],
   "apple": {
-    "modules": ["NativeAudioPlayer"]
+    "modules": ["NativeAudioPlayerModule"]
   },
   "android": {
-    "modules": ["expo.modules.nativeaudioplayer.NativeAudioPlayer"]
+    "modules": ["expo.modules.nativeaudioplayer.NativeAudioPlayerModule"]
   }
 }
