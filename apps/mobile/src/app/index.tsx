@@ -3,7 +3,8 @@ import { Asset } from 'expo-asset';
 import { Button, Text, View } from 'react-native';
 import { Auth } from '@choral/domain';
 
-import NativeAudioPlayer from '../../modules/native-audio-player/src/NativeAudioPlayer';
+import * as NativeAudioPlayer from '../../modules/native-audio-player/src';
+import { useEffect } from 'react';
 
 function setTest(test: string): void {
   NativeAudioPlayer.setTest(test);
@@ -16,6 +17,14 @@ function getTest(): void {
 export default function App() {
   const playing = useIsPlaying();
   const song = useActiveMediaItem();
+
+  useEffect(() => {
+    const subscription = NativeAudioPlayer.addSetTestListener(({ message: newMessage }) => {
+      console.log('Received in JSX from event:', newMessage);
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   async function togglePause() {
     if (song === null) {
