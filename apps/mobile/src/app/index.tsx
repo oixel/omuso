@@ -5,6 +5,10 @@ import { Auth } from '@choral/domain';
 
 import NativeAudioPlayer from '../../modules/native-audio-player/src/NativeAudioPlayer';
 
+function setTest(test: string): void {
+  NativeAudioPlayer.setTest(test);
+}
+
 function getTest(): void {
   console.log(NativeAudioPlayer.getTest());
 }
@@ -38,7 +42,8 @@ export default function App() {
       <Button title={'Store'} onPress={Auth.setCredentials}></Button>
       <Button title={'Get'} onPress={Auth.getCredentials}></Button>
       <Button title={'Wipe'} onPress={Auth.deleteCredentials}></Button>
-      <Button title={'Module Test'} onPress={getTest}></Button>
+      <Button title={'Module Get Test'} onPress={getTest}></Button>
+      <Button title={'Module Set Test'} onPress={() => setTest('Right back at ya!')}></Button>
     </View>
   );
 }
