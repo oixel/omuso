@@ -3,6 +3,12 @@ import { Asset } from 'expo-asset';
 import { Button, Text, View } from 'react-native';
 import { Auth } from '@choral/domain';
 
+import NativeAudioPlayer from '../../modules/native-audio-player/src/NativeAudioPlayer';
+
+function getTest(): void {
+  console.log(NativeAudioPlayer.getTest());
+}
+
 export default function App() {
   const playing = useIsPlaying();
   const song = useActiveMediaItem();
@@ -11,7 +17,7 @@ export default function App() {
     if (song === null) {
       // TODO: Remove (only for initial debugging)
       // Loads MP3 file into an asset to be usable within the app instance
-      const songAsset = await Asset.fromModule(require('../../test.mp3')).downloadAsync();
+      const songAsset = await Asset.fromModule(require('../../assets/test.mp3')).downloadAsync();
 
       const testSong: MediaItem = {
         url: songAsset.localUri as string,
@@ -32,6 +38,7 @@ export default function App() {
       <Button title={'Store'} onPress={Auth.setCredentials}></Button>
       <Button title={'Get'} onPress={Auth.getCredentials}></Button>
       <Button title={'Wipe'} onPress={Auth.deleteCredentials}></Button>
+      <Button title={'Module Test'} onPress={getTest}></Button>
     </View>
   );
 }
