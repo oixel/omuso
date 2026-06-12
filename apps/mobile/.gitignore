@@ -7,3 +7,5 @@ android/.gradle/
 android/app/release.keystore
 android/app/*.jks
 release.keystore
+
+**/.idea
