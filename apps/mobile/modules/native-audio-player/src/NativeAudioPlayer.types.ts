@@ -3,5 +3,5 @@ export type SetTestEvent = {
 };
 
 export type NativeAudioPlayerEvents = {
-  onSetTest: (params: SetTestEvent) => void;
+  onSetTest: (event: SetTestEvent) => void;
 };
