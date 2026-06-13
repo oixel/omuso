@@ -1,22 +1,22 @@
-const { getDefaultConfig } = require('expo/metro-config')
-const { withNativeWind } = require('nativewind/metro')
-const path = require('path')
+const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+const path = require('path');
 
 // Project roots
-const projectRoot = __dirname
-const monorepoRoot = path.resolve(projectRoot, '../..')
+const projectRoot = __dirname;
+const monorepoRoot = path.resolve(projectRoot, '../..');
 
 // Default config
-const config = getDefaultConfig(projectRoot)
+const config = getDefaultConfig(projectRoot);
 
 // Ensure that metro check the shared root
-config.watchFolders = [monorepoRoot]
+config.watchFolders = [monorepoRoot];
 
 // Ensure that metro checks the node_modules of both roots
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),
-]
+];
 
 config.resolver.sourceExts = [
   'native.tsx',
@@ -24,7 +24,14 @@ config.resolver.sourceExts = [
   'native.js',
   'native.jsx',
   ...config.resolver.sourceExts,
-]
+];
+
+config.resolver.extraNodeModules = {
+  'native-audio-player': path.resolve(
+    projectRoot,
+    'modules/native-audio-player/src/NativeAudioPlayerModule.ts'
+  ),
+};
 
 // Ensure NativeWind is added
-module.exports = withNativeWind(config, { input: './global.css' })
+module.exports = withNativeWind(config, { input: './global.css' });
