@@ -1,58 +1,34 @@
-import TrackPlayer, { MediaItem, useActiveMediaItem, useIsPlaying } from '@rntp/player';
-import { Asset } from 'expo-asset';
 import { Button, Text, View } from 'react-native';
 import { Auth } from '@choral/domain';
 
-import * as NativeAudioPlayer from '../../modules/native-audio-player/src';
+import NativeAudioPlayer from 'native-audio-player';
 import { useEffect } from 'react';
 
-function setTest(test: string): void {
-  NativeAudioPlayer.setTest(test);
-}
-
-function getTest(): void {
-  console.log(NativeAudioPlayer.getTest());
-}
-
 export default function App() {
-  const playing = useIsPlaying();
-  const song = useActiveMediaItem();
-
   useEffect(() => {
-    const subscription = NativeAudioPlayer.addSetTestListener(({ message: newMessage }) => {
-      console.log('Received in JSX from event:', newMessage);
+    NativeAudioPlayer.addListener('onSetTest', (event) => {
+      console.log('Event heard:', event.message);
     });
-
-    return () => subscription.remove();
   }, []);
-
-  async function togglePause() {
-    if (song === null) {
-      // TODO: Remove (only for initial debugging)
-      // Loads MP3 file into an asset to be usable within the app instance
-      const songAsset = await Asset.fromModule(require('../../assets/test.mp3')).downloadAsync();
-
-      const testSong: MediaItem = {
-        url: songAsset.localUri as string,
-      };
-
-      TrackPlayer.setMediaItems([testSong, testSong]);
-    }
-
-    if (playing) TrackPlayer.pause();
-    else TrackPlayer.play();
-  }
 
   return (
     <View className="flex-1 items-center justify-center bg-white">
       <Text className="text-xl font-bold text-blue-500">Welcome to Choral!</Text>
-      <Text>{song ? song.title : 'No song loaded'}</Text>
-      <Button title={playing ? 'Pause' : 'Play'} onPress={togglePause} />
       <Button title={'Store'} onPress={Auth.setCredentials}></Button>
       <Button title={'Get'} onPress={Auth.getCredentials}></Button>
       <Button title={'Wipe'} onPress={Auth.deleteCredentials}></Button>
-      <Button title={'Module Get Test'} onPress={getTest}></Button>
-      <Button title={'Module Set Test'} onPress={() => setTest('Right back at ya!')}></Button>
+      <Button
+        title={'Module Get Test'}
+        onPress={() => console.log(NativeAudioPlayer.getTest())}
+      ></Button>
+      <Button
+        title={'Module Set Test'}
+        onPress={() => NativeAudioPlayer.setTest('Right back at ya!')}
+      ></Button>
+      <Button
+        title={'Module NativeAudioPlayer isPlaying() Test'}
+        onPress={() => console.log('isPlaying =', NativeAudioPlayer.isPlaying())}
+      ></Button>
     </View>
   );
 }
