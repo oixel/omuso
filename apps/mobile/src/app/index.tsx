@@ -17,18 +17,10 @@ export default function App() {
       <Button title={'Store'} onPress={Auth.setCredentials}></Button>
       <Button title={'Get'} onPress={Auth.getCredentials}></Button>
       <Button title={'Wipe'} onPress={Auth.deleteCredentials}></Button>
-      <Button
-        title={'Module Get Test'}
-        onPress={() => console.log(NativeAudioPlayer.getTest())}
-      ></Button>
-      <Button
-        title={'Module Set Test'}
-        onPress={() => NativeAudioPlayer.setTest('Right back at ya!')}
-      ></Button>
-      <Button
-        title={'Module NativeAudioPlayer isPlaying() Test'}
-        onPress={() => console.log('isPlaying =', NativeAudioPlayer.isPlaying())}
-      ></Button>
+
+      <Button title={'Play / Pause'} onPress={() => NativeAudioPlayer.togglePause()}></Button>
+      <Button title={'Prev'} onPress={() => NativeAudioPlayer.prev()}></Button>
+      <Button title={'Skip'} onPress={() => NativeAudioPlayer.skip()}></Button>
     </View>
   );
 }
