@@ -1,7 +1,11 @@
 import { NativeModule, requireNativeModule } from 'expo';
 import { NativeAudioPlayerEvents } from './NativeAudioPlayer.types';
+import { AudioPlayer } from '@choral/types';
 
-declare class NativeAudioPlayerModule extends NativeModule<NativeAudioPlayerEvents> {
+declare class NativeAudioPlayerModule
+  extends NativeModule<NativeAudioPlayerEvents>
+  implements AudioPlayer
+{
   play: () => void;
   pause: () => void;
   togglePause: () => void;
