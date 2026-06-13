@@ -3,6 +3,7 @@ package expo.modules.nativeaudioplayer
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 
@@ -62,7 +63,11 @@ class AudioSessionService : MediaSessionService() {
     fun play() = nativeAudioPlayer.play()
     fun pause() = nativeAudioPlayer.pause()
     fun togglePause() = nativeAudioPlayer.togglePause()
-    fun isPlaying(): Boolean = nativeAudioPlayer.isPlaying()
+    fun isPlaying(): Boolean = nativeAudioPlayer.isPlaying
     fun skip() = nativeAudioPlayer.skip()
     fun prev() = nativeAudioPlayer.prev()
+
+    //
+    fun setQueue(queue: List<MediaItem>) = nativeAudioPlayer.setQueue(queue)
+    fun updateQueue(queue: List<MediaItem>) = nativeAudioPlayer.updateQueue(queue)
 }
