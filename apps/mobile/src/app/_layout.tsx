@@ -21,7 +21,7 @@ export default function RootLayout() {
       coverArtUri: null,
     };
 
-    NativeAudioPlayer.setQueue([testSong]);
+    NativeAudioPlayer.setQueue([testSong, testSong]);
   }
 
   useEffect(() => {
