@@ -4,14 +4,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.Uri
 import android.os.IBinder
-import androidx.core.os.bundleOf
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import androidx.core.net.toUri
 
 //
 // Thin bridge layer that defines the Expo module (native-audio-player)
@@ -30,29 +26,17 @@ class NativeAudioPlayerModule : Module() {
       val localBinder = binder as AudioSessionService.LocalBinder
       audioSessionService = localBinder.getService()
       isBound = true
+
+      // Connect a listener to NativeAudioPlayer's play state change
+      audioSessionService?.onIsPlayingChanged = { isPlaying ->
+        println("On module, isPlaying has been updated to $isPlaying")
+        sendEvent("onIsPlayingChanged", mapOf("isPlaying" to isPlaying))
+      }
     }
 
     override fun onServiceDisconnected(name: ComponentName) {
       audioSessionService = null
       isBound = false
-    }
-  }
-
-  // Converts list of JavaScript's Track objects to list of Android MediaItems
-  private fun convertToQueue(trackRecords: List<TrackRecord>): List<MediaItem> {
-    return trackRecords.map { track ->
-      MediaItem.Builder()
-        .setMediaId(track.id)
-        .setUri(track.uri)
-        .setMediaMetadata(
-          MediaMetadata.Builder()
-            .setTitle(track.title)
-            .setArtist(track.artist)
-            .setAlbumTitle(track.album)
-            .setArtworkUri(track.coverArtUri?.toUri())
-            .build()
-        )
-        .build()
     }
   }
 
@@ -70,6 +54,8 @@ class NativeAudioPlayerModule : Module() {
       context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
+    Events("onIsPlayingChanged")
+
     AsyncFunction("play") { audioSessionService?.play() }
     AsyncFunction("pause") { audioSessionService?.pause() }
     AsyncFunction("togglePause") { audioSessionService?.togglePause() }
@@ -78,28 +64,27 @@ class NativeAudioPlayerModule : Module() {
     AsyncFunction("prev") { audioSessionService?.prev() }
 
     AsyncFunction("setQueue") { trackRecords: List<TrackRecord> ->
-      val queue: List<MediaItem> = convertToQueue(trackRecords);
+      val queue: List<MediaItem> = trackRecords.map { it.toMediaItem() };
       audioSessionService?.setQueue(queue)
     }
 
     AsyncFunction("updateQueue") { trackRecords: List<TrackRecord> ->
-      val queue: List<MediaItem> = convertToQueue(trackRecords);
+      val queue: List<MediaItem> = trackRecords.map { it.toMediaItem() }
       audioSessionService?.updateQueue(queue)
     }
 
-    //
-    // TODO: REMOVE DEBUG FUNCTIONS
-    //
-
-    Events("onSetTest")
-
-    Function("setTest") { message: String ->
-      println("setTest called with: $message")
-      this@NativeAudioPlayerModule.sendEvent("onSetTest", bundleOf("message" to "OVERWRITTEN MWAHAHA"))
+    AsyncFunction("addNext") { track: TrackRecord ->
+      val mediaItem: MediaItem = track.toMediaItem()
+      audioSessionService?.addNext(mediaItem)
     }
 
-    Function("getTest") {
-      return@Function "Hello, CarCar!"
+    AsyncFunction("addToEnd") { track: TrackRecord ->
+      val mediaItem: MediaItem = track.toMediaItem()
+      audioSessionService?.addToEnd(mediaItem)
+    }
+
+    AsyncFunction("removeFromQueue") { start: Int, end: Int? ->
+      audioSessionService?.removeFromQueue(start, end)
     }
 
     OnDestroy {
