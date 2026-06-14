@@ -25,7 +25,4 @@ export const usePlayback = create<PlaybackStore>()((_set, get) => ({
   skip: async () => {
     await getAudioPlayer().skip();
   },
-  getIsPlaying: async () => {
-    console.log(get().isPlaying);
-  },
 }));

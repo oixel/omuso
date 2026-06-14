@@ -11,5 +11,4 @@ export interface PlaybackStore extends PlaybackState {
   togglePause: () => Promise<void>;
   prev: () => Promise<void>;
   skip: () => Promise<void>;
-  getIsPlaying: () => Promise<void>;
 }

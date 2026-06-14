@@ -8,7 +8,7 @@ import { Track } from '@choral/types';
 import NativeAudioPlayer from 'native-audio-player';
 
 export default function App() {
-  const { togglePause, prev, skip, getIsPlaying } = usePlayback();
+  const { togglePause, prev, skip } = usePlayback();
   let queue: Track[] = [];
 
   async function loadSong() {
@@ -44,7 +44,6 @@ export default function App() {
       <Button title={'Play / Pause'} onPress={togglePause}></Button>
       <Button title={'Prev'} onPress={prev}></Button>
       <Button title={'Skip'} onPress={skip}></Button>
-      <Button title={'Get isPlaying'} onPress={getIsPlaying}></Button>
     </View>
   );
 }
