@@ -6,7 +6,7 @@ import androidx.media3.common.MediaMetadata
 import expo.modules.kotlin.records.Field
 import expo.modules.kotlin.records.Record
 
-class TrackRecord : Record {
+class Track : Record {
     @Field val id: String = "";
     @Field val uri: String = "";
     @Field val title: String = "";
@@ -15,7 +15,7 @@ class TrackRecord : Record {
     @Field val coverArtUri: String? = null;
 }
 
-fun TrackRecord.toMediaItem(): MediaItem {
+fun Track.toMediaItem(): MediaItem {
     return MediaItem.Builder()
         .setMediaId(id)
         .setUri(uri)
