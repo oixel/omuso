@@ -1,24 +1,25 @@
 package expo.modules.nativeaudioplayer
 
+import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Binder
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import androidx.media3.common.MediaItem
+import androidx.media3.session.MediaController
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.MoreExecutors
+import kotlin.jvm.java
 
 //
 // Handle Android's MediaSessionService implementation
 // Takes event from NativeAudioPlayerModule.kt and controls NativeAudioPlayer.kt
 // Passes event from MediaSession back to NativeAudioPlayerModule.kt
 //
-
-// https://developer.android.com/media/media3/session/background-playback
-// Important: Lifecycle functionality: (override) onCreate(), onDestroy() and onTaskRemoved()
-// OnTaskRemoved() Pause player (if one exists player?.pause()) rather than deleting it from media center entirely
-    // This aligns with Apple Music's behavior (?)
-
-// TODO: on AudioSessionService's Destroy, ExoPlayer.release
 
 class AudioSessionService : MediaSessionService() {
     //
@@ -49,17 +50,68 @@ class AudioSessionService : MediaSessionService() {
     //
 
     private lateinit var nativeAudioPlayer: NativeAudioPlayer
+    private var mediaSession: MediaSession? = null
+
+    // Event listeners for the audio player
+    var onIsPlayingChanged: ((Boolean) -> Unit)? = null
 
     override fun onCreate() {
         super.onCreate()
-        nativeAudioPlayer = NativeAudioPlayer(this)
+
+        // Initialize audio player, and then build a media session from it
+        nativeAudioPlayer = NativeAudioPlayer(this) { player ->
+            val appActivityIntent = packageManager?.getLaunchIntentForPackage(packageName)
+                ?.let { intent -> PendingIntent.getActivity(
+                    this,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_IMMUTABLE
+                ) }
+
+            mediaSession = MediaSession.Builder(this, player)
+                .setSessionActivity(appActivityIntent!!)
+                .build()
+        }
+
+        // Forward state audio player state changes to Module for export
+        nativeAudioPlayer.onIsPlayingChanged = { playing -> onIsPlayingChanged?.invoke(playing) }
     }
 
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
-        TODO("Not yet implemented")
+    // Connect media session's controller info to the new session
+    override fun onGetSession(
+        controllerInfo: MediaSession.ControllerInfo
+    ): MediaSession? = mediaSession
+
+    override fun onStart(intent: Intent?, startId: Int) {
+        super.onStart(intent, startId)
+
+        // Create MediaController (notification / lock screen controller) and connect listeners
+        val sessionToken = SessionToken(this, ComponentName(this, this::class.java))
+        val controllerFuture = MediaController.Builder(this, sessionToken).buildAsync()
+        controllerFuture.addListener(
+            {},
+            MoreExecutors.directExecutor()
+        )
     }
 
-    // Delegate audio player controls to the audio player
+    // Pause player rather than deleting it from media center when app is removed from recents
+    // This aligns with other music player's behavior
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        nativeAudioPlayer.pause()
+    }
+
+    override fun onDestroy() {
+        mediaSession?.run {
+            nativeAudioPlayer.release()
+            release()
+            mediaSession = null
+        }
+
+        super.onDestroy()
+    }
+
+    // Delegate audio player controls to the Module for export
     fun play() = nativeAudioPlayer.play()
     fun pause() = nativeAudioPlayer.pause()
     fun togglePause() = nativeAudioPlayer.togglePause()
@@ -67,7 +119,10 @@ class AudioSessionService : MediaSessionService() {
     fun skip() = nativeAudioPlayer.skip()
     fun prev() = nativeAudioPlayer.prev()
 
-    //
+    // Delegate queue controls to the Module for export
     fun setQueue(queue: List<MediaItem>) = nativeAudioPlayer.setQueue(queue)
     fun updateQueue(queue: List<MediaItem>) = nativeAudioPlayer.updateQueue(queue)
+    fun addNext(mediaItem: MediaItem) = nativeAudioPlayer.addNext(mediaItem)
+    fun addToEnd(mediaItem: MediaItem) = nativeAudioPlayer.addToEnd(mediaItem)
+    fun removeFromQueue(start: Int, end: Int?) = nativeAudioPlayer.removeFromQueue(start, end)
 }
