@@ -63,24 +63,28 @@ class NativeAudioPlayerModule : Module() {
     AsyncFunction("skip") { audioSessionService?.skip() }
     AsyncFunction("prev") { audioSessionService?.prev() }
 
-    AsyncFunction("setQueue") { trackRecords: List<TrackRecord> ->
-      val queue: List<MediaItem> = trackRecords.map { it.toMediaItem() };
-      audioSessionService?.setQueue(queue)
+    AsyncFunction("setQueue") { tracks: List<Track> ->
+      audioSessionService?.setQueue(tracks.map { it.toMediaItem() })
     }
 
-    AsyncFunction("updateQueue") { trackRecords: List<TrackRecord> ->
-      val queue: List<MediaItem> = trackRecords.map { it.toMediaItem() }
-      audioSessionService?.updateQueue(queue)
+    AsyncFunction("updateQueue") { tracks: List<Track> ->
+      audioSessionService?.updateQueue(tracks.map { it.toMediaItem() })
     }
 
-    AsyncFunction("addNext") { track: TrackRecord ->
-      val mediaItem: MediaItem = track.toMediaItem()
-      audioSessionService?.addNext(mediaItem)
+    AsyncFunction("addNext") { track: Track ->
+      audioSessionService?.addNext(track.toMediaItem())
     }
 
-    AsyncFunction("addToEnd") { track: TrackRecord ->
-      val mediaItem: MediaItem = track.toMediaItem()
-      audioSessionService?.addToEnd(mediaItem)
+    AsyncFunction("addNext") { tracks: List<Track> ->
+      audioSessionService?.addNext(tracks.map { it.toMediaItem() })
+    }
+
+    AsyncFunction("addToEnd") { track: Track ->
+      audioSessionService?.addToEnd(track.toMediaItem())
+    }
+
+    AsyncFunction("addToEnd") { tracks: List<Track> ->
+      audioSessionService?.addToEnd(tracks.map { it.toMediaItem() })
     }
 
     AsyncFunction("removeFromQueue") { start: Int, end: Int? ->

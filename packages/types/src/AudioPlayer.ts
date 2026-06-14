@@ -12,6 +12,6 @@ export interface AudioPlayer {
   setQueue: (queue: Track[]) => void;
   updateQueue: (queue: Track[]) => void;
   removeFromQueue: (start: number, end: number | null) => void;
-  addNext: (track: Track) => void;
-  addToEnd: (track: Track) => void;
+  addNext: (track: Track | Track[]) => void;
+  addToEnd: (track: Track | Track[]) => void;
 }

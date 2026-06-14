@@ -71,8 +71,21 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
 //        }
     }
 
-    fun addNext(mediaItem: MediaItem) = mainHandler.post { player.addMediaItem(player.currentMediaItemIndex + 1, mediaItem)}
-    fun addToEnd(mediaItem: MediaItem) = mainHandler.post { player.addMediaItem(mediaItem) }
+    fun addNext(mediaItem: MediaItem) = mainHandler.post {
+        player.addMediaItem(player.currentMediaItemIndex + 1, mediaItem)
+    }
+
+    fun addNext(mediaItems: List<MediaItem>) = mainHandler.post {
+        player.addMediaItems(player.currentMediaItemIndex + 1, mediaItems)
+    }
+
+    fun addToEnd(mediaItem: MediaItem) = mainHandler.post {
+        player.addMediaItem(mediaItem)
+    }
+
+    fun addToEnd(mediaItems: List<MediaItem>) = mainHandler.post {
+        player.addMediaItems(mediaItems)
+    }
 
     // Remove a single media item or a range if one is given
     fun removeFromQueue(start: Int, end: Int?) = mainHandler.post {

@@ -123,6 +123,8 @@ class AudioSessionService : MediaSessionService() {
     fun setQueue(queue: List<MediaItem>) = nativeAudioPlayer.setQueue(queue)
     fun updateQueue(queue: List<MediaItem>) = nativeAudioPlayer.updateQueue(queue)
     fun addNext(mediaItem: MediaItem) = nativeAudioPlayer.addNext(mediaItem)
+    fun addNext(mediaItems: List<MediaItem>) = nativeAudioPlayer.addNext(mediaItems)
     fun addToEnd(mediaItem: MediaItem) = nativeAudioPlayer.addToEnd(mediaItem)
+    fun addToEnd(mediaItems: List<MediaItem>) = nativeAudioPlayer.addToEnd(mediaItems)
     fun removeFromQueue(start: Int, end: Int?) = nativeAudioPlayer.removeFromQueue(start, end)
 }
