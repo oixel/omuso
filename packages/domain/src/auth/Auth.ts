@@ -1,4 +1,4 @@
-import { SecureStorage } from './storage/secure';
+import { SecureStorage } from '../storage/secure';
 
 export const Auth = {
   setCredentials() {
