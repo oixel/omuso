@@ -24,20 +24,28 @@ export const useQueue = create<QueueStore>()((set, get) => ({
     console.log('TODO: updateQueue');
   },
   addNext: async (tracks: Track[]) => {
-    let newTracks = tracks.map((track) => createQueuedTrack(track));
-    getAudioPlayer().addNext(newTracks);
+    if (get().queue.length == 0) {
+      get().setQueue(tracks);
+    } else {
+      let newTracks = tracks.map((track) => createQueuedTrack(track));
+      getAudioPlayer().addNext(newTracks);
 
-    set((state) => {
-      const newQueue = [...state.queue];
-      newQueue.splice(get().index + 1, 0, ...newTracks);
-      return { queue: newQueue };
-    });
+      set((state) => {
+        const newQueue = [...state.queue];
+        newQueue.splice(get().index + 1, 0, ...newTracks);
+        return { queue: newQueue };
+      });
+    }
   },
   addToEnd: async (tracks: Track[]) => {
-    let newTracks = tracks.map((track) => createQueuedTrack(track));
-    getAudioPlayer().addToEnd(newTracks);
+    if (get().queue.length == 0) {
+      get().setQueue(tracks);
+    } else {
+      let newTracks = tracks.map((track) => createQueuedTrack(track));
+      getAudioPlayer().addToEnd(newTracks);
 
-    set((state) => ({ queue: [...state.queue, ...newTracks] }));
+      set((state) => ({ queue: [...state.queue, ...newTracks] }));
+    }
   },
   removeFromQueue: async (start: number, end?: number) => {
     getAudioPlayer().removeFromQueue(start, end);
