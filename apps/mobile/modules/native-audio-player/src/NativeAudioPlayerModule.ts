@@ -9,11 +9,17 @@ declare class NativeAudioPlayerModule
   play: () => void;
   pause: () => void;
   togglePause: () => void;
+
   seekTo: (position: number) => void;
+  playTrack: (index: number) => void;
   skip: () => void;
   prev: () => void;
 
-  getPlaybackState: () => string;
+  getIsPlaying: () => Promise<boolean>;
+  getPosition: () => Promise<number>;
+  getDuration: () => Promise<number>;
+  getTrackIndex: () => Promise<number>;
+  getPlaybackState: () => Promise<string>;
 
   setQueue: (queue: QueuedTrack[]) => void;
   updateQueue: (queue: QueuedTrack[]) => void;

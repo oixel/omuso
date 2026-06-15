@@ -5,9 +5,16 @@ export interface AudioPlayer {
   play: () => void;
   pause: () => void;
   togglePause: () => void;
+
   seekTo: (position: number) => void;
+  playTrack: (index: number) => void;
   skip: () => void;
   prev: () => void;
+
+  getIsPlaying: () => Promise<boolean>;
+  getPosition: () => Promise<number>;
+  getDuration: () => Promise<number>;
+  getTrackIndex: () => Promise<number>;
 
   setQueue: (queue: QueuedTrack[]) => void;
   updateQueue: (queue: QueuedTrack[]) => void;
