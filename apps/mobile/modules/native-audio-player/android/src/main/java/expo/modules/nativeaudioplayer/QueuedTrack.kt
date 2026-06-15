@@ -8,9 +8,9 @@ import expo.modules.kotlin.records.Record
 
 class Track: Record {
     @Field val uri: String = ""
-    @Field val title: String = ""
-    @Field val artist: String = ""
-    @Field val album: String = ""
+    @Field val title: String? = null
+    @Field val artist: String? = null
+    @Field val album: String? = null
     @Field val coverArtUri: String? = null
 }
 
