@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
-import androidx.media3.common.MediaItem
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -27,10 +26,22 @@ class NativeAudioPlayerModule : Module() {
       audioSessionService = localBinder.getService()
       isBound = true
 
-      // Connect a listener to NativeAudioPlayer's play state change
+      // Emit new playing state when player is played / paused
       audioSessionService?.onIsPlayingChanged = { isPlaying ->
-        println("On module, isPlaying has been updated to $isPlaying")
         sendEvent("onIsPlayingChanged", mapOf("isPlaying" to isPlaying))
+      }
+
+      // Emit new playback position when player progresses
+      audioSessionService?.onPositionChanged = { position, duration ->
+        sendEvent(
+          "onPositionChanged",
+          mapOf("position" to position, "duration" to duration)
+        )
+      }
+
+      // Emit new track index when track changes in player
+      audioSessionService?.onTrackChanged = { index ->
+        sendEvent("onTrackChanged", mapOf("index" to index))
       }
     }
 
@@ -54,12 +65,13 @@ class NativeAudioPlayerModule : Module() {
       context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
-    Events("onIsPlayingChanged")
+    Events("onIsPlayingChanged", "onPositionChanged", "onTrackChanged")
 
     AsyncFunction("play") { audioSessionService?.play() }
     AsyncFunction("pause") { audioSessionService?.pause() }
     AsyncFunction("togglePause") { audioSessionService?.togglePause() }
-    AsyncFunction("isPlaying") { audioSessionService?.isPlaying() ?: false }
+
+    AsyncFunction("seekTo") { position: Long -> audioSessionService?.seekTo(position) }
     AsyncFunction("skip") { audioSessionService?.skip() }
     AsyncFunction("prev") { audioSessionService?.prev() }
 
@@ -71,17 +83,10 @@ class NativeAudioPlayerModule : Module() {
       audioSessionService?.updateQueue(tracks.map { it.toMediaItem() })
     }
 
-    AsyncFunction("addNext") { track: Track ->
-      audioSessionService?.addNext(track.toMediaItem())
-    }
-
     AsyncFunction("addNext") { tracks: List<Track> ->
       audioSessionService?.addNext(tracks.map { it.toMediaItem() })
     }
 
-    AsyncFunction("addToEnd") { track: Track ->
-      audioSessionService?.addToEnd(track.toMediaItem())
-    }
 
     AsyncFunction("addToEnd") { tracks: List<Track> ->
       audioSessionService?.addToEnd(tracks.map { it.toMediaItem() })

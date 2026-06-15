@@ -54,6 +54,8 @@ class AudioSessionService : MediaSessionService() {
 
     // Event listeners for the audio player
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
+    var onPositionChanged: ((Long, Long) -> Unit)? = null
+    var onTrackChanged: ((Int) -> Unit)? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -75,6 +77,10 @@ class AudioSessionService : MediaSessionService() {
 
         // Forward state audio player state changes to Module for export
         nativeAudioPlayer.onIsPlayingChanged = { playing -> onIsPlayingChanged?.invoke(playing) }
+        nativeAudioPlayer.onPositionChanged = { position, duration ->
+            onPositionChanged?.invoke(position, duration)
+        }
+        nativeAudioPlayer.onTrackChanged = { index -> onTrackChanged?.invoke(index) }
     }
 
     // Connect media session's controller info to the new session
@@ -115,16 +121,15 @@ class AudioSessionService : MediaSessionService() {
     fun play() = nativeAudioPlayer.play()
     fun pause() = nativeAudioPlayer.pause()
     fun togglePause() = nativeAudioPlayer.togglePause()
-    fun isPlaying(): Boolean = nativeAudioPlayer.isPlaying
+
+    fun seekTo(position: Long) = nativeAudioPlayer.seekTo(position)
     fun skip() = nativeAudioPlayer.skip()
     fun prev() = nativeAudioPlayer.prev()
 
     // Delegate queue controls to the Module for export
     fun setQueue(queue: List<MediaItem>) = nativeAudioPlayer.setQueue(queue)
     fun updateQueue(queue: List<MediaItem>) = nativeAudioPlayer.updateQueue(queue)
-    fun addNext(mediaItem: MediaItem) = nativeAudioPlayer.addNext(mediaItem)
     fun addNext(mediaItems: List<MediaItem>) = nativeAudioPlayer.addNext(mediaItems)
-    fun addToEnd(mediaItem: MediaItem) = nativeAudioPlayer.addToEnd(mediaItem)
     fun addToEnd(mediaItems: List<MediaItem>) = nativeAudioPlayer.addToEnd(mediaItems)
     fun removeFromQueue(start: Int, end: Int?) = nativeAudioPlayer.removeFromQueue(start, end)
 }

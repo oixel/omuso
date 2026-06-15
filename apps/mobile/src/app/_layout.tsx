@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import '../../global.css';
 
 import { Stack } from 'expo-router';
-import { registerAudioPlayer, usePlayback } from '@choral/domain';
+import { registerAudioPlayer, usePlayback, useQueue } from '@choral/domain';
 import NativeAudioPlayer from 'native-audio-player';
 
 export default function RootLayout() {
@@ -13,8 +13,18 @@ export default function RootLayout() {
       usePlayback.setState({ isPlaying });
     });
 
+    NativeAudioPlayer.addListener('onPositionChanged', ({ position, duration }) => {
+      usePlayback.setState({ position, duration });
+    });
+
+    NativeAudioPlayer.addListener('onTrackChanged', ({ index }) => {
+      useQueue.setState({ index });
+    });
+
     return () => {
       NativeAudioPlayer.removeAllListeners('onIsPlayingChanged');
+      NativeAudioPlayer.removeAllListeners('onPositionChanged');
+      NativeAudioPlayer.removeAllListeners('onTrackChanged');
     };
   }, []);
 
