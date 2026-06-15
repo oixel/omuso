@@ -1,34 +1,60 @@
 import { create } from 'zustand';
 import { getAudioPlayer } from './audioPlayerRegistery';
 import { PlaybackStore } from '@choral/types';
+import { persist } from 'zustand/middleware';
+import { PlayerStorage } from '../storage';
 
 //
 // Consumed by UI to get / alter AudioPlayer's state
 //
 
 // Does not use set / get since this store is event-driven using listeners to ensure that states are in sync
-export const usePlayback = create<PlaybackStore>()((_set, _get) => ({
-  isPlaying: false,
-  isBuffering: false,
-  position: 0,
-  duration: 0,
+export const usePlayback = create<PlaybackStore>()(
+  persist(
+    (set, get) => ({
+      isPlaying: false,
+      position: 0,
+      duration: 0,
 
-  play: async () => {
-    await getAudioPlayer().play();
-  },
-  pause: async () => {
-    await getAudioPlayer().pause();
-  },
-  togglePause: async () => {
-    await getAudioPlayer().togglePause();
-  },
-  seekTo: async (position: number) => {
-    await getAudioPlayer().seekTo(position);
-  },
-  prev: async () => {
-    await getAudioPlayer().prev();
-  },
-  skip: async () => {
-    await getAudioPlayer().skip();
-  },
-}));
+      syncPlayback: async () => {
+        // Ensure that app's pause state matches AudioPlayer's when reopening the app
+        const isPlaying = await getAudioPlayer().getIsPlaying();
+        const position = await getAudioPlayer().getPosition();
+        const duration = await getAudioPlayer().getDuration();
+        set(() => ({ isPlaying, position, duration }));
+      },
+      restorePlayback: async () => {
+        // Restore progress from previous listening session in AudioPlayer
+        await get().seekTo(get().position);
+      },
+
+      play: async () => {
+        await getAudioPlayer().play();
+      },
+      pause: async () => {
+        await getAudioPlayer().pause();
+      },
+      togglePause: async () => {
+        await getAudioPlayer().togglePause();
+      },
+      getIsPlaying: async (): Promise<boolean> => {
+        return await getAudioPlayer().getIsPlaying();
+      },
+      seekTo: async (position: number) => {
+        await getAudioPlayer().seekTo(position);
+      },
+
+      prev: async () => {
+        await getAudioPlayer().prev();
+      },
+      skip: async () => {
+        await getAudioPlayer().skip();
+      },
+    }),
+    {
+      name: 'playback-storage',
+      storage: PlayerStorage,
+      partialize: (state) => ({ position: state.position }),
+    }
+  )
+);

@@ -6,6 +6,23 @@ import { registerAudioPlayer, usePlayback, useQueue } from '@choral/domain';
 import NativeAudioPlayer from 'native-audio-player';
 
 export default function RootLayout() {
+  const { syncQueue, restoreQueue } = useQueue();
+  const { syncPlayback, restorePlayback } = usePlayback();
+
+  async function restoreSession() {
+    const playbackState = await NativeAudioPlayer.getPlaybackState();
+
+    if (playbackState == 'READY') {
+      // If player is ready (loaded), then ensure app's data matches any progress done with app closed (e.g. swiped out of recents)
+      syncQueue();
+      syncPlayback();
+    } else {
+      // Otherwise, restore previous session in AudioPlayer from persistent data
+      restoreQueue();
+      restorePlayback();
+    }
+  }
+
   useEffect(() => {
     registerAudioPlayer(NativeAudioPlayer);
 
@@ -20,6 +37,8 @@ export default function RootLayout() {
     NativeAudioPlayer.addListener('onTrackChanged', ({ index }) => {
       useQueue.setState({ index });
     });
+
+    restoreSession();
 
     return () => {
       NativeAudioPlayer.removeAllListeners('onIsPlayingChanged');
