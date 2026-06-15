@@ -17,7 +17,7 @@ declare class NativeAudioPlayerModule
   updateQueue: (queue: QueuedTrack[]) => void;
   addNext: (track: QueuedTrack[]) => void;
   addToEnd: (track: QueuedTrack[]) => void;
-  removeFromQueue: (start: number, end: number | null) => void;
+  removeFromQueue: (start: number, end?: number) => void;
 }
 
 // Loads the native module object from the JSI
