@@ -72,12 +72,15 @@ class NativeAudioPlayerModule : Module() {
     AsyncFunction("togglePause") { audioSessionService?.togglePause() }
 
     AsyncFunction("seekTo") { position: Long -> audioSessionService?.seekTo(position) }
+    AsyncFunction("playTrack") { index: Int -> audioSessionService?.playTrack(index) }
     AsyncFunction("skip") { audioSessionService?.skip() }
     AsyncFunction("prev") { audioSessionService?.prev() }
 
-    AsyncFunction("getPlaybackState") {
-      return@AsyncFunction audioSessionService?.getPlaybackState()
-    }
+    AsyncFunction("getIsPlaying") { audioSessionService?.getIsPlaying() }
+    AsyncFunction("getPosition") { audioSessionService?.getPosition() }
+    AsyncFunction("getDuration") { audioSessionService?.getDuration() }
+    AsyncFunction("getTrackIndex") { audioSessionService?.getTrackIndex() }
+    AsyncFunction("getPlaybackState") { audioSessionService?.getPlaybackState() }
 
     AsyncFunction("setQueue") { tracks: List<QueuedTrack> ->
       audioSessionService?.setQueue(tracks.map { it.toMediaItem() })

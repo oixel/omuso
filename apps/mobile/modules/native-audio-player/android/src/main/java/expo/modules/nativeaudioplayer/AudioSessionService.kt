@@ -123,9 +123,14 @@ class AudioSessionService : MediaSessionService() {
     fun togglePause() = nativeAudioPlayer.togglePause()
 
     fun seekTo(position: Long) = nativeAudioPlayer.seekTo(position)
+    fun playTrack(index: Int) = nativeAudioPlayer.playTrack(index)
     fun skip() = nativeAudioPlayer.skip()
     fun prev() = nativeAudioPlayer.prev()
 
+    fun getIsPlaying() = nativeAudioPlayer.isPlaying
+    fun getPosition() = nativeAudioPlayer.position
+    fun getDuration() = nativeAudioPlayer.duration
+    fun getTrackIndex() = nativeAudioPlayer.trackIndex
     fun getPlaybackState() = nativeAudioPlayer.playbackState
 
     // Delegate queue controls to the Module for export
