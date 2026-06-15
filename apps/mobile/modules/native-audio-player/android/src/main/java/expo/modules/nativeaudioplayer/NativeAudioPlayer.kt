@@ -17,6 +17,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     lateinit var player: ExoPlayer
 
     var isPlaying: Boolean = false
+    var playbackState: String = "STATE_IDLE"
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
     var onTrackChanged: ((Int) -> Unit)? = null
@@ -50,6 +51,16 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
 
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     onTrackChanged?.invoke(player.currentMediaItemIndex)
+                }
+
+                override fun onPlaybackStateChanged(stateInt: Int) {
+                    playbackState = when (stateInt) {
+                        Player.STATE_IDLE -> "IDLE"
+                        Player.STATE_BUFFERING -> "BUFFERING"
+                        Player.STATE_READY -> "READY"
+                        Player.STATE_ENDED -> "ENDED"
+                        else -> "UNKNOWN"
+                    }
                 }
             })
 

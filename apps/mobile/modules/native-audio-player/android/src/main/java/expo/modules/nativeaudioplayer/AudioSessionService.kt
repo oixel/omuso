@@ -126,6 +126,8 @@ class AudioSessionService : MediaSessionService() {
     fun skip() = nativeAudioPlayer.skip()
     fun prev() = nativeAudioPlayer.prev()
 
+    fun getPlaybackState() = nativeAudioPlayer.playbackState
+
     // Delegate queue controls to the Module for export
     fun setQueue(queue: List<MediaItem>) = nativeAudioPlayer.setQueue(queue)
     fun updateQueue(queue: List<MediaItem>) = nativeAudioPlayer.updateQueue(queue)

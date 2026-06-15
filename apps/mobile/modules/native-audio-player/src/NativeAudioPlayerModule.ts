@@ -13,6 +13,8 @@ declare class NativeAudioPlayerModule
   skip: () => void;
   prev: () => void;
 
+  getPlaybackState: () => string;
+
   setQueue: (queue: QueuedTrack[]) => void;
   updateQueue: (queue: QueuedTrack[]) => void;
   addNext: (track: QueuedTrack[]) => void;

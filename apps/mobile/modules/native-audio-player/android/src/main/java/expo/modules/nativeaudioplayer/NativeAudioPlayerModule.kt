@@ -75,6 +75,10 @@ class NativeAudioPlayerModule : Module() {
     AsyncFunction("skip") { audioSessionService?.skip() }
     AsyncFunction("prev") { audioSessionService?.prev() }
 
+    AsyncFunction("getPlaybackState") {
+      return@AsyncFunction audioSessionService?.getPlaybackState()
+    }
+
     AsyncFunction("setQueue") { tracks: List<QueuedTrack> ->
       audioSessionService?.setQueue(tracks.map { it.toMediaItem() })
     }
