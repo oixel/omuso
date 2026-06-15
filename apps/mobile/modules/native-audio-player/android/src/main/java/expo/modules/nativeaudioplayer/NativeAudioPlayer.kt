@@ -104,8 +104,11 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
         player.addMediaItems(mediaItems)
     }
 
-    // Remove a single media item or a range if one is given
+    // Remove a single media item or a range if an end is provided
     fun removeFromQueue(start: Int, end: Int?) = mainHandler.post {
-        player.removeMediaItems(start, end ?: (start + 1))
+        player.removeMediaItems(
+            start,
+            if (end != null) end + 1 else start + 1
+        )
     }
 }
