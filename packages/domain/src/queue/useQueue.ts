@@ -20,4 +20,35 @@ export const useQueue = create<QueueStore>()((set, get) => ({
     getAudioPlayer().setQueue(queue);
     set({ queue });
   },
+  updateQueue: async (tracks: Track[]) => {
+    console.log('TODO: updateQueue');
+  },
+  addNext: async (tracks: Track[]) => {
+    let newTracks = tracks.map((track) => createQueuedTrack(track));
+    getAudioPlayer().addNext(newTracks);
+
+    set((state) => {
+      const newQueue = [...state.queue];
+      newQueue.splice(get().index + 1, 0, ...newTracks);
+      return { queue: newQueue };
+    });
+  },
+  addToEnd: async (tracks: Track[]) => {
+    let newTracks = tracks.map((track) => createQueuedTrack(track));
+    getAudioPlayer().addToEnd(newTracks);
+
+    set((state) => ({ queue: [...state.queue, ...newTracks] }));
+  },
+  removeFromQueue: async (start: number, end?: number) => {
+    getAudioPlayer().removeFromQueue(start, end);
+
+    // Only wipe a single track if no end is provided
+    const deleteCount = end !== undefined ? end - start + 1 : 1;
+
+    set((state) => {
+      const newQueue = [...state.queue];
+      newQueue.splice(start, deleteCount);
+      return { queue: newQueue };
+    });
+  },
 }));
