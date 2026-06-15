@@ -36,7 +36,8 @@ export const useQueue = create<QueueStore>()(
         set({ queue });
       },
       updateQueue: async (tracks: Track[]) => {
-        console.log('TODO: updateQueue');
+        // getAudioPlayer().updateQueue(get().queue);
+        console.log('TODO: Update Queue');
       },
       addNext: async (tracks: Track[]) => {
         if (get().queue.length == 0) {
@@ -73,6 +74,12 @@ export const useQueue = create<QueueStore>()(
           newQueue.splice(start, deleteCount);
           return { queue: newQueue };
         });
+
+        // When AudioPlayer's index falls out of the queue's range bring it back to the end
+        const index = get().index;
+        const queue = get().queue;
+        if (index >= queue.length && queue.length != 0)
+          getAudioPlayer().playTrack(queue.length - 1);
       },
     }),
     {
