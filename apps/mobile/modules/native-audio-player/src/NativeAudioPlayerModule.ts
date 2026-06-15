@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 import { NativeAudioPlayerEvents } from './NativeAudioPlayer.types';
-import { AudioPlayer, Track } from '@choral/types';
+import { AudioPlayer, QueuedTrack } from '@choral/types';
 
 declare class NativeAudioPlayerModule
   extends NativeModule<NativeAudioPlayerEvents>
@@ -13,10 +13,10 @@ declare class NativeAudioPlayerModule
   skip: () => void;
   prev: () => void;
 
-  setQueue: (queue: Track[]) => void;
-  updateQueue: (queue: Track[]) => void;
-  addNext: (track: Track[]) => void;
-  addToEnd: (track: Track[]) => void;
+  setQueue: (queue: QueuedTrack[]) => void;
+  updateQueue: (queue: QueuedTrack[]) => void;
+  addNext: (track: QueuedTrack[]) => void;
+  addToEnd: (track: QueuedTrack[]) => void;
   removeFromQueue: (start: number, end: number | null) => void;
 }
 

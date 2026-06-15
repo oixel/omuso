@@ -75,20 +75,20 @@ class NativeAudioPlayerModule : Module() {
     AsyncFunction("skip") { audioSessionService?.skip() }
     AsyncFunction("prev") { audioSessionService?.prev() }
 
-    AsyncFunction("setQueue") { tracks: List<Track> ->
+    AsyncFunction("setQueue") { tracks: List<QueuedTrack> ->
       audioSessionService?.setQueue(tracks.map { it.toMediaItem() })
     }
 
-    AsyncFunction("updateQueue") { tracks: List<Track> ->
+    AsyncFunction("updateQueue") { tracks: List<QueuedTrack> ->
       audioSessionService?.updateQueue(tracks.map { it.toMediaItem() })
     }
 
-    AsyncFunction("addNext") { tracks: List<Track> ->
+    AsyncFunction("addNext") { tracks: List<QueuedTrack> ->
       audioSessionService?.addNext(tracks.map { it.toMediaItem() })
     }
 
 
-    AsyncFunction("addToEnd") { tracks: List<Track> ->
+    AsyncFunction("addToEnd") { tracks: List<QueuedTrack> ->
       audioSessionService?.addToEnd(tracks.map { it.toMediaItem() })
     }
 
