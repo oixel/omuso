@@ -1,49 +1,107 @@
 import { Button, Text, View } from 'react-native';
 import { Auth, usePlayback } from '@choral/domain';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Asset } from 'expo-asset';
 import { Track } from '@choral/types';
-import NativeAudioPlayer from 'native-audio-player';
+import { useQueue } from '@choral/domain';
+import NativeAudioPlayerModule from 'native-audio-player';
 
 export default function App() {
   const { togglePause, prev, skip } = usePlayback();
-  let queue: Track[] = [];
+  const isPlaying = usePlayback((state) => state.isPlaying);
 
-  async function loadSong() {
+  const { addToEnd, addNext, removeFromQueue } = useQueue();
+  const index = useQueue((state) => state.index);
+  const queue = useQueue((state) => state.queue);
+
+  const [theFeeling, setTheFeeling] = useState<Track>();
+  const [cannonball, setCannonball] = useState<Track>();
+  // const [currentTrack, setCurrentTrack] = useState<Track>();
+
+  async function loadSongs() {
     // TODO: Remove (only for initial debugging)
     // Loads MP3 file into an asset to be usable within the app instance
-    const testSong1Asset = await Asset.fromModule(require('../../assets/test.mp3')).downloadAsync();
+    const theFeelingAsset = await Asset.fromModule(
+      require('../../assets/the-feeling.mp3')
+    ).downloadAsync();
 
-    const testSong1: Track = {
-      id: queue.length.toString(),
-      uri: testSong1Asset.localUri as string,
-      title: 'Test',
-      artist: 'Test',
-      album: 'Test',
-      coverArtUri: null,
+    const theFeelingTrack: Track = {
+      id: 'the-feeling-track-id',
+      uri: theFeelingAsset.localUri as string,
+      title: 'The Feeling',
+      artist: 'Steve Lacy',
+      album: 'Oh yeah?',
     };
 
-    queue.push(testSong1, testSong1);
+    const cannonballAsset = await Asset.fromModule(
+      require('../../assets/cannonball.mp3')
+    ).downloadAsync();
 
-    NativeAudioPlayer.setQueue(queue);
+    const cannonballTrack: Track = {
+      id: 'cannonball-track-id',
+      uri: cannonballAsset.localUri as string,
+      title: 'Cannonball!',
+      artist: 'Buck Meek',
+      album: 'Buck Meek',
+    };
+
+    setTheFeeling(theFeelingTrack);
+    setCannonball(cannonballTrack);
   }
 
   useEffect(() => {
-    loadSong();
+    loadSongs();
   }, []);
+
+  // useEffect(() => {
+  //   if (queue.length == 0) return;
+  //   setCurrentTrack(queue[index].track);
+  // }, [index, queue]);
 
   return (
     <View className="flex-1 items-center justify-center bg-white">
       <Text className="text-xl font-bold text-blue-500">Welcome to Choral!</Text>
-      <Button title={'Store'} onPress={Auth.setCredentials}></Button>
-      <Button title={'Get'} onPress={Auth.getCredentials}></Button>
-      <Button title={'Wipe'} onPress={Auth.deleteCredentials}></Button>
+      <Text className="text-xl font-bold text-blue-500 my-5">
+        Current Track: {queue[index]?.track.title}
+      </Text>
 
-      <Button title={'Play / Pause'} onPress={togglePause}></Button>
-      <Button title={'Prev'} onPress={prev}></Button>
-      <Button title={'Skip'} onPress={skip}></Button>
+      <Text className="text-xl font-bold my-5">Auth Testing:</Text>
+      <Button title="Store" onPress={Auth.setCredentials}></Button>
+      <Button title="Get" onPress={Auth.getCredentials}></Button>
+      <Button title="Wipe" onPress={Auth.deleteCredentials}></Button>
+
+      <Text className="text-xl font-bold my-5">Playback Testing:</Text>
+      <Button title={isPlaying ? 'Pause' : 'Play'} onPress={togglePause}></Button>
+      <Button title="Prev" onPress={prev}></Button>
+      <Button title="Skip" onPress={skip}></Button>
+
+      <Text className="text-xl font-bold my-5">Queue Testing:</Text>
+      <Button
+        title='Add "The Feeling" to end'
+        onPress={() => addToEnd([theFeeling as Track])}
+      ></Button>
+      <Button
+        title='Add "The Feeling" next'
+        onPress={() => addNext([theFeeling as Track])}
+      ></Button>
+      <Button
+        title='Add "Cannonball" to end'
+        onPress={() => addToEnd([cannonball as Track])}
+      ></Button>
+      <Button title='Add "Cannonball" next' onPress={() => addNext([cannonball as Track])}></Button>
+      <Button
+        title="Output Queue"
+        onPress={() => {
+          console.log(queue.map((queuedTrack) => queuedTrack.track.title));
+        }}
+      ></Button>
+      <Button title="Remove Current Song" onPress={() => removeFromQueue(index)}></Button>
+      <Button
+        title="Force Wipe ExoPlayer (for testing restore)"
+        onPress={() => NativeAudioPlayerModule.removeFromQueue(0, queue.length)}
+      ></Button>
     </View>
   );
 }
