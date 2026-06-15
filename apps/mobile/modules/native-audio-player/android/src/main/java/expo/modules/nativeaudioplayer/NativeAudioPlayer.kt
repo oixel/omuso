@@ -53,7 +53,6 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
                 }
             })
 
-            player.prepare()
             onReady(player)
         }
     }
@@ -72,7 +71,10 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     fun prev() = mainHandler.post { player.seekToPreviousMediaItem() }
 
     // Replaces entire queue with new queue and wipes current progress
-    fun setQueue(queue: List<MediaItem>) = mainHandler.post { player.setMediaItems(queue) }
+    fun setQueue(queue: List<MediaItem>) = mainHandler.post {
+        if (player.playbackState != Player.STATE_READY) player.prepare()
+        player.setMediaItems(queue)
+    }
 
     // Used to quickly update the queue without losing current track's progress (e.g. reordering tracks)
     fun updateQueue(queue: List<MediaItem>) = mainHandler.post {
