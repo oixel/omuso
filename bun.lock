@@ -62,6 +62,7 @@
       "version": "0.0.1",
       "dependencies": {
         "@choral/types": "workspace:*",
+        "@react-native-async-storage/async-storage": "^3.1.1",
         "react-native-uuid": "^2.0.4",
         "zustand": "^4.5.0",
       },
@@ -425,6 +426,8 @@
     "@radix-ui/react-use-escape-keydown": ["@radix-ui/react-use-escape-keydown@1.1.2", "", { "dependencies": { "@radix-ui/react-use-callback-ref": "1.1.2" }, "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-2uVLvLjgO7NZCWw01/FdqRwmA42J0BcjPMUCA+koFEOAb+zjqIP7SiFz/7zWPrKnVmSqr76Omq2ALyCuX4dhLw=="],
 
     "@radix-ui/react-use-layout-effect": ["@radix-ui/react-use-layout-effect@1.1.2", "", { "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-jrBWOxZITuGcnjRCM2t2U5ZPkCLxD+Ym6DjfssS5haTj2iiak/DOb64JeN6OdLfLgptb6/e2kKR+ZuTrGoZTPA=="],
+
+    "@react-native-async-storage/async-storage": ["@react-native-async-storage/async-storage@3.1.1", "", { "dependencies": { "idb": "8.0.3" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-z+PnLz1n6ECKhgoHZHkfc+dijXZEyZnNFSajbtE0NEbsJhmX8x9GlOeiMQIKX2E4DUqPSgfIh4FYBv1M49KgPQ=="],
 
     "@react-native/assets-registry": ["@react-native/assets-registry@0.81.5", "", {}, "sha512-705B6x/5Kxm1RKRvSv0ADYWm5JOnoiQ1ufW7h8uu2E6G9Of/eE6hP/Ivw3U5jI16ERqZxiKQwk34VJbB0niX9w=="],
 
@@ -883,6 +886,8 @@
     "http-errors": ["http-errors@2.0.1", "", { "dependencies": { "depd": "~2.0.0", "inherits": "~2.0.4", "setprototypeof": "~1.2.0", "statuses": "~2.0.2", "toidentifier": "~1.0.1" } }, "sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ=="],
 
     "https-proxy-agent": ["https-proxy-agent@7.0.6", "", { "dependencies": { "agent-base": "^7.1.2", "debug": "4" } }, "sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw=="],
+
+    "idb": ["idb@8.0.3", "", {}, "sha512-LtwtVyVYO5BqRvcsKuB2iUMnHwPVByPCXFXOpuU96IZPPoPN6xjOGxZQ74pgSVVLQWtUOYgyeL4GE98BY5D3wg=="],
 
     "ieee754": ["ieee754@1.2.1", "", {}, "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA=="],
 
