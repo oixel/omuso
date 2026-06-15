@@ -1,6 +1,7 @@
+// States relating directly to current track's playback
 interface PlaybackState {
   isPlaying: boolean;
-  isBuffering: boolean;
+  isBuffering: boolean; // TODO: add listener for isBuffering
   position: number;
   duration: number;
 }

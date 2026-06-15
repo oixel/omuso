@@ -1,4 +1,3 @@
-export * from './AudioPlayer';
+export * from './player';
+export * from './queue';
 export * from './Track';
-export * from './QueueStore';
-export * from './PlaybackStore';
