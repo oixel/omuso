@@ -9,7 +9,7 @@ import { useQueue } from '@choral/domain';
 import NativeAudioPlayerModule from 'native-audio-player';
 import { useRouter } from 'expo-router';
 
-export default function Testing() {
+const Testing = () => {
   const { togglePause, prev, skip } = usePlayback();
   const isPlaying = usePlayback((state) => state.isPlaying);
 
@@ -64,7 +64,7 @@ export default function Testing() {
         Current Track: {queue[index]?.track.title}
       </Text>
 
-      <Button title="<-- Back" onPress={() => router.navigate('.')}></Button>
+      <Button title="<-- Back" onPress={router.back}></Button>
 
       <Text className="text-xl font-bold my-5">Playback Testing:</Text>
       <Button title={isPlaying ? 'Pause' : 'Play'} onPress={togglePause}></Button>
@@ -100,4 +100,6 @@ export default function Testing() {
       <Button title="Update Queue" onPress={() => updateQueue([])}></Button>
     </View>
   );
-}
+};
+
+export default Testing;
