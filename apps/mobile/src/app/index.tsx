@@ -9,12 +9,8 @@ const App = () => {
 
   async function connectToServer() {
     const success = await loadCredentials();
-    if (success) {
-      console.log('logged in');
-      router.navigate('/home');
-    } else {
-      router.navigate('/login');
-    }
+    if (success) router.navigate('/home');
+    else router.navigate('/login');
   }
 
   useEffect(() => {
