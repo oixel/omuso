@@ -1,2 +1,2 @@
-export * from './validateServer';
+export * from './credentialValidation';
 export * from './useAuth';
