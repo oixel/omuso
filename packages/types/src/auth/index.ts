@@ -1,2 +1,2 @@
-export * from './Credentials';
 export * from './AuthStore';
+export * from './Credentials';
