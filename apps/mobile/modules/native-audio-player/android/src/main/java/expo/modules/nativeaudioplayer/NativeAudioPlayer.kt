@@ -80,7 +80,11 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
         mainHandler.post { player.release() }
     }
 
-    fun play() = mainHandler.post { player.play() }
+    fun play() = mainHandler.post {
+        if (playbackState == "IDLE") player.prepare()  // Re-awaken idle player
+        player.play()
+    }
+    
     fun pause() = mainHandler.post { player.pause() }
     fun togglePause() = if (isPlaying) pause() else play()
 
