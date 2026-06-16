@@ -1,4 +1,4 @@
-export * from './auth/Auth';
+export * from './auth';
 export * from './storage';
 export * from './audioPlayer';
 export * from './queue';
