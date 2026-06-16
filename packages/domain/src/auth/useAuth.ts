@@ -9,13 +9,13 @@ import { SecureStorage } from '../storage';
 // Does not use set / get since this store is event-driven using listeners to ensure that states are in sync
 export const useAuth = create<AuthStore>()((set, get) => ({
   credentials: null,
-  isLoading: true, // True until credentials are fully loaded
+  loading: true, // True until credentials are fully loaded
 
   loadCredentials: async (): Promise<boolean> => {
     const stored = await SecureStorage.get('credentials');
     set({
       credentials: stored ? JSON.parse(stored) : null,
-      isLoading: false,
+      loading: false,
     });
 
     return get().credentials !== null;

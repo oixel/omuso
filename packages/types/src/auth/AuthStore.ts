@@ -2,7 +2,7 @@ import { Credentials } from './Credentials';
 
 interface AuthState {
   credentials: Credentials | null;
-  isLoading: boolean;
+  loading: boolean;
 }
 
 export interface AuthStore extends AuthState {
