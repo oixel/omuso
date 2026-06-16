@@ -10,7 +10,7 @@ import NativeAudioPlayerModule from 'native-audio-player';
 import { useRouter } from 'expo-router';
 
 const Testing = () => {
-  const { togglePause, prev, skip } = usePlayback();
+  const { togglePause, prev, skip, seekTo } = usePlayback();
   const isPlaying = usePlayback((state) => state.isPlaying);
 
   const { updateQueue, addToEnd, addNext, removeFromQueue } = useQueue();
@@ -58,7 +58,7 @@ const Testing = () => {
   const router = useRouter();
 
   return (
-    <View className="flex-1 items-center justify-center bg-white">
+    <View className="flex-1 items-center justify-center bg-white gap-2">
       <Text className="text-xl font-bold text-blue-500">Welcome to Choral!</Text>
       <Text className="text-xl font-bold text-blue-500 my-5">
         Current Track: {queue[index]?.track.title}
