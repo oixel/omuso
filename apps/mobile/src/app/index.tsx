@@ -1,11 +1,25 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Button, Text, TextInput, View } from 'react-native';
+import { Text, View } from 'react-native';
+import { useAuth } from '@choral/domain';
+import { useEffect } from 'react';
 
-export default function App() {
+const App = () => {
   const router = useRouter();
+  const { loadCredentials } = useAuth();
 
-  const [serverInput, setServerInput] = useState<string>('');
+  async function connectToServer() {
+    const success = await loadCredentials();
+    if (success) {
+      console.log('logged in');
+      router.navigate('/home');
+    } else {
+      router.navigate('/login');
+    }
+  }
+
+  useEffect(() => {
+    connectToServer();
+  }, []);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -14,8 +28,9 @@ export default function App() {
         <Text>logging in...</Text>
       </View>
       <View className="h-1/8"></View>
-      <Button title="Testing" onPress={() => router.navigate('./testing')} />
       <View className="mb-8"></View>
     </View>
   );
-}
+};
+
+export default App;
