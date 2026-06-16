@@ -1,7 +1,7 @@
 import { View, Text, Button } from 'react-native';
 import React from 'react';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@choral/domain';
+import { destroyAudioPlayer, useAuth } from '@choral/domain';
 
 const Home = () => {
   const router = useRouter();
@@ -19,6 +19,7 @@ const Home = () => {
         onPress={() => {
           logout();
           router.navigate('/login');
+          destroyAudioPlayer();
         }}
       />
       <View className="mb-8"></View>

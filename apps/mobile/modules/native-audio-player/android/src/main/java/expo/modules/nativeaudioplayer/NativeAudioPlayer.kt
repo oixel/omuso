@@ -77,7 +77,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
 
     fun release() {
         stopPollingProgress()
-        player.release()
+        mainHandler.post { player.release() }
     }
 
     fun play() = mainHandler.post { player.play() }

@@ -6,14 +6,16 @@ declare class NativeAudioPlayerModule
   extends NativeModule<NativeAudioPlayerEvents>
   implements AudioPlayer
 {
-  play: () => void;
-  pause: () => void;
-  togglePause: () => void;
+  destroy: () => Promise<void>;
 
-  seekTo: (position: number) => void;
-  playTrack: (index: number) => void;
-  skip: () => void;
-  prev: () => void;
+  play: () => Promise<void>;
+  pause: () => Promise<void>;
+  togglePause: () => Promise<void>;
+
+  seekTo: (position: number) => Promise<void>;
+  playTrack: (index: number) => Promise<void>;
+  skip: () => Promise<void>;
+  prev: () => Promise<void>;
 
   getIsPlaying: () => Promise<boolean>;
   getPosition: () => Promise<number>;
@@ -21,11 +23,11 @@ declare class NativeAudioPlayerModule
   getTrackIndex: () => Promise<number>;
   getPlaybackState: () => Promise<string>;
 
-  setQueue: (queue: QueuedTrack[]) => void;
-  updateQueue: (queue: QueuedTrack[]) => void;
-  addNext: (track: QueuedTrack[]) => void;
-  addToEnd: (track: QueuedTrack[]) => void;
-  removeFromQueue: (start: number, end?: number) => void;
+  setQueue: (queue: QueuedTrack[]) => Promise<void>;
+  updateQueue: (queue: QueuedTrack[]) => Promise<void>;
+  addNext: (track: QueuedTrack[]) => Promise<void>;
+  addToEnd: (track: QueuedTrack[]) => Promise<void>;
+  removeFromQueue: (start: number, end?: number) => Promise<void>;
 }
 
 // Loads the native module object from the JSI

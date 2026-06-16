@@ -67,6 +67,8 @@ class NativeAudioPlayerModule : Module() {
 
     Events("onIsPlayingChanged", "onPositionChanged", "onTrackChanged")
 
+    AsyncFunction("destroy") { audioSessionService?.destroy() }
+
     AsyncFunction("play") { audioSessionService?.play() }
     AsyncFunction("pause") { audioSessionService?.pause() }
     AsyncFunction("togglePause") { audioSessionService?.togglePause() }

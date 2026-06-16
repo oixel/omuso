@@ -107,13 +107,21 @@ class AudioSessionService : MediaSessionService() {
         nativeAudioPlayer.pause()
     }
 
-    override fun onDestroy() {
-        mediaSession?.run {
-            nativeAudioPlayer.release()
-            release()
-            mediaSession = null
-        }
+    fun releaseMediaSession() = mediaSession?.run {
+        nativeAudioPlayer.release()
+        release()
+        mediaSession = null
+    }
 
+    fun destroy() {
+        releaseMediaSession()
+
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
+    override fun onDestroy() {
+        releaseMediaSession()
         super.onDestroy()
     }
 
