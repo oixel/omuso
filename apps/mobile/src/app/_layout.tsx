@@ -2,28 +2,28 @@ import { useEffect } from 'react';
 import '../../global.css';
 
 import { Stack } from 'expo-router';
-import { registerAudioPlayer, usePlayback, useQueue } from '@choral/domain';
+import { registerAudioPlayer, useAuth, usePlayback, useQueue } from '@choral/domain';
 import NativeAudioPlayer from 'native-audio-player';
+import { useRouter } from 'expo-router';
 
 export default function RootLayout() {
+  const router = useRouter();
+
+  const { loadCredentials } = useAuth();
   const { syncQueue, restoreQueue } = useQueue();
   const { syncPlayback, restorePlayback } = usePlayback();
 
-  async function restoreSession() {
-    const playbackState = await NativeAudioPlayer.getPlaybackState();
-
-    if (playbackState == 'READY') {
-      // If player is ready (loaded), then ensure app's data matches any progress done with app closed (e.g. swiped out of recents)
-      syncQueue();
-      syncPlayback();
+  async function connectToServer() {
+    const success = await loadCredentials();
+    if (success) {
+      await restoreAudioPlayer();
+      router.navigate('./testing');
     } else {
-      // Otherwise, restore previous session in AudioPlayer from persistent data
-      restoreQueue();
-      restorePlayback();
+      router.navigate('./login');
     }
   }
 
-  useEffect(() => {
+  async function restoreAudioPlayer() {
     registerAudioPlayer(NativeAudioPlayer);
 
     NativeAudioPlayer.addListener('onIsPlayingChanged', ({ isPlaying }) => {
@@ -38,7 +38,21 @@ export default function RootLayout() {
       useQueue.setState({ index });
     });
 
-    restoreSession();
+    const playbackState = await NativeAudioPlayer.getPlaybackState();
+
+    if (playbackState == 'READY') {
+      // If player is ready (loaded), then ensure app's data matches any progress done with app closed (e.g. swiped out of recents)
+      syncQueue();
+      syncPlayback();
+    } else {
+      // Otherwise, restore previous session in AudioPlayer from persistent data
+      restoreQueue();
+      restorePlayback();
+    }
+  }
+
+  useEffect(() => {
+    connectToServer();
 
     return () => {
       NativeAudioPlayer.removeAllListeners('onIsPlayingChanged');
