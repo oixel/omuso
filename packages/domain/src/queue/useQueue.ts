@@ -22,7 +22,7 @@ export const useQueue = create<QueueStore>()(
       syncQueue: async () => {
         // Ensure that app's current track index matches AudioPlayer's when reopening the app
         const index = await getAudioPlayer().getTrackIndex();
-        set(() => ({ index }));
+        set({ index });
       },
       restoreQueue: async () => {
         // Restore queue progress from previous listening session in AudioPlayer

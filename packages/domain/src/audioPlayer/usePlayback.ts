@@ -21,7 +21,7 @@ export const usePlayback = create<PlaybackStore>()(
         const isPlaying = await getAudioPlayer().getIsPlaying();
         const position = await getAudioPlayer().getPosition();
         const duration = await getAudioPlayer().getDuration();
-        set(() => ({ isPlaying, position, duration }));
+        set({ isPlaying, position, duration });
       },
       restorePlayback: async () => {
         // Restore progress from previous listening session in AudioPlayer
