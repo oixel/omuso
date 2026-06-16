@@ -54,8 +54,7 @@ export async function validateLogin({
 
     SecureStorage.save('credentials', JSON.stringify(credentials));
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch {
     return false;
   }
 }
