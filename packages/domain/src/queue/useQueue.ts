@@ -3,12 +3,12 @@ import { getAudioPlayer } from '../audioPlayer';
 import { create } from 'zustand';
 import { PlayerStorage } from '../storage';
 import { persist } from 'zustand/middleware';
-import uuid from 'react-native-uuid';
+import { v4 as uuid } from 'uuid';
 
 // Generate a unique ID for every new track added to queue to ensure that different instances of the same track still differ
 function createQueuedTrack(track: Track): QueuedTrack {
   return {
-    queueId: uuid.v4(),
+    queueId: uuid(),
     track,
   };
 }
