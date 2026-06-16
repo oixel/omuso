@@ -6,6 +6,7 @@
   "dependencies": {
     "@choral/domain": "workspace:*",
     "@choral/types": "workspace:*",
+    "@noble/hashes": "^2.2.0",
     "expo-secure-store": "~15.0.8"
   },
   "scripts": {
