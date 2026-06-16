@@ -7,7 +7,7 @@
     "@choral/api": "workspace:*",
     "@choral/types": "workspace:*",
     "@react-native-async-storage/async-storage": "^3.1.1",
-    "react-native-uuid": "^2.0.4",
+    "uuid": "^14.0.0",
     "zustand": "^4.5.0"
   },
   "scripts": {
