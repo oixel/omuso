@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "@choral/api": "workspace:*",
     "@choral/domain": "workspace:*",
     "@choral/types": "workspace:*",
     "expo": "~54.0.0",
