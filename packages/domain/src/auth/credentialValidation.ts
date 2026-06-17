@@ -1,11 +1,9 @@
 import { buildRequestURL } from '@choral/api';
-import { Credentials } from '@choral/types';
+import { ServerResult, Credentials } from '@choral/types';
 import { SecureStorage } from '../storage';
 
 // Checks whether the given server actually exists, and returns extensions (indicates if apiKey is used)
-export async function validateServer(
-  server: string
-): Promise<{ success: boolean; usesAPIKey?: boolean }> {
+export async function validateServer(server: string): Promise<ServerResult> {
   try {
     const url = await buildRequestURL({ server, endpoint: 'getOpenSubsonicExtensions' });
 
