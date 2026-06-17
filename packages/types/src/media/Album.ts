@@ -5,4 +5,6 @@ export interface Album {
   duration: number;
   created: string;
   artist?: string;
+  coverArt?: string;
+  coverArtURL?: string;
 }

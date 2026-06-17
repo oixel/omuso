@@ -1,13 +1,18 @@
-import * as Request from '@choral/types/src/requests';
+import * as RequestParam from '@choral/types/src/requests/requestParams';
+import * as Response from '@choral/types/src/requests/responses';
+import * as Result from '@choral/types/src/requests/results';
 import { Credentials } from '@choral/types';
 import { SubsonicError } from './SubsonicError';
-import { buildRequestURL } from './buildRequestURL';
+import { buildRequestURL, cleanParams } from './utils';
 
 export class SubsonicClient {
   constructor(private credentials: Credentials) {}
 
-  private async request<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
-    const url = await buildRequestURL({ credentials: this.credentials, endpoint, params });
+  private async request<Response>(
+    endpoint: string,
+    params?: Record<string, string>
+  ): Promise<Response> {
+    const url = buildRequestURL({ credentials: this.credentials, endpoint, params });
 
     const result = await fetch(url);
     if (!result.ok) {
@@ -21,16 +26,28 @@ export class SubsonicClient {
       throw new SubsonicError(response.error.code, response.error.message);
     }
 
-    return response as T;
+    return response as Response;
   }
 
-  // Takes in request params and cleans out any undefined
-  cleanParams = (params: Record<string, string | undefined>): Record<string, string> => {
-    const defined = Object.entries(params).filter(([, value]) => value != undefined) as [
-      string,
-      string,
-    ][];
-    return Object.fromEntries(defined);
+  // Helper function to generate a cover art URL from the cover art's ID
+  private getCoverArtURL = (coverArt: string): string => {
+    return buildRequestURL({
+      credentials: this.credentials,
+      endpoint: 'getCoverArt',
+      params: { id: coverArt },
+    });
+  };
+
+  // Helper function to attach cover art URLs to any media type
+  private attachCoverArt = <Media extends { coverArt?: string; coverArtURL?: string }>(
+    media: Media[] | undefined
+  ): Media[] => {
+    return media
+      ? media.map((item) => ({
+          ...item,
+          coverArtURL: item.coverArt ? this.getCoverArtURL(item.coverArt) : undefined,
+        }))
+      : [];
   };
 
   search = async ({
@@ -38,10 +55,10 @@ export class SubsonicClient {
     artistCount,
     albumCount,
     trackCount,
-  }: Request.SearchParams): Promise<Request.SearchResult> => {
-    const result = await this.request<Request.SearchResponse>(
+  }: RequestParam.SearchParams): Promise<Result.SearchResult> => {
+    const result = await this.request<Response.SearchResponse>(
       'search3',
-      this.cleanParams({
+      cleanParams({
         query,
         artistCount: artistCount?.toString(),
         albumCount: albumCount?.toString(),
@@ -53,9 +70,9 @@ export class SubsonicClient {
 
     return {
       success: true,
-      artists: result?.searchResult3?.artist,
-      albums: result?.searchResult3?.album,
-      tracks: result?.searchResult3?.song,
+      artists: this.attachCoverArt(result?.searchResult3?.artist),
+      albums: this.attachCoverArt(result?.searchResult3?.album),
+      tracks: this.attachCoverArt(result?.searchResult3?.song),
     };
   };
 }

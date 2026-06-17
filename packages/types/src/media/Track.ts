@@ -5,5 +5,6 @@ export interface Track {
   uri: string;
   artist?: string;
   album?: string;
-  coverArtUri?: string;
+  coverArt?: string; // Cover art's ID
+  coverArtURL?: string;
 }
