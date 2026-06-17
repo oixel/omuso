@@ -13,17 +13,16 @@ const Home = () => {
         <Text className="font-extrabold color-white text-5xl mb-4">choral</Text>
         <Text>Home Page</Text>
       </View>
-      <View className="h-1/8"></View>
+      <Button title="Testing" onPress={() => router.navigate('/testing')} />
+      <View className="mb-4"></View>
       <Button
         title="Log Out"
         onPress={() => {
+          destroyAudioPlayer();
           logout();
           router.navigate('/login');
-          destroyAudioPlayer();
         }}
       />
-      <View className="mb-8"></View>
-      <Button title="Testing" onPress={() => router.navigate('/testing')} />
       <View className="mb-8"></View>
     </View>
   );
