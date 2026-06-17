@@ -12,8 +12,8 @@ const App = () => {
     const success = await loadCredentials();
     if (success) {
       await initializeNativeAudioPlayer();
-      router.navigate('/home');
-    } else router.navigate('/login');
+      router.replace('/home');
+    } else router.replace('/login');
   }
 
   useEffect(() => {

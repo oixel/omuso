@@ -20,7 +20,7 @@ const Home = () => {
         onPress={() => {
           destroyAudioPlayer();
           logout();
-          router.navigate('/login');
+          router.replace('/login');
         }}
       />
       <View className="mb-8"></View>

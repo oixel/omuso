@@ -51,7 +51,7 @@ const Login = () => {
     const success = await validateLogin({ server, apiKey, username, password });
     if (success) {
       await initializeNativeAudioPlayer();
-      router.navigate('/home');
+      router.replace('/home');
     } else
       setError(
         `Failed to log in.\n Please ${serverType === 'apiKey' ? 'API key' : 'username / password'} and try again.`
