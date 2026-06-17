@@ -1,4 +1,4 @@
-import { SubsonicError } from './SubsonicError';
+import { SubsonicError } from '../SubsonicError';
 import { Credentials } from '@choral/types';
 import { md5 } from '@noble/hashes/legacy.js';
 import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
