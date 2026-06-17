@@ -5,6 +5,7 @@
   "dependencies": {
     "@choral/domain": "workspace:*",
     "@choral/types": "workspace:*",
+    "@shopify/flash-list": "2.0.2",
     "expo": "~54.0.0",
     "expo-asset": "~12.0.13",
     "expo-build-properties": "~1.0.10",
