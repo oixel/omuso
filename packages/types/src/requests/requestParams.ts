@@ -7,4 +7,7 @@ export interface SearchParams {
   artistCount?: number;
   albumCount?: number;
   trackCount?: number;
+  artistOffset?: number;
+  albumOffset?: number;
+  trackOffset?: number;
 }

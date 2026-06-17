@@ -30,11 +30,11 @@ export class SubsonicClient {
   }
 
   // Helper function to generate a cover art URL from the cover art's ID
-  private getCoverArtURL = (coverArt: string): string => {
+  private getCoverArtURL = (coverArt: string, size = 100): string => {
     return buildRequestURL({
       credentials: this.credentials,
       endpoint: 'getCoverArt',
-      params: { id: coverArt },
+      params: { id: coverArt, size: size.toString() },
     });
   };
 
@@ -55,6 +55,9 @@ export class SubsonicClient {
     artistCount,
     albumCount,
     trackCount,
+    artistOffset,
+    albumOffset,
+    trackOffset,
   }: RequestParam.SearchParams): Promise<Result.SearchResult> => {
     const result = await this.request<Response.SearchResponse>(
       'search3',
@@ -63,6 +66,9 @@ export class SubsonicClient {
         artistCount: artistCount?.toString(),
         albumCount: albumCount?.toString(),
         songCount: trackCount?.toString(),
+        artistOffset: artistOffset?.toString(),
+        albumOffset: albumOffset?.toString(),
+        songOffset: trackOffset?.toString(),
       })
     );
 

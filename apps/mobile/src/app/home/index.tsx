@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { FlashList } from '@shopify/flash-list';
-import { Track } from '@choral/types';
+import { SearchResult, Track } from '@choral/types';
 import { useEffect, useState } from 'react';
 
 interface TrackEntryProps {
@@ -17,9 +17,12 @@ const TrackEntry: React.FC<TrackEntryProps> = ({ track, touchableProps }) => (
     {...touchableProps}
   >
     <Image
-      style={{ height: '100%', aspectRatio: 1, backgroundColor: 'red' }}
+      style={{ height: '100%', aspectRatio: 1 }}
       source={{ uri: track.coverArtURL }}
       contentFit="cover"
+      recyclingKey={track.id}
+      cachePolicy="memory-disk"
+      placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
     />
     <View className="border-b border-blue-500 flex-1 h-full">
       <Text className="color-white font-medium text-xl m-0 p-0">
@@ -38,21 +41,50 @@ const Home = () => {
   const client = useAuth((state) => state.client);
 
   const [tracks, setTracks] = useState<Track[]>([]);
+  const [page, setPage] = useState(0);
+  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
+  const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
-  const loadAllTracks = async () => {
-    if (!client) return;
+  const PAGE_SIZE = 200;
+
+  const loadTracks = async (trackCount: number, trackOffset: number): Promise<SearchResult> => {
+    if (!client) return { success: false };
+
     const result = await client.search({
       artistCount: 0,
       albumCount: 0,
-      trackCount: 20,
+      trackCount,
+      trackOffset: trackOffset * trackCount,
     });
 
-    if (result?.tracks) setTracks(result.tracks);
+    if (result?.tracks) {
+      const newTracks = result.tracks; // Capture narrowed value to use in setTracks closure
+      setTracks((prev) => [...prev, ...newTracks]);
+    }
+
+    console.log(tracks.length + (result.tracks?.length ?? 0));
+
+    return result;
+  };
+
+  const handleEndReached = async () => {
+    if (isLoadingTracks || hasReachedEnd) return;
+
+    setIsLoadingTracks(true);
+
+    const result = await loadTracks(PAGE_SIZE, page);
+    if (!result.success) console.log('Connection error');
+    if (!result.tracks?.length) console.log('No results found');
+    else if (result.tracks.length < PAGE_SIZE) setHasReachedEnd(true);
+
+    setPage((prev) => prev + 1);
+
+    setIsLoadingTracks(false);
   };
 
   useEffect(() => {
     console.log('All tracks loaded...');
-    loadAllTracks();
+    loadTracks(PAGE_SIZE, 0);
 
     return () => {
       setTracks([]);
@@ -66,12 +98,12 @@ const Home = () => {
         <Text>Home Page</Text>
       </View>
       <View className="flex-1 w-full mb-20">
-        {!tracks && (
+        {!tracks.length && (
           <View className="w-full h-full bg-white flex justify-center items-center">
             <Text className="font-bold">Loading tracks...</Text>
           </View>
         )}
-        {tracks && (
+        {tracks.length > 0 && (
           <FlashList
             contentContainerClassName="py-2"
             keyExtractor={(item) => {
@@ -79,6 +111,14 @@ const Home = () => {
             }}
             data={tracks}
             renderItem={({ item }) => <TrackEntry track={item} />}
+            ListFooterComponent={() => (
+              <View>
+                {isLoadingTracks && <Text>Loading...</Text>}
+                {hasReachedEnd && <Text>End of results</Text>}
+              </View>
+            )}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={0.5}
           />
         )}
       </View>
