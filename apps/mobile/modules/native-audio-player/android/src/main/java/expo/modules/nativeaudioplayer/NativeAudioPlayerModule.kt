@@ -43,6 +43,8 @@ class NativeAudioPlayerModule : Module() {
       audioSessionService?.onTrackChanged = { index ->
         sendEvent("onTrackChanged", mapOf("index" to index))
       }
+
+      audioSessionService?.onPlayerDestroyed = { sendEvent("onPlayerDestroyed") }
     }
 
     override fun onServiceDisconnected(name: ComponentName) {
@@ -55,19 +57,33 @@ class NativeAudioPlayerModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("NativeAudioPlayer")
 
-    OnCreate {
-      // Grab Android's context to access system services (return out if no context exists for safety)
-      val context = appContext.reactContext ?: return@OnCreate
+    Events(
+      "onPlayerDestroyed",
+      "onIsPlayingChanged",
+      "onPositionChanged",
+      "onTrackChanged"
+    )
 
-      // Start AudioSessionService and connect to it
-      val intent = Intent(context, AudioSessionService::class.java)
-      context.startService(intent)
-      context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    // Start AudioSessionService and connect to it, but do not return until fully initialized
+    AsyncFunction("initialize") {
+      val context = appContext.reactContext
+      if (context != null) {
+        val intent = Intent(context, AudioSessionService::class.java)
+        context.startService(intent)
+        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+      }
     }
 
-    Events("onIsPlayingChanged", "onPositionChanged", "onTrackChanged")
+    AsyncFunction("destroy") {
+      audioSessionService?.destroy()
 
-    AsyncFunction("destroy") { audioSessionService?.destroy() }
+      if (isBound) {
+        appContext.reactContext?.unbindService(connection)
+        isBound = false
+      }
+
+      audioSessionService = null
+    }
 
     AsyncFunction("play") { audioSessionService?.play() }
     AsyncFunction("pause") { audioSessionService?.pause() }
