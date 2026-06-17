@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import { useAuth } from '@choral/domain';
 import { useEffect } from 'react';
+import { initializeNativeAudioPlayer } from '../util/initializeNativeAudioPlayer';
 
 const App = () => {
   const router = useRouter();
@@ -9,8 +10,10 @@ const App = () => {
 
   async function connectToServer() {
     const success = await loadCredentials();
-    if (success) router.navigate('/home');
-    else router.navigate('/login');
+    if (success) {
+      await initializeNativeAudioPlayer();
+      router.navigate('/home');
+    } else router.navigate('/login');
   }
 
   useEffect(() => {
