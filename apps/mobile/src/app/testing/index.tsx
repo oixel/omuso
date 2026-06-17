@@ -10,7 +10,7 @@ import NativeAudioPlayerModule from 'native-audio-player';
 import { useRouter } from 'expo-router';
 
 const Testing = () => {
-  const { togglePause, prev, skip, seekTo } = usePlayback();
+  const { togglePause, prev, skip } = usePlayback();
   const isPlaying = usePlayback((state) => state.isPlaying);
 
   const { updateQueue, addToEnd, addNext, removeFromQueue } = useQueue();
