@@ -6,6 +6,7 @@ declare class NativeAudioPlayerModule
   extends NativeModule<NativeAudioPlayerEvents>
   implements AudioPlayer
 {
+  initialize: () => Promise<string>;
   destroy: () => Promise<void>;
 
   play: () => Promise<void>;

@@ -2,8 +2,11 @@ import type { AudioPlayer } from '@choral/types';
 
 let audioPlayer: AudioPlayer | null = null;
 
-export function registerAudioPlayer(player: AudioPlayer) {
-  if (!audioPlayer) audioPlayer = player;
+export async function registerAudioPlayer(player: AudioPlayer) {
+  if (!audioPlayer) {
+    await player.initialize();
+    audioPlayer = player;
+  }
 }
 
 export function getAudioPlayer(): AudioPlayer {
@@ -12,5 +15,7 @@ export function getAudioPlayer(): AudioPlayer {
 }
 
 export function destroyAudioPlayer() {
+  audioPlayer?.pause();
   audioPlayer?.destroy();
+  audioPlayer = null;
 }

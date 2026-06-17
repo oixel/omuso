@@ -2,6 +2,7 @@ import { QueuedTrack } from '../queue';
 
 // Defines expected, cross-platform behavior from both NativeAudioPlayer module and WebAudioPlayer
 export interface AudioPlayer {
+  initialize: () => Promise<string>;
   destroy: () => Promise<void>;
 
   play: () => Promise<void>;
