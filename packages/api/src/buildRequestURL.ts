@@ -23,10 +23,6 @@ export async function buildRequestURL({
 }): Promise<URL> {
   const url = new URL(`${credentials ? credentials.server : server}/rest/${endpoint}`);
 
-  for (let param in params) {
-    url.searchParams.set(param[0], param[1]);
-  }
-
   if (credentials) {
     // If server uses API Key, use it to authenticate, otherwise use regular username + hashed password
     if (credentials.apiKey) url.searchParams.set('apiKey', credentials.apiKey);
@@ -46,7 +42,8 @@ export async function buildRequestURL({
   url.searchParams.set('c', 'choral');
   url.searchParams.set('f', 'json');
 
-  if (params) Object.entries(params).forEach(([key, val]) => url.searchParams.set(key, val));
+  if (params)
+    Object.entries(params).forEach(([param, value]) => url.searchParams.set(param, value));
 
   return url;
 }

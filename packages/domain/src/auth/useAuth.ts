@@ -1,21 +1,20 @@
 import { AuthStore, Credentials } from '@choral/types';
 import { create } from 'zustand';
 import { SecureStorage } from '../storage';
+import { SubsonicClient } from '@choral/api';
 
-//
-// Consumed by UI to get / alter AudioPlayer's state
-//
-
-// Does not use set / get since this store is event-driven using listeners to ensure that states are in sync
 export const useAuth = create<AuthStore>()((set, get) => ({
   credentials: null,
   loading: true, // True until credentials are fully loaded
+  client: null,
 
   loadCredentials: async (): Promise<boolean> => {
     const stored = await SecureStorage.get('credentials');
+    const credentials = stored ? JSON.parse(stored) : null;
     set({
-      credentials: stored ? JSON.parse(stored) : null,
+      credentials,
       loading: false,
+      client: credentials ? new SubsonicClient(credentials) : null,
     });
 
     return get().credentials !== null;
