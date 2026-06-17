@@ -1,4 +1,5 @@
 import { View, Text, Button, TouchableOpacity, TouchableOpacityProps } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { FlashList } from '@shopify/flash-list';
@@ -11,8 +12,23 @@ interface TrackEntryProps {
 }
 
 const TrackEntry: React.FC<TrackEntryProps> = ({ track, touchableProps }) => (
-  <TouchableOpacity className="bg-blue-300 color-black font-bold p-3" {...touchableProps}>
-    <Text>{track.title || 'Untitled Track'}</Text>
+  <TouchableOpacity
+    className="p-3 flex flex-row justify-start items-center max-h-20 gap-3 min-w-full"
+    {...touchableProps}
+  >
+    <Image
+      style={{ height: '100%', aspectRatio: 1, backgroundColor: 'red' }}
+      source={{ uri: track.coverArtURL }}
+      contentFit="cover"
+    />
+    <View className="border-b border-blue-500 flex-1 h-full">
+      <Text className="color-white font-medium text-xl m-0 p-0">
+        {track.title || 'Untitled Track'}
+      </Text>
+      <Text style={{ lineHeight: 18, fontSize: 15 }} className="color-blue-200">
+        {track.artist || ''}
+      </Text>
+    </View>
   </TouchableOpacity>
 );
 
@@ -31,7 +47,7 @@ const Home = () => {
       trackCount: 20,
     });
 
-    if (result?.tracks) setTracks(result?.tracks);
+    if (result?.tracks) setTracks(result.tracks);
   };
 
   useEffect(() => {
@@ -49,7 +65,7 @@ const Home = () => {
         <Text className="font-extrabold color-white text-5xl mb-4">choral</Text>
         <Text>Home Page</Text>
       </View>
-      <View className="flex-1 w-3/4 mb-20">
+      <View className="flex-1 w-full mb-20">
         {!tracks && (
           <View className="w-full h-full bg-white flex justify-center items-center">
             <Text className="font-bold">Loading tracks...</Text>
@@ -57,13 +73,12 @@ const Home = () => {
         )}
         {tracks && (
           <FlashList
-            className="bg-white p-4"
+            contentContainerClassName="py-2"
             keyExtractor={(item) => {
               return item.id;
             }}
             data={tracks}
             renderItem={({ item }) => <TrackEntry track={item} />}
-            ItemSeparatorComponent={() => <View className="my-2" />}
           />
         )}
       </View>
