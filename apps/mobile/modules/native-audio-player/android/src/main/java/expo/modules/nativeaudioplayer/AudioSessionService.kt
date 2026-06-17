@@ -4,9 +4,7 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Binder
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
 import androidx.media3.session.MediaSession
@@ -53,6 +51,7 @@ class AudioSessionService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
     // Event listeners for the audio player
+    var onPlayerDestroyed: (() -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
     var onTrackChanged: ((Int) -> Unit)? = null
@@ -75,7 +74,7 @@ class AudioSessionService : MediaSessionService() {
                 .build()
         }
 
-        // Forward state audio player state changes to Module for export
+        nativeAudioPlayer.onPlayerDestroyed = { onPlayerDestroyed?.invoke() }
         nativeAudioPlayer.onIsPlayingChanged = { playing -> onIsPlayingChanged?.invoke(playing) }
         nativeAudioPlayer.onPositionChanged = { position, duration ->
             onPositionChanged?.invoke(position, duration)

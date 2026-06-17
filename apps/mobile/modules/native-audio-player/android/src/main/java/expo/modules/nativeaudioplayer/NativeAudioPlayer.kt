@@ -22,10 +22,11 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     var duration: Long = 0L
     var trackIndex: Int = 0
 
+    var onPlayerDestroyed: (() -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
     var onTrackChanged: ((Int) -> Unit)? = null
-
+    
     // Poll current track progress periodically to update app UI
     private val progressHandler = Handler(Looper.getMainLooper())
     private val progressRunnable = object : Runnable {
@@ -71,17 +72,22 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
                 }
             })
 
+            player.prepare()
+
             onReady(player)
         }
     }
 
     fun release() {
         stopPollingProgress()
-        mainHandler.post { player.release() }
+        mainHandler.post {
+            player.release()
+            onPlayerDestroyed?.invoke()
+        }
     }
 
     fun play() = mainHandler.post {
-        if (playbackState == "IDLE") player.prepare()  // Re-awaken idle player
+        if (player.playbackState != Player.STATE_READY) player.prepare()
         player.play()
     }
     
@@ -89,7 +95,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     fun togglePause() = if (isPlaying) pause() else play()
 
     fun seekTo(position: Long) = mainHandler.post { player.seekTo(position) }
-    fun playTrack(index: Int) = mainHandler.post { player.seekTo(index, 0L)}
+    fun playTrack(index: Int) = mainHandler.post { player.seekTo(index, 0L) }
     fun skip() = mainHandler.post { player.seekToNextMediaItem() }
     fun prev() = mainHandler.post { player.seekToPreviousMediaItem() }
 
