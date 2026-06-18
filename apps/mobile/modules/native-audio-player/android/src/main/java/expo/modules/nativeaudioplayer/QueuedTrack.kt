@@ -11,7 +11,6 @@ class Track: Record {
     @Field val title: String? = null
     @Field val artist: String? = null
     @Field val album: String? = null
-    @Field val coverArtUri: String? = null
 }
 
 class QueuedTrack: Record {
@@ -28,7 +27,6 @@ fun QueuedTrack.toMediaItem(): MediaItem {
                 .setTitle(track.title)
                 .setArtist(track.artist)
                 .setAlbumTitle(track.album)
-                .setArtworkUri(track.coverArtUri?.toUri())
                 .build()
         )
         .build()
