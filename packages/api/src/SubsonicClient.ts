@@ -59,6 +59,11 @@ export class SubsonicClient {
     albumOffset,
     trackOffset,
   }: RequestParam.SearchParams): Promise<Result.SearchResult> => {
+    // NOTE: This is a Navidrome-specific workaround achieved via trial-and-error.
+    // Wrapping single-char queries in quotes with surrounding spaces triggers substring-style matches.
+    // This might get patched in the future, but for not it ensures sing-char quotes work properly.
+    if (query.length === 1) query = `" ${query} "`;
+
     const result = await this.request<Response.SearchResponse>(
       'search3',
       cleanParams({
