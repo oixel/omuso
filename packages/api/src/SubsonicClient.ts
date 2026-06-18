@@ -1,7 +1,7 @@
 import * as RequestParam from '@choral/types/src/requests/requestParams';
 import * as Response from '@choral/types/src/requests/responses';
 import * as Result from '@choral/types/src/requests/results';
-import { Credentials } from '@choral/types';
+import { Credentials, Track } from '@choral/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
 
@@ -50,6 +50,18 @@ export class SubsonicClient {
       : [];
   };
 
+  // Helper function to generate a track's stream URL and attach it to it's object
+  private attachStreamURL = (tracks: Track[]): Track[] => {
+    return tracks.map((track) => ({
+      ...track,
+      uri: buildRequestURL({
+        credentials: this.credentials,
+        endpoint: 'stream',
+        params: { id: track.id },
+      }),
+    }));
+  };
+
   search = async ({
     query = '',
     artistCount,
@@ -83,7 +95,7 @@ export class SubsonicClient {
       success: true,
       artists: this.attachCoverArt(result?.searchResult3?.artist),
       albums: this.attachCoverArt(result?.searchResult3?.album),
-      tracks: this.attachCoverArt(result?.searchResult3?.song),
+      tracks: this.attachStreamURL(this.attachCoverArt(result?.searchResult3?.song)),
     };
   };
 }

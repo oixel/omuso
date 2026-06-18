@@ -14,6 +14,7 @@ import { FlashList } from '@shopify/flash-list';
 import { SearchResult, Track } from '@choral/types';
 import { useEffect, useRef, useState } from 'react';
 import TextTicker from 'react-native-text-ticker';
+import { useQueue, usePlayback } from '@choral/domain';
 
 interface TrackEntryProps {
   track: Track;
@@ -23,6 +24,10 @@ interface TrackEntryProps {
 const TrackEntry: React.FC<TrackEntryProps> = ({ track, touchableProps }) => (
   <TouchableOpacity
     className="p-3 flex flex-row justify-start items-center max-h-20 gap-3 min-w-full"
+    onPress={() => {
+      useQueue.getState().setQueue([track]);
+      usePlayback.getState().play();
+    }}
     {...touchableProps}
   >
     <Image
