@@ -22,6 +22,7 @@ export const useAuth = create<AuthStore>()((set, get) => ({
   login: async (credentials: Credentials): Promise<void> => {
     await SecureStorage.save('credentials', JSON.stringify(credentials));
     set({ credentials });
+    await get().loadCredentials(); // Load client
   },
   logout: async (): Promise<void> => {
     await SecureStorage.delete('credentials');

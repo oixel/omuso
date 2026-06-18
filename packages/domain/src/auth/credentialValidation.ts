@@ -1,6 +1,5 @@
 import { buildRequestURL } from '@choral/api';
 import { ServerResult, Credentials } from '@choral/types';
-import { SecureStorage } from '../storage';
 
 // Checks whether the given server actually exists, and returns extensions (indicates if apiKey is used)
 export async function validateServer(server: string): Promise<ServerResult> {
@@ -50,7 +49,6 @@ export async function validateLogin({
     const response = data['subsonic-response'];
     if (response.status != 'ok') return false;
 
-    SecureStorage.save('credentials', JSON.stringify(credentials));
     return true;
   } catch {
     return false;

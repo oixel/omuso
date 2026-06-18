@@ -13,7 +13,6 @@ export class SubsonicClient {
     params?: Record<string, string>
   ): Promise<Response> {
     const url = buildRequestURL({ credentials: this.credentials, endpoint, params });
-
     const result = await fetch(url);
     if (!result.ok) {
       throw new SubsonicError(result.status, `HTTP Error ${result.status}: ${result.statusText}`);

@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Button, Text, TextInput, TextInputProps, View } from 'react-native';
-import { validateServer, validateLogin } from '@choral/domain';
+import { validateServer, validateLogin, useAuth } from '@choral/domain';
 import { initializeNativeAudioPlayer } from '../../util/initializeNativeAudioPlayer';
+import { Credentials } from '@choral/types';
 
 const StyledInput = (props: TextInputProps) => (
   <TextInput
@@ -26,6 +27,8 @@ const Login = () => {
   const [serverType, setServerType] = useState<'apiKey' | 'password'>();
   const [error, setError] = useState<string>();
 
+  const { login } = useAuth();
+
   async function checkServer() {
     if (!server.length) return;
 
@@ -48,8 +51,13 @@ const Login = () => {
     setLoading(true);
     setError(undefined);
 
-    const success = await validateLogin({ server, apiKey, username, password });
+    const credentials: Credentials = { server, apiKey, username, password };
+
+    const success = await validateLogin(credentials);
+
     if (success) {
+      // Store credentials, load client, and redirect to home
+      login(credentials);
       await initializeNativeAudioPlayer();
       router.replace('/home');
     } else
