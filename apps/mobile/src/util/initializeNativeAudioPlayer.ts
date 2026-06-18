@@ -7,7 +7,7 @@ export async function initializeNativeAudioPlayer() {
   NativeAudioPlayer.addListener('onPlayerDestroyed', () => {
     NativeAudioPlayer.removeAllListeners('onIsPlayingChanged');
     NativeAudioPlayer.removeAllListeners('onPositionChanged');
-    NativeAudioPlayer.removeAllListeners('onTrackChanged');
+    NativeAudioPlayer.removeAllListeners('onSongChanged');
     NativeAudioPlayer.removeAllListeners('onPlayerDestroyed');
   });
 
@@ -19,7 +19,7 @@ export async function initializeNativeAudioPlayer() {
     usePlayback.setState({ position, duration });
   });
 
-  NativeAudioPlayer.addListener('onTrackChanged', ({ index }) => {
+  NativeAudioPlayer.addListener('onSongChanged', ({ index }) => {
     useQueue.setState({ index });
   });
 

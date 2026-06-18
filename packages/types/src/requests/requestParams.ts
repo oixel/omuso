@@ -6,8 +6,8 @@ export interface SearchParams {
   query?: string;
   artistCount?: number;
   albumCount?: number;
-  trackCount?: number;
+  songCount?: number;
   artistOffset?: number;
   albumOffset?: number;
-  trackOffset?: number;
+  songOffset?: number;
 }

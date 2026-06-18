@@ -1,2 +1,2 @@
-export * from './QueuedTrack';
+export * from './QueuedSong';
 export * from './QueueStore';

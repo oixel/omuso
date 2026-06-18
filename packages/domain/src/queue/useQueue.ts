@@ -1,15 +1,15 @@
-import { QueueStore, Track, QueuedTrack } from '@choral/types';
+import { QueueStore, Song, QueuedSong } from '@choral/types';
 import { getAudioPlayer } from '../audioPlayer';
 import { create } from 'zustand';
 import { PlayerStorage } from '../storage';
 import { persist } from 'zustand/middleware';
 import { v4 as uuid } from 'uuid';
 
-// Generate a unique ID for every new track added to queue to ensure that different instances of the same track still differ
-function createQueuedTrack(track: Track): QueuedTrack {
+// Generate a unique ID for every new song added to queue to ensure that different instances of the same song still differ
+function createQueuedSong(song: Song): QueuedSong {
   return {
     queueId: uuid(),
-    track,
+    song,
   };
 }
 
@@ -20,53 +20,53 @@ export const useQueue = create<QueueStore>()(
       queue: [],
 
       syncQueue: async () => {
-        // Ensure that app's current track index matches AudioPlayer's when reopening the app
-        const index = await getAudioPlayer().getTrackIndex();
+        // Ensure that app's current song index matches AudioPlayer's when reopening the app
+        const index = await getAudioPlayer().getSongIndex();
         set({ index });
       },
       restoreQueue: async () => {
         // Restore queue progress from previous listening session in AudioPlayer
         getAudioPlayer().setQueue(get().queue);
-        getAudioPlayer().playTrack(get().index);
+        getAudioPlayer().seekToSong(get().index);
       },
 
-      setQueue: async (tracks: Track[]) => {
-        let queue = tracks.map((track) => createQueuedTrack(track));
+      setQueue: async (songs: Song[]) => {
+        let queue = songs.map((song) => createQueuedSong(song));
         getAudioPlayer().setQueue(queue);
         set({ queue });
       },
-      updateQueue: async (tracks: Track[]) => {
+      updateQueue: async (songs: Song[]) => {
         // getAudioPlayer().updateQueue(get().queue);
         console.log('TODO: Update Queue');
       },
-      addNext: async (tracks: Track[]) => {
+      addNext: async (songs: Song[]) => {
         if (get().queue.length == 0) {
-          get().setQueue(tracks);
+          get().setQueue(songs);
         } else {
-          let newTracks = tracks.map((track) => createQueuedTrack(track));
-          getAudioPlayer().addNext(newTracks);
+          let newSongs = songs.map((song) => createQueuedSong(song));
+          getAudioPlayer().addNext(newSongs);
 
           set((state) => {
             const newQueue = [...state.queue];
-            newQueue.splice(get().index + 1, 0, ...newTracks);
+            newQueue.splice(get().index + 1, 0, ...newSongs);
             return { queue: newQueue };
           });
         }
       },
-      addToEnd: async (tracks: Track[]) => {
+      addToEnd: async (songs: Song[]) => {
         if (get().queue.length == 0) {
-          get().setQueue(tracks);
+          get().setQueue(songs);
         } else {
-          let newTracks = tracks.map((track) => createQueuedTrack(track));
-          getAudioPlayer().addToEnd(newTracks);
+          let newSongs = songs.map((song) => createQueuedSong(song));
+          getAudioPlayer().addToEnd(newSongs);
 
-          set((state) => ({ queue: [...state.queue, ...newTracks] }));
+          set((state) => ({ queue: [...state.queue, ...newSongs] }));
         }
       },
       removeFromQueue: async (start: number, end?: number) => {
         getAudioPlayer().removeFromQueue(start, end);
 
-        // Only wipe a single track if no end is provided
+        // Only wipe a single song if no end is provided
         const deleteCount = end !== undefined ? end - start + 1 : 1;
 
         set((state) => {
@@ -79,7 +79,7 @@ export const useQueue = create<QueueStore>()(
         const index = get().index;
         const queue = get().queue;
         if (index >= queue.length && queue.length != 0)
-          getAudioPlayer().playTrack(queue.length - 1);
+          getAudioPlayer().seekToSong(queue.length - 1);
       },
     }),
     {

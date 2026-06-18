@@ -1,4 +1,4 @@
-// States relating directly to current track's playback
+// States relating directly to current song's playback
 interface PlaybackState {
   isPlaying: boolean;
   position: number;

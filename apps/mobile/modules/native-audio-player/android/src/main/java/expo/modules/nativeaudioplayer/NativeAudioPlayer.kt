@@ -20,14 +20,14 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     var isPlaying: Boolean = false
     var position: Long = 0L
     var duration: Long = 0L
-    var trackIndex: Int = 0
+    var songIndex: Int = 0
 
     var onPlayerDestroyed: (() -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
-    var onTrackChanged: ((Int) -> Unit)? = null
+    var onSongChanged: ((Int) -> Unit)? = null
     
-    // Poll current track progress periodically to update app UI
+    // Poll current song progress periodically to update app UI
     private val progressHandler = Handler(Looper.getMainLooper())
     private val progressRunnable = object : Runnable {
         override fun run() {
@@ -46,7 +46,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
         mainHandler.post {
             player = ExoPlayer.Builder(context).build()
 
-            // Track state changes of the Player (Events are reported to Player.Listener)
+            // Song state changes of the Player (Events are reported to Player.Listener)
             player.addListener(object : Player.Listener {
                 override fun onIsPlayingChanged(playing: Boolean) {
                     isPlaying = playing
@@ -57,8 +57,8 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
                 }
 
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                    trackIndex = player.currentMediaItemIndex
-                    onTrackChanged?.invoke(player.currentMediaItemIndex)
+                    songIndex = player.currentMediaItemIndex
+                    onSongChanged?.invoke(player.currentMediaItemIndex)
                 }
 
                 override fun onPlaybackStateChanged(stateInt: Int) {
@@ -95,7 +95,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     fun togglePause() = if (isPlaying) pause() else play()
 
     fun seekTo(position: Long) = mainHandler.post { player.seekTo(position) }
-    fun playTrack(index: Int) = mainHandler.post { player.seekTo(index, 0L) }
+    fun playSong(index: Int) = mainHandler.post { player.seekTo(index, 0L) }
     fun skip() = mainHandler.post { player.seekToNextMediaItem() }
     fun prev() = mainHandler.post { player.seekToPreviousMediaItem() }
 
@@ -105,12 +105,12 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
         player.setMediaItems(queue)
     }
 
-    // Used to quickly update the queue without losing current track's progress (e.g. reordering tracks)
+    // Used to quickly update the queue without losing current song's progress (e.g. reordering songs)
     fun updateQueue(queue: List<MediaItem>) = mainHandler.post {
         player.replaceMediaItems(0, player.mediaItemCount, queue)
 //        val currentIndex = player.currentMediaItemIndex
 //
-//        if (currentIndex > 0) {  // Update queue before current track
+//        if (currentIndex > 0) {  // Update queue before current song
 //            player.replaceMediaItems(
 //                0,
 //                currentIndex,
@@ -118,7 +118,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
 //            )
 //        }
 //
-//        if (currentIndex + 1 < player.mediaItemCount) {  // Update queue after current track
+//        if (currentIndex + 1 < player.mediaItemCount) {  // Update queue after current song
 //            player.replaceMediaItems(
 //                currentIndex + 1,
 //                player.mediaItemCount,

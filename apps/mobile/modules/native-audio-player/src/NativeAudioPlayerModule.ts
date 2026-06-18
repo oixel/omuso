@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 import { NativeAudioPlayerEvents } from './NativeAudioPlayer.types';
-import { AudioPlayer, QueuedTrack } from '@choral/types';
+import { AudioPlayer, QueuedSong } from '@choral/types';
 
 declare class NativeAudioPlayerModule
   extends NativeModule<NativeAudioPlayerEvents>
@@ -14,20 +14,20 @@ declare class NativeAudioPlayerModule
   togglePause: () => Promise<void>;
 
   seekTo: (position: number) => Promise<void>;
-  playTrack: (index: number) => Promise<void>;
+  seekToSong: (index: number) => Promise<void>;
   skip: () => Promise<void>;
   prev: () => Promise<void>;
 
   getIsPlaying: () => Promise<boolean>;
   getPosition: () => Promise<number>;
   getDuration: () => Promise<number>;
-  getTrackIndex: () => Promise<number>;
+  getSongIndex: () => Promise<number>;
   getPlaybackState: () => Promise<string>;
 
-  setQueue: (queue: QueuedTrack[]) => Promise<void>;
-  updateQueue: (queue: QueuedTrack[]) => Promise<void>;
-  addNext: (track: QueuedTrack[]) => Promise<void>;
-  addToEnd: (track: QueuedTrack[]) => Promise<void>;
+  setQueue: (queue: QueuedSong[]) => Promise<void>;
+  updateQueue: (queue: QueuedSong[]) => Promise<void>;
+  addNext: (songs: QueuedSong[]) => Promise<void>;
+  addToEnd: (songs: QueuedSong[]) => Promise<void>;
   removeFromQueue: (start: number, end?: number) => Promise<void>;
 }
 

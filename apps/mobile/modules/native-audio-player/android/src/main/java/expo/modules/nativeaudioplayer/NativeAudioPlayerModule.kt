@@ -39,9 +39,9 @@ class NativeAudioPlayerModule : Module() {
         )
       }
 
-      // Emit new track index when track changes in player
-      audioSessionService?.onTrackChanged = { index ->
-        sendEvent("onTrackChanged", mapOf("index" to index))
+      // Emit new song index when song changes in player
+      audioSessionService?.onSongChanged = { index ->
+        sendEvent("onSongChanged", mapOf("index" to index))
       }
 
       audioSessionService?.onPlayerDestroyed = { sendEvent("onPlayerDestroyed") }
@@ -61,7 +61,7 @@ class NativeAudioPlayerModule : Module() {
       "onPlayerDestroyed",
       "onIsPlayingChanged",
       "onPositionChanged",
-      "onTrackChanged"
+      "onSongChanged"
     )
 
     // Start AudioSessionService and connect to it, but do not return until fully initialized
@@ -90,31 +90,31 @@ class NativeAudioPlayerModule : Module() {
     AsyncFunction("togglePause") { audioSessionService?.togglePause() }
 
     AsyncFunction("seekTo") { position: Long -> audioSessionService?.seekTo(position) }
-    AsyncFunction("playTrack") { index: Int -> audioSessionService?.playTrack(index) }
+    AsyncFunction("playSong") { index: Int -> audioSessionService?.playSong(index) }
     AsyncFunction("skip") { audioSessionService?.skip() }
     AsyncFunction("prev") { audioSessionService?.prev() }
 
     AsyncFunction("getIsPlaying") { audioSessionService?.getIsPlaying() }
     AsyncFunction("getPosition") { audioSessionService?.getPosition() }
     AsyncFunction("getDuration") { audioSessionService?.getDuration() }
-    AsyncFunction("getTrackIndex") { audioSessionService?.getTrackIndex() }
+    AsyncFunction("getSongIndex") { audioSessionService?.getSongIndex() }
     AsyncFunction("getPlaybackState") { audioSessionService?.getPlaybackState() }
 
-    AsyncFunction("setQueue") { tracks: List<QueuedTrack> ->
-      audioSessionService?.setQueue(tracks.map { it.toMediaItem() })
+    AsyncFunction("setQueue") { songs: List<QueuedSong> ->
+      audioSessionService?.setQueue(songs.map { it.toMediaItem() })
     }
 
-    AsyncFunction("updateQueue") { tracks: List<QueuedTrack> ->
-      audioSessionService?.updateQueue(tracks.map { it.toMediaItem() })
+    AsyncFunction("updateQueue") { songs: List<QueuedSong> ->
+      audioSessionService?.updateQueue(songs.map { it.toMediaItem() })
     }
 
-    AsyncFunction("addNext") { tracks: List<QueuedTrack> ->
-      audioSessionService?.addNext(tracks.map { it.toMediaItem() })
+    AsyncFunction("addNext") { songs: List<QueuedSong> ->
+      audioSessionService?.addNext(songs.map { it.toMediaItem() })
     }
 
 
-    AsyncFunction("addToEnd") { tracks: List<QueuedTrack> ->
-      audioSessionService?.addToEnd(tracks.map { it.toMediaItem() })
+    AsyncFunction("addToEnd") { songs: List<QueuedSong> ->
+      audioSessionService?.addToEnd(songs.map { it.toMediaItem() })
     }
 
     AsyncFunction("removeFromQueue") { start: Int, end: Int? ->

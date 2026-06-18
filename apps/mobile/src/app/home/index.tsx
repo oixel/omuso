@@ -11,30 +11,30 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth, useDebounce } from '@choral/domain';
 import { FlashList } from '@shopify/flash-list';
-import { SearchResult, Track } from '@choral/types';
+import { SearchResult, Song } from '@choral/types';
 import { useEffect, useRef, useState } from 'react';
 import TextTicker from 'react-native-text-ticker';
 import { useQueue, usePlayback } from '@choral/domain';
 
-interface TrackEntryProps {
-  track: Track;
+interface SongEntryProps {
+  song: Song;
   touchableProps?: TouchableOpacityProps;
 }
 
-const TrackEntry: React.FC<TrackEntryProps> = ({ track, touchableProps }) => (
+const SongEntry: React.FC<SongEntryProps> = ({ song: Song, touchableProps }) => (
   <TouchableOpacity
     className="p-3 flex flex-row justify-start items-center max-h-20 gap-3 min-w-full"
     onPress={() => {
-      useQueue.getState().setQueue([track]);
+      useQueue.getState().setQueue([Song]);
       usePlayback.getState().play();
     }}
     {...touchableProps}
   >
     <Image
       style={{ height: '100%', aspectRatio: 1 }}
-      source={{ uri: track.coverArtURL }}
+      source={{ uri: Song.coverArtURL }}
       contentFit="cover"
-      recyclingKey={track.id}
+      recyclingKey={Song.id}
       cachePolicy="memory-disk"
       placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
     />
@@ -47,7 +47,7 @@ const TrackEntry: React.FC<TrackEntryProps> = ({ track, touchableProps }) => (
         animationType="scroll"
         className="color-white font-medium text-xl"
       >
-        {track.title || 'Untitled Track'}
+        {Song.title || 'Untitled Song'}
       </TextTicker>
       <TextTicker
         scrollSpeed={25}
@@ -58,7 +58,7 @@ const TrackEntry: React.FC<TrackEntryProps> = ({ track, touchableProps }) => (
         style={{ lineHeight: 18, fontSize: 15 }}
         className="color-blue-200"
       >
-        {track.artist || 'Unknown Artist'}
+        {Song.artist || 'Unknown Artist'}
       </TextTicker>
     </View>
   </TouchableOpacity>
@@ -71,19 +71,19 @@ const Home = () => {
 
   const PAGE_SIZE = 200;
 
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [isLoadingTracks, setIsLoadingTracks] = useState(false);
+  const [isLoadingSongs, setIsLoadingSongs] = useState(false);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300); // Debounces every time search is updated
   const latestQuery = useRef('');
 
-  const loadTracks = async (
+  const loadSongs = async (
     query: string,
-    trackCount: number,
+    songCount: number,
     newPage: number
   ): Promise<SearchResult> => {
     if (!client) return { success: false };
@@ -91,55 +91,55 @@ const Home = () => {
     latestQuery.current = query;
     setPage(newPage);
 
-    setIsLoadingTracks(true);
+    setIsLoadingSongs(true);
 
     const result = await client.search({
       query: query,
       artistCount: 0,
       albumCount: 0,
-      trackCount,
-      trackOffset: newPage * trackCount,
+      songCount,
+      songOffset: newPage * songCount,
     });
 
     // Discard current result if a newer query exists
     if (latestQuery.current !== query) return result;
 
-    if (result?.tracks) {
-      const newTracks = result.tracks; // Capture narrowed value to use in setTracks closure
-      setTracks((prev) => [...prev, ...newTracks]);
+    if (result?.songs) {
+      const newSongs = result.songs; // Capture narrowed value to use in setSongs closure
+      setSongs((prev) => [...prev, ...newSongs]);
     }
 
-    setIsLoadingTracks(false);
+    setIsLoadingSongs(false);
 
     return result;
   };
 
   const initialLoad = async () => {
-    await loadTracks(search, PAGE_SIZE, 0);
+    await loadSongs(search, PAGE_SIZE, 0);
     setIsInitialLoad(false);
   };
 
   useEffect(() => {
     if (!isInitialLoad) {
-      setTracks([]);
+      setSongs([]);
       setPage(0);
       setHasReachedEnd(false);
-      loadTracks(debouncedSearch, PAGE_SIZE, 0);
+      loadSongs(debouncedSearch, PAGE_SIZE, 0);
     }
   }, [debouncedSearch]);
 
   const handleEndReached = async () => {
-    if (isInitialLoad || isLoadingTracks || hasReachedEnd) return;
+    if (isInitialLoad || isLoadingSongs || hasReachedEnd) return;
 
-    const result = await loadTracks(search, PAGE_SIZE, page + 1);
-    if (!result.tracks?.length || result.tracks.length < PAGE_SIZE) setHasReachedEnd(true);
+    const result = await loadSongs(search, PAGE_SIZE, page + 1);
+    if (!result.songs?.length || result.songs.length < PAGE_SIZE) setHasReachedEnd(true);
   };
 
   useEffect(() => {
     initialLoad();
 
     return () => {
-      setTracks([]);
+      setSongs([]);
     };
   }, [client]);
 
@@ -157,26 +157,26 @@ const Home = () => {
         />
       </View>
       <View className="flex-auto w-full mb-20">
-        {!tracks.length && (
+        {!songs.length && (
           <View className="w-full flex-1 flex justify-center items-center">
             <Text className="font-bold color-white">
-              {!isInitialLoad && !isLoadingTracks && tracks.length == 0
+              {!isInitialLoad && !isLoadingSongs && songs.length == 0
                 ? 'No results found'
-                : 'Loading tracks...'}
+                : 'Loading songs...'}
             </Text>
           </View>
         )}
-        {tracks.length > 0 && (
+        {songs.length > 0 && (
           <FlashList
             contentContainerClassName="py-2"
             keyExtractor={(item) => {
               return item.id;
             }}
-            data={tracks}
-            renderItem={({ item }) => <TrackEntry track={item} />}
+            data={songs}
+            renderItem={({ item }) => <SongEntry song={item} />}
             ListFooterComponent={() => (
               <View className="flex items-center justify-center py-2">
-                {isLoadingTracks && (
+                {isLoadingSongs && (
                   <Text className="color-blue-200 font-medium text-lg">Loading...</Text>
                 )}
                 {hasReachedEnd && (

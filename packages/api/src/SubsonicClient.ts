@@ -1,7 +1,7 @@
 import * as RequestParam from '@choral/types/src/requests/requestParams';
 import * as Response from '@choral/types/src/requests/responses';
 import * as Result from '@choral/types/src/requests/results';
-import { Credentials, Track } from '@choral/types';
+import { Credentials, Song } from '@choral/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
 
@@ -49,14 +49,14 @@ export class SubsonicClient {
       : [];
   };
 
-  // Helper function to generate a track's stream URL and attach it to it's object
-  private attachStreamURL = (tracks: Track[]): Track[] => {
-    return tracks.map((track) => ({
-      ...track,
+  // Helper function to generate a song's stream URL and attach it to it's object
+  private attachStreamURL = (songs: Song[]): Song[] => {
+    return songs.map((song) => ({
+      ...song,
       uri: buildRequestURL({
         credentials: this.credentials,
         endpoint: 'stream',
-        params: { id: track.id },
+        params: { id: song.id }, // TODO: Set maxBitRate to match user preferences
       }),
     }));
   };
@@ -65,10 +65,10 @@ export class SubsonicClient {
     query = '',
     artistCount,
     albumCount,
-    trackCount,
+    songCount,
     artistOffset,
     albumOffset,
-    trackOffset,
+    songOffset,
   }: RequestParam.SearchParams): Promise<Result.SearchResult> => {
     // NOTE: This is a Navidrome-specific workaround achieved via trial-and-error.
     // Wrapping single-char queries in quotes with surrounding spaces triggers substring-style matches.
@@ -81,10 +81,10 @@ export class SubsonicClient {
         query,
         artistCount: artistCount?.toString(),
         albumCount: albumCount?.toString(),
-        songCount: trackCount?.toString(),
+        songCount: songCount?.toString(),
         artistOffset: artistOffset?.toString(),
         albumOffset: albumOffset?.toString(),
-        songOffset: trackOffset?.toString(),
+        songOffset: songOffset?.toString(),
       })
     );
 
@@ -94,7 +94,7 @@ export class SubsonicClient {
       success: true,
       artists: this.attachCoverArt(result?.searchResult3?.artist),
       albums: this.attachCoverArt(result?.searchResult3?.album),
-      tracks: this.attachStreamURL(this.attachCoverArt(result?.searchResult3?.song)),
+      songs: this.attachStreamURL(this.attachCoverArt(result?.searchResult3?.song)),
     };
   };
 }

@@ -1,7 +1,6 @@
-export interface Track {
+export interface Song {
   id: string;
   title: string;
-  isDir: boolean;
   uri: string;
   artist?: string;
   album?: string;

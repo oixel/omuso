@@ -54,7 +54,7 @@ class AudioSessionService : MediaSessionService() {
     var onPlayerDestroyed: (() -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
-    var onTrackChanged: ((Int) -> Unit)? = null
+    var onSongChanged: ((Int) -> Unit)? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -79,7 +79,7 @@ class AudioSessionService : MediaSessionService() {
         nativeAudioPlayer.onPositionChanged = { position, duration ->
             onPositionChanged?.invoke(position, duration)
         }
-        nativeAudioPlayer.onTrackChanged = { index -> onTrackChanged?.invoke(index) }
+        nativeAudioPlayer.onSongChanged = { index -> onSongChanged?.invoke(index) }
     }
 
     // Connect media session's controller info to the new session
@@ -130,14 +130,14 @@ class AudioSessionService : MediaSessionService() {
     fun togglePause() = nativeAudioPlayer.togglePause()
 
     fun seekTo(position: Long) = nativeAudioPlayer.seekTo(position)
-    fun playTrack(index: Int) = nativeAudioPlayer.playTrack(index)
+    fun playSong(index: Int) = nativeAudioPlayer.playSong(index)
     fun skip() = nativeAudioPlayer.skip()
     fun prev() = nativeAudioPlayer.prev()
 
     fun getIsPlaying() = nativeAudioPlayer.isPlaying
     fun getPosition() = nativeAudioPlayer.position
     fun getDuration() = nativeAudioPlayer.duration
-    fun getTrackIndex() = nativeAudioPlayer.trackIndex
+    fun getSongIndex() = nativeAudioPlayer.songIndex
     fun getPlaybackState() = nativeAudioPlayer.playbackState
 
     // Delegate queue controls to the Module for export

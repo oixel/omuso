@@ -4,7 +4,7 @@
 // This then gets further filtered into a "Result" (results.ts)
 //
 
-import { Album, Artist, Track } from '../media';
+import { Album, Artist, Song } from '../media';
 
 interface SubsonicResponse {
   status: string;
@@ -14,6 +14,6 @@ export interface SearchResponse extends SubsonicResponse {
   searchResult3?: {
     artist: Artist[];
     album: Album[];
-    song: Track[];
+    song: Song[];
   };
 }
