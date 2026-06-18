@@ -1,3 +1,4 @@
+export * from './utils';
 export * from './auth';
 export * from './storage';
 export * from './audioPlayer';
