@@ -9,7 +9,7 @@ import { v4 as uuid } from 'uuid';
 function createQueuedSong(song: Song): QueuedSong {
   return {
     queueId: uuid(),
-    song,
+    ...song,
   };
 }
 
@@ -27,7 +27,7 @@ export const useQueue = create<QueueStore>()(
       restoreQueue: async () => {
         // Restore queue progress from previous listening session in AudioPlayer
         getAudioPlayer().setQueue(get().queue);
-        getAudioPlayer().seekToSong(get().index);
+        getAudioPlayer().playSong(get().index);
       },
 
       setQueue: async (songs: Song[]) => {
@@ -78,8 +78,7 @@ export const useQueue = create<QueueStore>()(
         // When AudioPlayer's index falls out of the queue's range bring it back to the end
         const index = get().index;
         const queue = get().queue;
-        if (index >= queue.length && queue.length != 0)
-          getAudioPlayer().seekToSong(queue.length - 1);
+        if (index >= queue.length && queue.length != 0) getAudioPlayer().playSong(queue.length - 1);
       },
     }),
     {
