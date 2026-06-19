@@ -10,7 +10,7 @@ export interface AudioPlayer {
   togglePause: () => Promise<void>;
 
   seekTo: (position: number) => Promise<void>;
-  seekToSong: (index: number) => Promise<void>;
+  playSong: (index: number) => Promise<void>;
   skip: () => Promise<void>;
   prev: () => Promise<void>;
 
