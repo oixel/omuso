@@ -41,7 +41,9 @@
       ],
       "expo-router",
       "expo-asset",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-image",
+      "expo-status-bar"
     ]
   }
 }
