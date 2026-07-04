@@ -12,56 +12,126 @@ import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth, useDebounce } from '@choral/domain';
 import { FlashList } from '@shopify/flash-list';
 import { SearchResult, Song } from '@choral/types';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import TextTicker from 'react-native-text-ticker';
 import { useQueue, usePlayback } from '@choral/domain';
+import ReanimatedSwipeable, {
+  SwipeableMethods,
+  SwipeDirection,
+} from 'react-native-gesture-handler/ReanimatedSwipeable';
+
+import Animated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated';
+
+function LeftAction(progress: SharedValue<number>, drag: SharedValue<number>) {
+  const styleAnimation = useAnimatedStyle(() => {
+    return { transform: [{ translateX: drag.value - 80 }] };
+  });
+
+  return (
+    <Animated.View
+      style={[styleAnimation, { width: 80, justifyContent: 'center', alignItems: 'center' }]}
+    >
+      <Text className="font-bold color-white">Play next</Text>
+    </Animated.View>
+  );
+}
+
+function RightAction(progress: SharedValue<number>, drag: SharedValue<number>) {
+  const styleAnimation = useAnimatedStyle(() => {
+    return { transform: [{ translateX: drag.value + 80 }] };
+  });
+
+  return (
+    <Animated.View
+      style={[styleAnimation, { width: 80, justifyContent: 'center', alignItems: 'flex-start' }]}
+    >
+      <Text className="font-bold color-white">Add to end</Text>
+    </Animated.View>
+  );
+}
 
 interface SongEntryProps {
   song: Song;
   touchableProps?: TouchableOpacityProps;
 }
 
-const SongEntry: React.FC<SongEntryProps> = ({ song: Song, touchableProps }) => (
-  <TouchableOpacity
-    className="p-3 flex flex-row justify-start items-center max-h-20 gap-3 min-w-full"
-    onPress={() => {
-      useQueue.getState().setQueue([Song]);
-      usePlayback.getState().play();
-    }}
-    {...touchableProps}
-  >
-    <Image
-      style={{ height: '100%', aspectRatio: 1 }}
-      source={{ uri: Song.coverArtURL }}
-      contentFit="cover"
-      recyclingKey={Song.id}
-      cachePolicy="memory-disk"
-      placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-    />
-    <View className="border-b border-blue-500 flex-1 h-full">
-      <TextTicker
-        scrollSpeed={25}
-        marqueeDelay={1500}
-        repeatSpacer={30}
-        easing={Easing.linear}
-        animationType="scroll"
-        className="color-white font-medium text-xl"
+const SongEntry: React.FC<SongEntryProps> = memo(
+  ({ song, touchableProps }) => {
+    const swipeableRef = useRef<SwipeableMethods>(null);
+
+    const useTitleTicker = song.title.length > 35;
+    const useArtistTicker = (song.artist?.length ?? 0) > 35;
+
+    return (
+      <ReanimatedSwipeable
+        ref={swipeableRef}
+        friction={2}
+        overshootFriction={8}
+        enableTrackpadTwoFingerGesture
+        rightThreshold={30}
+        renderRightActions={RightAction}
+        renderLeftActions={LeftAction}
+        onSwipeableWillOpen={(dir: SwipeDirection) => {
+          if (dir === 'left') useQueue.getState().addToEnd([song]);
+          else useQueue.getState().addNext([song]);
+
+          swipeableRef.current?.close();
+        }}
       >
-        {Song.title || 'Untitled Song'}
-      </TextTicker>
-      <TextTicker
-        scrollSpeed={25}
-        marqueeDelay={1500}
-        repeatSpacer={30}
-        easing={Easing.linear}
-        animationType="scroll"
-        style={{ lineHeight: 18, fontSize: 15 }}
-        className="color-blue-200"
-      >
-        {Song.artist || 'Unknown Artist'}
-      </TextTicker>
-    </View>
-  </TouchableOpacity>
+        <TouchableOpacity
+          className="p-3 flex flex-row justify-start items-center max-h-20 gap-3 min-w-full"
+          onPress={() => {
+            useQueue.getState().setQueue([song]);
+            usePlayback.getState().play();
+          }}
+          {...touchableProps}
+        >
+          <Image
+            style={{ height: '100%', aspectRatio: 1 }}
+            source={{ uri: song.coverArtURL }}
+            contentFit="cover"
+            recyclingKey={song.id}
+            cachePolicy="memory-disk"
+            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+          />
+          <View className="border-b border-blue-500 flex-1 h-full">
+            {useTitleTicker ? (
+              <TextTicker
+                scrollSpeed={25}
+                marqueeDelay={1500}
+                repeatSpacer={30}
+                easing={Easing.linear}
+                animationType="scroll"
+                className="color-white font-medium text-xl"
+              >
+                {song.title || 'Untitled Song'}
+              </TextTicker>
+            ) : (
+              <Text className="color-white font-medium text-xl">
+                {song.title || 'Untitled Song'}
+              </Text>
+            )}
+            {useArtistTicker ? (
+              <TextTicker
+                scrollSpeed={25}
+                marqueeDelay={1500}
+                repeatSpacer={30}
+                easing={Easing.linear}
+                animationType="scroll"
+                style={{ lineHeight: 18, fontSize: 15 }}
+                className="color-blue-200"
+              >
+                {song.artist || 'Unknown Artist'}
+              </TextTicker>
+            ) : (
+              <Text className="color-blue-200"> {song.artist || 'Unknown Artist'}</Text>
+            )}
+          </View>
+        </TouchableOpacity>
+      </ReanimatedSwipeable>
+    );
+  },
+  (prev: SongEntryProps, next: SongEntryProps) => prev.song.id === next.song.id
 );
 
 const Home = () => {
@@ -80,6 +150,12 @@ const Home = () => {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 300); // Debounces every time search is updated
   const latestQuery = useRef('');
+
+  const { removeFromQueue } = useQueue();
+  const index = useQueue((state) => state.index);
+  const queue = useQueue((state) => state.queue);
+  const { togglePause, prev, skip } = usePlayback();
+  const isPlaying = usePlayback((state) => state.isPlaying);
 
   const loadSongs = async (
     query: string,
@@ -145,9 +221,17 @@ const Home = () => {
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
-      <View className="flex-shrink pt-44 pb-12 items-center justify-center w-full">
+      <View className="flex-shrink pt-44 pb-8 items-center justify-center w-full gap-2">
         <Text className="font-extrabold color-white text-5xl mb-4">choral</Text>
-        <Text>Home Page</Text>
+        <Text className="text-xl font-bold color-white my-5">
+          Now Playing: {queue[index]?.title}
+        </Text>
+        <View className="flex flex-row gap-2">
+          <Button title="🚮" onPress={() => removeFromQueue(index)}></Button>
+          <Button title="Prev" onPress={prev}></Button>
+          <Button title={isPlaying ? 'Pause' : 'Play'} onPress={togglePause}></Button>
+          <Button title="Skip" onPress={skip}></Button>
+        </View>
         <TextInput
           className="bg-white w-2/3 my-4 color-black placeholder:color-gray-600"
           autoCapitalize="none"
@@ -172,8 +256,8 @@ const Home = () => {
             keyExtractor={(item) => {
               return item.id;
             }}
+            drawDistance={150}
             data={songs}
-            renderItem={({ item }) => <SongEntry song={item} />}
             ListFooterComponent={() => (
               <View className="flex items-center justify-center py-2">
                 {isLoadingSongs && (
@@ -186,10 +270,10 @@ const Home = () => {
             )}
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
+            renderItem={({ item }) => <SongEntry song={item} />}
           />
         )}
       </View>
-      <Button title="Testing" onPress={() => router.navigate('/testing')} />
       <View className="mb-4"></View>
       <Button
         title="Log Out"
