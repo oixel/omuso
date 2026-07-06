@@ -6,10 +6,19 @@ export interface ComponentOptions {
     border: number;
     cornerRadius: number;
   };
-  controls: {
-    showShuffle: boolean;
-    showRepeat: boolean;
-    showStar: boolean;
-    spacing: number;
+  playbackButton: {
+    functionality:
+      | 'togglePause'
+      | 'play'
+      | 'pause'
+      | 'stop'
+      | 'seekBack'
+      | 'seekForward'
+      | 'prev'
+      | 'skip'
+      | 'shuffle'
+      | 'repeat'
+      | 'star';
+    seekSeconds?: number; // How many seconds seekBack/Forward should skip
   };
 }

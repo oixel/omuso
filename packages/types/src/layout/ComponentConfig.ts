@@ -6,7 +6,16 @@ import { ComponentOptions } from './ComponentOptions';
 
 export interface ComponentConfig {
   id: keyof ComponentOptions;
-  enabled: boolean;
-  order: number; // Position on screen in relation to other enabled componets
-  options?: ComponentOptions[keyof ComponentOptions]; // Settings specific to component
+
+  position: {
+    // Grid coordinate of component's top left
+    x: number;
+    y: number;
+  };
+
+  // Cell size counts of scalable components
+  width: number;
+  height: number;
+
+  options?: ComponentOptions[keyof ComponentOptions]; // Additional settings specific to component
 }

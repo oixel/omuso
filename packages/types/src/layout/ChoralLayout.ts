@@ -6,7 +6,7 @@ import { ScreenLayout } from './ScreenLayout';
 
 export interface ChoralLayout {
   version: string;
-  screens: {
+  customizableScreens: {
     home: ScreenLayout; // First screen that the app opens up to
     player: ScreenLayout; // Pramariy place for user to control playback
     queue: ScreenLayout; // Current playback queue
@@ -15,6 +15,10 @@ export interface ChoralLayout {
     artist: ScreenLayout; // View of an artist's info / discography
     album: ScreenLayout; // View for a album's tracklist
     playlist: ScreenLayout; // View a playlist's tracklist
+  };
+  fixedScreens: {
+    // These screens cannot have their configurations altered by a user, only choral-theme var theming gets applied
+    login: ScreenLayout;
     settings: ScreenLayout;
   };
 }
