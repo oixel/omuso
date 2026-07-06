@@ -17,7 +17,7 @@ export interface ChoralLayout {
     playlist: ScreenLayout; // View a playlist's tracklist
   };
   fixedScreens: {
-    // These screens cannot have their configurations altered by a user, only choral-theme var theming gets applied
+    // These screens cannot have their configurations altered by a user, only choral-theme CSS var theming gets applied
     login: ScreenLayout;
     settings: ScreenLayout;
   };
