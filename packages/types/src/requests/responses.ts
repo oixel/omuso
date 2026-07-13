@@ -17,3 +17,11 @@ export interface SearchResponse extends SubsonicResponse {
     song: Song[];
   };
 }
+
+export interface GetGenresResponse extends SubsonicResponse {
+  genres?: {
+    value: string;
+    songCount: number;
+    albumCount: number;
+  }[];
+}

@@ -88,13 +88,23 @@ export class SubsonicClient {
       })
     );
 
-    if (result.status !== 'ok') return { success: false };
+    if (!result || result.status !== 'ok') return { success: false };
 
     return {
       success: true,
-      artists: this.attachCoverArt(result?.searchResult3?.artist),
-      albums: this.attachCoverArt(result?.searchResult3?.album),
+      artists: this.attachCoverArt(result.searchResult3?.artist),
+      albums: this.attachCoverArt(result.searchResult3?.album),
       songs: this.attachStreamURL(this.attachCoverArt(result?.searchResult3?.song)),
+    };
+  };
+
+  getGenres = async (): Promise<Result.GetGenresResult> => {
+    const result = await this.request<Response.GetGenresResponse>('getGenres');
+    if (!result || result.status !== 'ok') return { success: false };
+
+    return {
+      success: true,
+      genres: result.genres?.map(({ value: name, ...counts }) => ({ name, ...counts })), // Rename genre's 'value' property to 'name'
     };
   };
 }

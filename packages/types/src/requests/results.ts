@@ -3,7 +3,7 @@
 // The results take the filtered data from "Response" (responses.ts) and picks out the relevant data
 //
 
-import { Album, Artist, Song } from '../media';
+import { Album, Artist, Song, Genre } from '../media';
 
 interface Result {
   success: boolean;
@@ -18,4 +18,8 @@ export interface SearchResult extends Result {
   artists?: Artist[];
   albums?: Album[];
   songs?: Song[];
+}
+
+export interface GetGenresResult extends Result {
+  genres?: Genre[];
 }
