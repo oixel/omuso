@@ -20,8 +20,14 @@ export interface SearchResponse extends SubsonicResponse {
 
 export interface GetGenresResponse extends SubsonicResponse {
   genres?: {
-    value: string;
-    songCount: number;
-    albumCount: number;
-  }[];
+    genre: {
+      value: string;
+      songCount: number;
+      albumCount: number;
+    }[];
+  };
+}
+
+export interface GetSongsByGenreResponse extends SubsonicResponse {
+  songsByGenre?: { song: Song[] };
 }

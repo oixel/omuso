@@ -75,7 +75,7 @@ export class SubsonicClient {
     // This might get patched in the future, but for not it ensures sing-char quotes work properly.
     if (query.length === 1) query = `" ${query} "`;
 
-    const result = await this.request<Response.SearchResponse>(
+    const response = await this.request<Response.SearchResponse>(
       'search3',
       cleanParams({
         query,
@@ -88,23 +88,39 @@ export class SubsonicClient {
       })
     );
 
-    if (!result || result.status !== 'ok') return { success: false };
+    if (!response || response.status !== 'ok') return { success: false };
 
     return {
       success: true,
-      artists: this.attachCoverArt(result.searchResult3?.artist),
-      albums: this.attachCoverArt(result.searchResult3?.album),
-      songs: this.attachStreamURL(this.attachCoverArt(result?.searchResult3?.song)),
+      artists: this.attachCoverArt(response.searchResult3?.artist),
+      albums: this.attachCoverArt(response.searchResult3?.album),
+      songs: this.attachStreamURL(this.attachCoverArt(response.searchResult3?.song)),
     };
   };
 
   getGenres = async (): Promise<Result.GetGenresResult> => {
-    const result = await this.request<Response.GetGenresResponse>('getGenres');
-    if (!result || result.status !== 'ok') return { success: false };
+    const response = await this.request<Response.GetGenresResponse>('getGenres');
+    if (!response || response.status !== 'ok') return { success: false };
 
     return {
       success: true,
-      genres: result.genres?.map(({ value: name, ...counts }) => ({ name, ...counts })), // Rename genre's 'value' property to 'name'
+      genres: response.genres?.genre?.map(({ value: name, ...counts }) => ({ name, ...counts })), // Rename genre's 'value' property to 'name'
+    };
+  };
+
+  getSongsByGenre = async ({
+    genre,
+    count, // Defaults to 10 if not provided
+    offset, // Defaults to 0 if not provided
+  }: RequestParam.GetSongsByGenreParams): Promise<Result.GetSongsByGenreResult> => {
+    const response = await this.request<Response.GetSongsByGenreResponse>(
+      'getSongsByGenre',
+      cleanParams({ genre, count, offset })
+    );
+    if (!response || response.status !== 'ok') return { success: false };
+    return {
+      success: true,
+      songs: this.attachStreamURL(this.attachCoverArt(response.songsByGenre?.song)),
     };
   };
 }

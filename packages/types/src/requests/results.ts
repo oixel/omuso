@@ -23,3 +23,7 @@ export interface SearchResult extends Result {
 export interface GetGenresResult extends Result {
   genres?: Genre[];
 }
+
+export interface GetSongsByGenreResult extends Result {
+  songs?: Song[];
+}
