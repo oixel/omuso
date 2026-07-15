@@ -104,7 +104,7 @@ export class SubsonicClient {
 
     return {
       success: true,
-      genres: response.genres?.genre?.map(({ value: name, ...counts }) => ({ name, ...counts })), // Rename genre's 'value' property to 'name'
+      genres: response.genres?.genre?.map(({ value: id, ...counts }) => ({ id, ...counts })), // Rename genre's 'value' property to 'id'
     };
   };
 
