@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Button, Text, TextInput, TextInputProps, View } from 'react-native';
 import { validateServer, validateLogin, useAuth } from '@choral/domain';
-import { initializeNativeAudioPlayer } from '../../util/initializeNativeAudioPlayer';
+import { initializeNativeAudioPlayer } from '@utils/initializeNativeAudioPlayer';
 import { Credentials } from '@choral/types';
 
 const StyledInput = (props: TextInputProps) => (

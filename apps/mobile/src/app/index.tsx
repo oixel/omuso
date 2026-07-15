@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import { useAuth } from '@choral/domain';
 import { useEffect } from 'react';
-import { initializeNativeAudioPlayer } from '../util/initializeNativeAudioPlayer';
+import { initializeNativeAudioPlayer } from '@utils/initializeNativeAudioPlayer';
 
 const App = () => {
   const router = useRouter();
