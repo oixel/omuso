@@ -4,7 +4,7 @@
     "strict": true,
     "paths": {
       "native-audio-player": ["./modules/native-audio-player/src/NativeAudioPlayerModule.ts"],
-      "@/*": ["./"],
+      "@/*": ["./*"],
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"]
     }
