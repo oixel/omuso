@@ -1,26 +1,28 @@
 import { Media } from '@choral/types/src/media/Media';
-import { FlashList } from '@shopify/flash-list';
+import { FlashList, FlashListProps } from '@shopify/flash-list';
 import { ReactElement } from 'react';
 
-interface MediaListProps {
+interface MediaListProps extends Omit<FlashListProps<Media>, 'renderItem'> {
   data: Media[];
   Entry: React.FC<{ item: Media }>;
-  footer: () => ReactElement;
-  handleEndReached?: () => void;
+  horizontal?: boolean;
+  footer?: () => ReactElement;
 }
 
-const MediaList = ({ data, Entry, footer, handleEndReached }: MediaListProps) => {
+const MediaList = ({ data, Entry, horizontal = false, footer, ...props }: MediaListProps) => {
   return (
     <FlashList
-      contentContainerClassName="py-2"
+      key={horizontal ? 'horizontal' : 'vertical'} // Force a remount on horizontal change
+      {...props}
+      horizontal={horizontal}
+      // contentContainerClassName="py-2 gap-2"
       keyExtractor={(item) => {
         return item.id;
       }}
       drawDistance={150}
       data={data}
-      ListFooterComponent={footer}
-      onEndReached={handleEndReached}
       onEndReachedThreshold={0.5}
+      ListFooterComponent={footer}
       renderItem={({ item }: { item: Media }) => <Entry item={item} />}
     />
   );
