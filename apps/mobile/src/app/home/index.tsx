@@ -1,12 +1,13 @@
 import { View, Text, Button, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth, useDebounce } from '@choral/domain';
-import { SearchResult, Song } from '@choral/types';
+import { Genre, GetGenresResult, SearchResult, Song } from '@choral/types';
 import { useEffect, useRef, useState } from 'react';
 import { useQueue, usePlayback } from '@choral/domain';
 
 import MediaList from '@components/MediaList';
-import SongEntry from '@components/MediaEntries/SongEntry';
+// import SongEntry from '@components/MediaEntries/SongEntry';
+import GenreEntry from '@components/MediaEntries/GenreEntry';
 
 const Home = () => {
   const router = useRouter();
@@ -14,6 +15,8 @@ const Home = () => {
   const client = useAuth((state) => state.client);
 
   const PAGE_SIZE = 200;
+
+  const [genres, setGenres] = useState<Genre[]>([]);
 
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
@@ -31,50 +34,62 @@ const Home = () => {
   const { togglePause, prev, skip } = usePlayback();
   const isPlaying = usePlayback((state) => state.isPlaying);
 
-  const loadSongs = async (
-    query: string,
-    songCount: number,
-    newPage: number
-  ): Promise<SearchResult> => {
+  const loadGenres = async (): Promise<GetGenresResult> => {
     if (!client) return { success: false };
 
-    latestQuery.current = query;
-    setPage(newPage);
-
-    setIsLoadingSongs(true);
-
-    const result = await client.search({
-      query: query,
-      artistCount: 0,
-      albumCount: 0,
-      songCount,
-      songOffset: newPage * songCount,
-    });
-
-    // Discard current result if a newer query exists
-    if (latestQuery.current !== query) return result;
-
-    if (result?.songs) {
-      const newSongs = result.songs; // Capture narrowed value to use in setSongs closure
-      setSongs((prev) => [...prev, ...newSongs]);
-    }
-
-    setIsLoadingSongs(false);
+    const result = await client.getGenres();
+    if (result.genres) setGenres(result.genres);
 
     return result;
   };
 
+  // const loadSongs = async (
+  //   query: string,
+  //   songCount: number,
+  //   newPage: number
+  // ): Promise<SearchResult> => {
+  //   if (!client) return { success: false };
+
+  //   latestQuery.current = query;
+  //   setPage(newPage);
+
+  //   setIsLoadingSongs(true);
+
+  //   const result = await client.search({
+  //     query: query,
+  //     artistCount: 0,
+  //     albumCount: 0,
+  //     songCount,
+  //     songOffset: newPage * songCount,
+  //   });
+
+  //   // Discard current result if a newer query exists
+  //   if (latestQuery.current !== query) return result;
+
+  //   if (result?.songs) {
+  //     const newSongs = result.songs; // Capture narrowed value to use in setSongs closure
+  //     setSongs((prev) => [...prev, ...newSongs]);
+  //   }
+
+  //   setIsLoadingSongs(false);
+
+  //   return result;
+  // };
+
   const initialLoad = async () => {
-    await loadSongs(search, PAGE_SIZE, 0);
+    await loadGenres();
+    // await loadSongs(search, PAGE_SIZE, 0);
     setIsInitialLoad(false);
   };
 
   useEffect(() => {
     if (!isInitialLoad) {
-      setSongs([]);
-      setPage(0);
-      setHasReachedEnd(false);
-      loadSongs(debouncedSearch, PAGE_SIZE, 0);
+      // setSongs([]);
+      // setPage(0);
+      // setHasReachedEnd(false);
+      // loadSongs(debouncedSearch, PAGE_SIZE, 0);
+      setGenres([]);
+      loadGenres();
     }
   }, [debouncedSearch]);
 
@@ -82,7 +97,8 @@ const Home = () => {
     initialLoad();
 
     return () => {
-      setSongs([]);
+      // setSongs([]);
+      setGenres([]);
     };
   }, [client]);
 
@@ -107,8 +123,8 @@ const Home = () => {
           onChangeText={setSearch}
         />
       </View>
-      <View className="flex-auto w-full mb-20">
-        {!songs.length && (
+      <View style={{ height: 'auto', width: '100%' }}>
+        {/* {!songs.length && (
           <View className="w-full flex-1 flex justify-center items-center">
             <Text className="font-bold color-white">
               {!isInitialLoad && !isLoadingSongs && songs.length == 0
@@ -116,8 +132,8 @@ const Home = () => {
                 : 'Loading songs...'}
             </Text>
           </View>
-        )}
-        {songs.length > 0 && (
+        )} */}
+        {/* {songs.length > 0 && (
           <MediaList
             data={songs}
             Entry={SongEntry}
@@ -131,14 +147,21 @@ const Home = () => {
                 )}
               </View>
             )}
-            handleEndReached={async () => {
+            onEndReached={async () => {
               if (isInitialLoad || isLoadingSongs || hasReachedEnd) return;
 
               const result = await loadSongs(search, PAGE_SIZE, page + 1);
               if (!result.songs?.length || result.songs.length < PAGE_SIZE) setHasReachedEnd(true);
             }}
           />
-        )}
+        )} */}
+
+        <MediaList
+          data={genres}
+          Entry={GenreEntry}
+          horizontal={true}
+          separator={() => <View style={{ width: 6 }} />}
+        />
       </View>
       <View className="mb-4"></View>
       <Button
