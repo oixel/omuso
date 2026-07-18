@@ -6,16 +6,24 @@ interface MediaListProps extends Omit<FlashListProps<Media>, 'renderItem'> {
   data: Media[];
   Entry: React.FC<{ item: Media }>;
   horizontal?: boolean;
+  separator?: () => ReactElement;
   footer?: () => ReactElement;
 }
 
-const MediaList = ({ data, Entry, horizontal = false, footer, ...props }: MediaListProps) => {
+const MediaList = ({
+  data,
+  Entry,
+  horizontal = false,
+  footer,
+  separator,
+  ...props
+}: MediaListProps) => {
   return (
     <FlashList
       key={horizontal ? 'horizontal' : 'vertical'} // Force a remount on horizontal change
       {...props}
       horizontal={horizontal}
-      // contentContainerClassName="py-2 gap-2"
+      contentContainerStyle={{ padding: 4 }}
       keyExtractor={(item) => {
         return item.id;
       }}
@@ -24,6 +32,7 @@ const MediaList = ({ data, Entry, horizontal = false, footer, ...props }: MediaL
       onEndReachedThreshold={0.5}
       ListFooterComponent={footer}
       renderItem={({ item }: { item: Media }) => <Entry item={item} />}
+      ItemSeparatorComponent={separator}
     />
   );
 };
