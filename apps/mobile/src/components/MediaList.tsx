@@ -4,7 +4,7 @@ import { ReactElement } from 'react';
 
 interface MediaListProps extends Omit<FlashListProps<Media>, 'renderItem'> {
   data: Media[];
-  Entry: React.FC<{ item: Media }>;
+  Entry: React.FC<{ item: Media; horizontal: boolean }>;
   horizontal?: boolean;
   separator?: () => ReactElement;
   footer?: () => ReactElement;
@@ -31,7 +31,7 @@ const MediaList = ({
       data={data}
       onEndReachedThreshold={0.5}
       ListFooterComponent={footer}
-      renderItem={({ item }: { item: Media }) => <Entry item={item} />}
+      renderItem={({ item }: { item: Media }) => <Entry item={item} horizontal={horizontal} />}
       ItemSeparatorComponent={separator}
     />
   );

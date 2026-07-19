@@ -1,6 +1,6 @@
 import { Media, Song } from '@choral/types';
 import { Image } from 'expo-image';
-import { Easing, Pressable, Text, View } from 'react-native';
+import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { memo } from 'react';
 import { usePlayback, useQueue } from '@choral/domain';
@@ -12,10 +12,11 @@ function isSong(item: Media): item is Song {
 
 interface SongEntryProps {
   item: Media;
+  horizontal: boolean;
 }
 
 const SongEntry: React.FC<SongEntryProps> = memo(
-  ({ item }: SongEntryProps) => {
+  ({ item, horizontal }: SongEntryProps) => {
     if (!isSong(item)) return;
 
     const useTitleTicker = item.title.length > 35;
@@ -23,7 +24,7 @@ const SongEntry: React.FC<SongEntryProps> = memo(
 
     return (
       <Pressable
-        className="p-3 flex flex-row justify-start items-center max-h-20 gap-3 min-w-full"
+        style={horizontal ? styles.horizontal : styles.vertical}
         onPress={() => {
           useQueue.getState().setQueue([item]);
           usePlayback.getState().play();
@@ -73,5 +74,19 @@ const SongEntry: React.FC<SongEntryProps> = memo(
   },
   (prev: SongEntryProps, next: SongEntryProps) => prev.item.id === next.item.id
 );
+
+const styles = StyleSheet.create({
+  vertical: {
+    padding: 12,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    height: 80,
+    gap: 12,
+    minWidth: '100%',
+  },
+  horizontal: {},
+});
 
 export default SongEntry;
