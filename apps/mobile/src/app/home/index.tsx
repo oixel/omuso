@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQueue, usePlayback } from '@choral/domain';
 
 import MediaList from '@components/MediaList';
-// import SongEntry from '@components/MediaEntries/SongEntry';
+import SongEntry from '@components/MediaEntries/SongEntry';
 import GenreEntry from '@components/MediaEntries/GenreEntry';
 
 const Home = () => {
@@ -43,51 +43,51 @@ const Home = () => {
     return result;
   };
 
-  // const loadSongs = async (
-  //   query: string,
-  //   songCount: number,
-  //   newPage: number
-  // ): Promise<SearchResult> => {
-  //   if (!client) return { success: false };
+  const loadSongs = async (
+    query: string,
+    songCount: number,
+    newPage: number
+  ): Promise<SearchResult> => {
+    if (!client) return { success: false };
 
-  //   latestQuery.current = query;
-  //   setPage(newPage);
+    latestQuery.current = query;
+    setPage(newPage);
 
-  //   setIsLoadingSongs(true);
+    setIsLoadingSongs(true);
 
-  //   const result = await client.search({
-  //     query: query,
-  //     artistCount: 0,
-  //     albumCount: 0,
-  //     songCount,
-  //     songOffset: newPage * songCount,
-  //   });
+    const result = await client.search({
+      query: query,
+      artistCount: 0,
+      albumCount: 0,
+      songCount,
+      songOffset: newPage * songCount,
+    });
 
-  //   // Discard current result if a newer query exists
-  //   if (latestQuery.current !== query) return result;
+    // Discard current result if a newer query exists
+    if (latestQuery.current !== query) return result;
 
-  //   if (result?.songs) {
-  //     const newSongs = result.songs; // Capture narrowed value to use in setSongs closure
-  //     setSongs((prev) => [...prev, ...newSongs]);
-  //   }
+    if (result?.songs) {
+      const newSongs = result.songs; // Capture narrowed value to use in setSongs closure
+      setSongs((prev) => [...prev, ...newSongs]);
+    }
 
-  //   setIsLoadingSongs(false);
+    setIsLoadingSongs(false);
 
-  //   return result;
-  // };
+    return result;
+  };
 
   const initialLoad = async () => {
     await loadGenres();
-    // await loadSongs(search, PAGE_SIZE, 0);
+    await loadSongs(search, PAGE_SIZE, 0);
     setIsInitialLoad(false);
   };
 
   useEffect(() => {
     if (!isInitialLoad) {
-      // setSongs([]);
-      // setPage(0);
-      // setHasReachedEnd(false);
-      // loadSongs(debouncedSearch, PAGE_SIZE, 0);
+      setSongs([]);
+      setPage(0);
+      setHasReachedEnd(false);
+      loadSongs(debouncedSearch, PAGE_SIZE, 0);
       setGenres([]);
       loadGenres();
     }
@@ -97,14 +97,14 @@ const Home = () => {
     initialLoad();
 
     return () => {
-      // setSongs([]);
+      setSongs([]);
       setGenres([]);
     };
   }, [client]);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
-      <View className="flex-shrink pt-44 pb-8 items-center justify-center w-full gap-2">
+      <View className="flex-shrink pt-44 pb-4 items-center justify-center w-full gap-2">
         <Text className="font-extrabold color-white text-5xl mb-4">choral</Text>
         <Text className="text-xl font-bold color-white my-5">
           Now Playing: {queue[index]?.title}
@@ -123,8 +123,8 @@ const Home = () => {
           onChangeText={setSearch}
         />
       </View>
-      <View style={{ height: 'auto', width: '100%' }}>
-        {/* {!songs.length && (
+      <View className="flex-1 max-h-72 w-full pb-4">
+        {!songs.length && (
           <View className="w-full flex-1 flex justify-center items-center">
             <Text className="font-bold color-white">
               {!isInitialLoad && !isLoadingSongs && songs.length == 0
@@ -132,8 +132,8 @@ const Home = () => {
                 : 'Loading songs...'}
             </Text>
           </View>
-        )} */}
-        {/* {songs.length > 0 && (
+        )}
+        {songs.length > 0 && (
           <MediaList
             data={songs}
             Entry={SongEntry}
@@ -154,8 +154,9 @@ const Home = () => {
               if (!result.songs?.length || result.songs.length < PAGE_SIZE) setHasReachedEnd(true);
             }}
           />
-        )} */}
-
+        )}
+      </View>
+      <View style={{ height: 200, paddingTop: 20 }}>
         <MediaList
           data={genres}
           Entry={GenreEntry}
