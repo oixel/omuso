@@ -1,3 +1,4 @@
+import { convertStringToColor } from '@choral/domain';
 import { Media } from '@choral/types';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
@@ -8,7 +9,12 @@ interface GenreEntryProps {
 
 const GenreEntry: React.FC<GenreEntryProps> = ({ item, horizontal }: GenreEntryProps) => {
   return (
-    <Pressable style={horizontal ? styles.horizontal : styles.vertical}>
+    <Pressable
+      style={[
+        horizontal ? styles.horizontal : styles.vertical,
+        { backgroundColor: convertStringToColor(item.id, 5, 85, 45) },
+      ]}
+    >
       <Text className="color-white font-bold">{item.id}</Text>
     </Pressable>
   );
