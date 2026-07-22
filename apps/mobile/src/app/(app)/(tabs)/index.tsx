@@ -2,7 +2,6 @@ import { View, Text, Button, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
-import GenreMediaList from '@components/MediaLists/GenreMediaList';
 
 const Home = () => {
   const router = useRouter();
@@ -16,7 +15,7 @@ const Home = () => {
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
-      <View className="flex-shrink pt-44 pb-4 items-center justify-center w-full gap-2 mb-12">
+      <View className="flex-shrink pb-4 items-center justify-center w-full gap-2 mb-12">
         <Text className="font-extrabold color-white text-5xl mb-4">choral</Text>
         <Text className="text-xl font-bold color-white my-5">
           Now Playing: {queue[index]?.title}
@@ -28,8 +27,8 @@ const Home = () => {
           <Button title="Skip" onPress={skip}></Button>
         </View>
       </View>
-      <GenreMediaList />
-      <View className="flex flex-row gap-2">
+      {/* <GenreMediaList /> */}
+      {/* <View className="flex flex-row gap-2">
         <Pressable className="h-12 bg-blue-700 my-4 px-4 flex justify-center mb-12 border border-white rounded-md">
           <Text className="text-xl text-white font-bold">Artists</Text>
         </Pressable>
@@ -54,7 +53,7 @@ const Home = () => {
           router.replace('/login');
         }}
       />
-      <View className="mb-8"></View>
+      <View className="mb-8"></View> */}
     </View>
   );
 };
