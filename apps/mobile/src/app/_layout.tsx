@@ -11,7 +11,7 @@ const RootLayout = () => {
     loadCredentials();
   }, []);
 
-  if (loading) return null; // Keep splash screen up while authenticating
+  if (loading) return null; // TODO: Keep splash screen up while authenticating
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
