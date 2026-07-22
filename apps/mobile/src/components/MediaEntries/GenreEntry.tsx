@@ -17,7 +17,7 @@ const GenreEntry: React.FC<GenreEntryProps> = ({ item, horizontal }: GenreEntryP
         horizontal ? styles.horizontal : styles.vertical,
         { backgroundColor: convertStringToColor(item.id, 5, 85, 45) },
       ]}
-      onPress={() => router.navigate({ pathname: '/genre', params: { genre: item.id } })}
+      onPress={() => router.navigate({ pathname: '/genres/[genre]', params: { genre: item.id } })}
     >
       <Text className="color-white font-bold">{item.id}</Text>
     </Pressable>
