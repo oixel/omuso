@@ -1,13 +1,23 @@
-import { View } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { useState, useEffect } from 'react';
 
-import { Genre, GetGenresResult } from '@choral/types';
+import { Genre, GetGenresResult, Media } from '@choral/types';
 import { useAuth } from '@choral/domain';
 
 import MediaList from './MediaList';
 import GenreEntry from '@components/MediaEntries/GenreEntry';
+import { FlashListProps } from '@shopify/flash-list';
 
-const GenreMediaList = ({ horizontal = true }) => {
+type GenreMediaListProps = {
+  style?: StyleProp<ViewStyle>;
+  horizontal?: boolean;
+} & Omit<FlashListProps<Media>, 'renderItem' | 'data'>;
+
+const GenreMediaList = ({
+  style = { height: 150, width: '100%' },
+  horizontal = true,
+  ...props
+}: GenreMediaListProps) => {
   const client = useAuth((state) => state.client);
 
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -44,16 +54,13 @@ const GenreMediaList = ({ horizontal = true }) => {
   }, [client]);
 
   return (
-    <View
-      style={{
-        height: 110, // TODO: look into how to make height fit content rather than being manually set
-      }}
-    >
+    <View style={style}>
       <MediaList
         data={genres}
         Entry={GenreEntry}
         horizontal={horizontal}
-        separator={() => <View style={{ width: 6 }} />}
+        separator={() => <View style={{ width: 6, height: 6 }} />}
+        {...props}
       />
     </View>
   );

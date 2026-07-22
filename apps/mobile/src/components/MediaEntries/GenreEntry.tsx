@@ -25,7 +25,18 @@ const GenreEntry: React.FC<GenreEntryProps> = ({ item, horizontal }: GenreEntryP
 };
 
 const styles = StyleSheet.create({
-  vertical: {},
+  vertical: {
+    height: 100,
+    flex: 1,
+    borderRadius: 16,
+    borderColor: '#fff',
+    borderWidth: 2,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8,
+    backgroundColor: '#000000',
+  },
   horizontal: {
     height: 100,
     width: 150,
