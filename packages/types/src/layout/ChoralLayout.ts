@@ -8,7 +8,7 @@ export interface ChoralLayout {
   version: string;
   customizableScreens: {
     home: ScreenLayout; // First screen that the app opens up to
-    player: ScreenLayout; // Pramariy place for user to control playback
+    player: ScreenLayout; // Screen for user to control song playback
     queue: ScreenLayout; // Current playback queue
     library: ScreenLayout; // Contains all content in server
     search: ScreenLayout; // Bar / results
