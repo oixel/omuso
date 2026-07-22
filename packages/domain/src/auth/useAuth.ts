@@ -9,23 +9,27 @@ export const useAuth = create<AuthStore>()((set, get) => ({
   client: null,
 
   loadCredentials: async (): Promise<boolean> => {
-    const stored = await SecureStorage.get('credentials');
-    const credentials = stored ? JSON.parse(stored) : null;
-    set({
-      credentials,
-      loading: false,
-      client: credentials ? new SubsonicClient(credentials) : null,
-    });
+    try {
+      const stored = await SecureStorage.get('credentials');
+      const credentials = stored ? JSON.parse(stored) : null;
+      set({
+        credentials,
+        loading: false,
+        client: credentials ? new SubsonicClient(credentials) : null,
+      });
 
-    return get().credentials !== null;
+      return get().credentials !== null;
+    } catch {
+      set({ credentials: null, client: null, loading: false });
+      return false;
+    }
   },
   login: async (credentials: Credentials): Promise<void> => {
     await SecureStorage.save('credentials', JSON.stringify(credentials));
-    set({ credentials });
-    await get().loadCredentials(); // Load client
+    set({ credentials, client: new SubsonicClient(credentials), loading: false });
   },
   logout: async (): Promise<void> => {
     await SecureStorage.delete('credentials');
-    set({ credentials: null });
+    set({ credentials: null, client: null });
   },
 }));
