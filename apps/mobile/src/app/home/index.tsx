@@ -2,7 +2,7 @@ import { View, Text, Button, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
-import GenreMediaList from '@/src/components/MediaLists/GenreMediaList';
+import GenreMediaList from '@components/MediaLists/GenreMediaList';
 
 const Home = () => {
   const router = useRouter();

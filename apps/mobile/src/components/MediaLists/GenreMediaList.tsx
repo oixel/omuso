@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Genre, GetGenresResult } from '@choral/types';
 import { useAuth } from '@choral/domain';
 
-import MediaList from '@/src/components/MediaLists/MediaList';
+import MediaList from './MediaList';
 import GenreEntry from '@components/MediaEntries/GenreEntry';
 
 const GenreMediaList = ({ horizontal = true }) => {
