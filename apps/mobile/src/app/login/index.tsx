@@ -15,8 +15,6 @@ const StyledInput = (props: TextInputProps) => (
 );
 
 const Login = () => {
-  const router = useRouter();
-
   const [loading, setLoading] = useState(false);
 
   const [server, setServer] = useState<string>('');
@@ -59,7 +57,6 @@ const Login = () => {
       // Store credentials, load client, and redirect to home
       login(credentials);
       await initializeNativeAudioPlayer();
-      router.replace('/home');
     } else
       setError(
         `Failed to log in.\n Please ${serverType === 'apiKey' ? 'API key' : 'username / password'} and try again.`
