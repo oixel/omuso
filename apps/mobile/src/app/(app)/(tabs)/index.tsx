@@ -27,24 +27,7 @@ const Home = () => {
           <Button title="Skip" onPress={skip}></Button>
         </View>
       </View>
-      {/* <GenreMediaList /> */}
-      {/* <View className="flex flex-row gap-2">
-        <Pressable className="h-12 bg-blue-700 my-4 px-4 flex justify-center mb-12 border border-white rounded-md">
-          <Text className="text-xl text-white font-bold">Artists</Text>
-        </Pressable>
-        <Pressable className="h-12 bg-blue-700 my-4 px-4 flex justify-center mb-12 border border-white rounded-md">
-          <Text className="text-xl text-white font-bold">Albums</Text>
-        </Pressable>
-        <Pressable className="h-12 bg-blue-700 my-4 px-4 flex justify-center mb-12 border border-white rounded-md">
-          <Text className="text-xl text-white font-bold">Genres</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => router.navigate('/search')}
-          className="h-12 bg-blue-700  my-4 px-4 flex justify-center mb-12 border border-white rounded-md"
-        >
-          <Text className="text-md text-white font-bold">Search</Text>
-        </Pressable>
-      </View>
+
       <Button
         title="Log Out"
         onPress={() => {
@@ -53,7 +36,7 @@ const Home = () => {
           router.replace('/login');
         }}
       />
-      <View className="mb-8"></View> */}
+      <View className="mb-8"></View>
     </View>
   );
 };
