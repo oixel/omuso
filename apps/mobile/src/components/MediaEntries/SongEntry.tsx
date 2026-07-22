@@ -32,7 +32,7 @@ const SongEntry: React.FC<SongEntryProps> = memo(
       >
         <Image
           style={{ height: '100%', aspectRatio: 1 }}
-          source={{ uri: item.coverArtURL }}
+          source={{ uri: item.iconCoverArtURL }}
           contentFit="cover"
           recyclingKey={item.id}
           cachePolicy="memory-disk"

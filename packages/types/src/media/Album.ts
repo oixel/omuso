@@ -8,5 +8,6 @@ export interface Album extends Media {
   created: string;
   artist?: string;
   coverArt?: string;
-  coverArtURL?: string;
+  iconCoverArtURL?: string;
+  fullSizeCoverArtURL?: string;
 }
