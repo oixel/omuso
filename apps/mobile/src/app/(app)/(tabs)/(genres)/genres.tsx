@@ -1,9 +1,11 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+
+import GenreMediaList from '@components/MediaLists/GenreMediaList';
 
 const Genres = () => {
   return (
     <View style={styles.container}>
-      <Text>Tab [Home|Artists]</Text>
+      <GenreMediaList />
     </View>
   );
 };
