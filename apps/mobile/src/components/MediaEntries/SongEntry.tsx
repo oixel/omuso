@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { memo } from 'react';
-import { usePlayback, useQueue } from '@choral/domain';
+import { resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
 
 // Type check to ensure passed-in Media item is a Song
 function isSong(item: Media): item is Song {
@@ -32,7 +32,7 @@ const SongEntry: React.FC<SongEntryProps> = memo(
       >
         <Image
           style={{ height: '100%', aspectRatio: 1 }}
-          source={{ uri: item.iconCoverArtURL }}
+          source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
           contentFit="cover"
           recyclingKey={item.id}
           cachePolicy="memory-disk"

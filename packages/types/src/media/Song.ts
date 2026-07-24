@@ -7,6 +7,5 @@ export interface Song extends Media {
   artist?: string;
   album?: string;
   coverArt?: string; // Cover art's ID
-  iconCoverArtURL?: string;
-  fullSizeCoverArtURL?: string;
+  coverArtURL?: string;
 }

@@ -29,11 +29,11 @@ export class SubsonicClient {
   }
 
   // Helper function to generate a cover art URL from the cover art's ID
-  private getCoverArtURL = (coverArt: string, size: number): string => {
+  private getCoverArtURL = (coverArt: string): string => {
     return buildRequestURL({
       credentials: this.credentials,
       endpoint: 'getCoverArt',
-      params: { id: coverArt, size: size.toString() },
+      params: { id: coverArt },
     });
   };
 
@@ -44,8 +44,7 @@ export class SubsonicClient {
     return media
       ? media.map((item) => ({
           ...item,
-          iconCoverArtURL: item.coverArt ? this.getCoverArtURL(item.coverArt, 100) : undefined,
-          fullSizeCoverArtURL: item.coverArt ? this.getCoverArtURL(item.coverArt, 500) : undefined,
+          coverArtURL: item.coverArt ? this.getCoverArtURL(item.coverArt) : undefined,
         }))
       : [];
   };
