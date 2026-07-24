@@ -6,7 +6,7 @@ export interface Album extends Media {
   songCount: number;
   duration: number;
   created: string;
-  artist?: string;
+  artistId?: string;
   coverArt?: string;
   coverArtURL?: string;
 }
