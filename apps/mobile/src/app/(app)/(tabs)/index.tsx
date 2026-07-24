@@ -1,8 +1,9 @@
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
 import { Image } from 'expo-image';
+import { Play, Pause, SkipBack, SkipForward, ListX } from 'lucide-react-native';
 
 const Home = () => {
   const router = useRouter();
@@ -20,20 +21,30 @@ const Home = () => {
         <Text className="font-extrabold color-white text-5xl mb-12">choral</Text>
         <Image
           style={{ height: '50%', aspectRatio: 1 }}
-          source={{ uri: queue[index].fullSizeCoverArtURL }}
+          source={{ uri: queue[index]?.coverArtURL }}
           contentFit="cover"
-          recyclingKey={queue[index].id}
+          recyclingKey={queue[index]?.id}
           cachePolicy="memory-disk"
           placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-          // onTouchStart={() => console.log(queue[index].coverArtURL)}
         />
-        <Text className="text-xl font-bold color-white mt-5">{queue[index].title}</Text>
-        <Text className="mb-5 font-medium text-xl">{queue[index].artist || 'Unknown Artist'}</Text>
+        <Text className="text-xl font-bold color-white mt-5">
+          {queue[index]?.title || 'No song'}
+        </Text>
+        <Text className="mb-5 font-medium text-xl">{queue[index]?.artist || 'Unknown Artist'}</Text>
         <View className="flex flex-row gap-2">
-          <Button title="🚮" onPress={() => removeFromQueue(index)}></Button>
-          <Button title="Prev" onPress={prev}></Button>
-          <Button title={isPlaying ? 'Pause' : 'Play'} onPress={togglePause}></Button>
-          <Button title="Skip" onPress={skip}></Button>
+          <Pressable onPress={() => removeFromQueue(index)}>
+            <ListX color="white" size={32} />
+          </Pressable>
+          <Pressable onPress={prev}>
+            <SkipBack color="white" size={32} />
+          </Pressable>
+          <Pressable onPress={togglePause}>
+            {isPlaying && <Pause color="white" size={32} />}
+            {!isPlaying && <Play color="white" size={32} />}
+          </Pressable>
+          <Pressable onPress={skip}>
+            <SkipForward color="white" size={32} />
+          </Pressable>
         </View>
       </View>
 
