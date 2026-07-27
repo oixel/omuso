@@ -6,3 +6,5 @@ export async function initializeDatabase(client: SubsonicClient) {
   await createSchema();
   await sync(client);
 }
+
+export { clearDatabase } from './schema'; // Forward database wipe method

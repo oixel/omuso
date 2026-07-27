@@ -4,6 +4,7 @@ import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
 import { Image } from 'expo-image';
 import { Play, Pause, SkipBack, SkipForward, ListX } from 'lucide-react-native';
+import { clearDatabase } from '@database';
 
 const Home = () => {
   const router = useRouter();
@@ -48,6 +49,8 @@ const Home = () => {
         </View>
       </View>
 
+      <Button title="Clear DB" onPress={clearDatabase} />
+      <View className="mb-4"></View>
       <Button
         title="Log Out"
         onPress={() => {
