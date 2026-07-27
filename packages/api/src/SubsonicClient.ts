@@ -1,9 +1,10 @@
 import * as RequestParam from '@choral/types/src/requests/requestParams';
 import * as Response from '@choral/types/src/requests/responses';
 import * as Result from '@choral/types/src/requests/results';
-import { Credentials, Song } from '@choral/types';
+import { Credentials } from '@choral/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
+import { processAlbums, processArtists, processSongs } from './utils/processMedia';
 
 export class SubsonicClient {
   constructor(private credentials: Credentials) {}
@@ -27,39 +28,6 @@ export class SubsonicClient {
 
     return response as Response;
   }
-
-  // Helper function to generate a cover art URL from the cover art's ID
-  private getCoverArtURL = (coverArt: string): string => {
-    return buildRequestURL({
-      credentials: this.credentials,
-      endpoint: 'getCoverArt',
-      params: { id: coverArt },
-    });
-  };
-
-  // Helper function to attach cover art URLs to any media type
-  private attachCoverArt = <Media extends { coverArt?: string; coverArtURL?: string }>(
-    media: Media[] | undefined
-  ): Media[] => {
-    return media
-      ? media.map((item) => ({
-          ...item,
-          coverArtURL: item.coverArt ? this.getCoverArtURL(item.coverArt) : undefined,
-        }))
-      : [];
-  };
-
-  // Helper function to generate a song's stream URL and attach it to it's object
-  private attachStreamURL = (songs: Song[]): Song[] => {
-    return songs.map((song) => ({
-      ...song,
-      uri: buildRequestURL({
-        credentials: this.credentials,
-        endpoint: 'stream',
-        params: { id: song.id }, // TODO: Set maxBitRate to match user preferences
-      }),
-    }));
-  };
 
   search = async ({
     query = '',
@@ -92,9 +60,9 @@ export class SubsonicClient {
 
     return {
       success: true,
-      artists: this.attachCoverArt(response.searchResult3?.artist),
-      albums: this.attachCoverArt(response.searchResult3?.album),
-      songs: this.attachStreamURL(this.attachCoverArt(response.searchResult3?.song)),
+      artists: processArtists(this.credentials, response.searchResult3?.artist),
+      albums: processAlbums(this.credentials, response.searchResult3?.album),
+      songs: processSongs(this.credentials, response.searchResult3?.song),
     };
   };
 
@@ -120,7 +88,7 @@ export class SubsonicClient {
     if (!response || response.status !== 'ok') return { success: false };
     return {
       success: true,
-      songs: this.attachStreamURL(this.attachCoverArt(response.songsByGenre?.song)),
+      songs: processSongs(this.credentials, response.songsByGenre?.song),
     };
   };
 }
