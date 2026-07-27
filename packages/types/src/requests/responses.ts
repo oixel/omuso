@@ -10,24 +10,17 @@ interface SubsonicResponse {
   status: string;
 }
 
+type ExtendedAlbum = Album & { genre?: string };
+type ExtendedSong = Song & { genre?: string };
+
 export interface SearchResponse extends SubsonicResponse {
   searchResult3?: {
     artist: Artist[];
-    album: Album[];
-    song: Song[];
-  };
-}
-
-export interface GetGenresResponse extends SubsonicResponse {
-  genres?: {
-    genre: {
-      value: string;
-      songCount: number;
-      albumCount: number;
-    }[];
+    album: ExtendedAlbum[]; // Regular Subsonic API uses a singles tring 'genre' parameter
+    song: ExtendedSong[];
   };
 }
 
 export interface GetSongsByGenreResponse extends SubsonicResponse {
-  songsByGenre?: { song: Song[] };
+  songsByGenre?: { song: ExtendedSong[] };
 }

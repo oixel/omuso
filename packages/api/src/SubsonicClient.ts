@@ -65,30 +65,4 @@ export class SubsonicClient {
       songs: processSongs(this.credentials, response.searchResult3?.song),
     };
   };
-
-  getGenres = async (): Promise<Result.GetGenresResult> => {
-    const response = await this.request<Response.GetGenresResponse>('getGenres');
-    if (!response || response.status !== 'ok') return { success: false };
-
-    return {
-      success: true,
-      genres: response.genres?.genre?.map(({ value: id, ...counts }) => ({ id, ...counts })), // Rename genre's 'value' property to 'id'
-    };
-  };
-
-  getSongsByGenre = async ({
-    genre,
-    count, // Defaults to 10 if not provided
-    offset, // Defaults to 0 if not provided
-  }: RequestParam.GetSongsByGenreParams): Promise<Result.GetSongsByGenreResult> => {
-    const response = await this.request<Response.GetSongsByGenreResponse>(
-      'getSongsByGenre',
-      cleanParams({ genre, count, offset })
-    );
-    if (!response || response.status !== 'ok') return { success: false };
-    return {
-      success: true,
-      songs: processSongs(this.credentials, response.songsByGenre?.song),
-    };
-  };
 }
