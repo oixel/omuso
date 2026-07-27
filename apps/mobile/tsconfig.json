@@ -6,7 +6,9 @@
       "native-audio-player": ["./modules/native-audio-player/src/NativeAudioPlayerModule.ts"],
       "@/*": ["./*"],
       "@components/*": ["./src/components/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@theme/*": ["./src/theme/*"],
+      "@database": ["./src/database/index.ts"]
     }
   }
 }
