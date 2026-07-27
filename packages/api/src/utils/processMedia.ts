@@ -2,18 +2,26 @@
 // A collection of helper functions to convert from OpenSubsonic's results to functional Media types
 //
 
-import { Album, Artist, Credentials, Song } from '@choral/types';
+import { Album, Artist, Credentials, Song, UnprocessedAlbum, UnprocessedSong } from '@choral/types';
 import { buildRequestURL } from './buildRequestURL';
 
+type Processed<T> = T extends UnprocessedAlbum ? Album : Song;
+
 // Helper function to preserve feature parity with Subsonic's single string genre parameter by converting it into a single-item array
-function mergeGenres<T extends Album | Song>(media: (T & { genre?: string })[]): T[] {
-  return media.map(
-    ({ genre, ...item }) =>
-      ({
-        ...item,
-        genres: item.genres ?? (genre ? [genre] : undefined),
-      }) as T
-  );
+function mergeGenres<T extends UnprocessedAlbum | UnprocessedSong>(
+  media: T[] | undefined
+): Processed<T>[] | undefined {
+  if (media === undefined) return undefined;
+
+  return media.map(({ genres, genre, ...item }) => ({
+    ...item,
+    genres:
+      genres && genres.length != 0
+        ? genres.map((g) => g.name)
+        : genre !== undefined
+          ? [genre]
+          : undefined,
+  })) as unknown as Processed<T>[];
 }
 
 // Helper function to generate a cover art URL from the cover art's ID
@@ -60,7 +68,7 @@ export function processArtists(
 
 export function processAlbums(
   credentials: Credentials,
-  albums: Album[] | undefined
+  albums: UnprocessedAlbum[] | undefined
 ): Album[] | undefined {
   if (!albums) return undefined;
   const merged = mergeGenres(albums);
@@ -69,7 +77,7 @@ export function processAlbums(
 
 export function processSongs(
   credentials: Credentials,
-  songs: Song[] | undefined
+  songs: UnprocessedSong[] | undefined
 ): Song[] | undefined {
   if (!songs) return undefined;
   const merged = mergeGenres(songs);
