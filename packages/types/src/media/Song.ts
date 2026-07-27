@@ -6,6 +6,7 @@ export interface Song extends Media {
   uri: string;
   artistId?: string;
   albumId?: string;
+  genres?: string[];
   coverArt?: string; // Cover art's ID
   coverArtURL?: string;
 }

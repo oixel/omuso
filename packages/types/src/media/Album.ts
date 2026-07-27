@@ -7,6 +7,7 @@ export interface Album extends Media {
   duration: number;
   created: string;
   artistId?: string;
+  genres?: string[];
   coverArt?: string;
   coverArtURL?: string;
 }
