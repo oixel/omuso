@@ -14,6 +14,7 @@ export type UnprocessedAlbum = Omit<Album, 'genres'> & {
   genres?: { name: string }[];
   genre?: string;
 };
+
 export type UnprocessedSong = Omit<Song, 'genres'> & {
   genres?: { name: string }[];
   genre?: string;
