@@ -10,17 +10,23 @@ interface SubsonicResponse {
   status: string;
 }
 
-type ExtendedAlbum = Album & { genre?: string };
-type ExtendedSong = Song & { genre?: string };
+export type UnprocessedAlbum = Omit<Album, 'genres'> & {
+  genres?: { name: string }[];
+  genre?: string;
+};
+export type UnprocessedSong = Omit<Song, 'genres'> & {
+  genres?: { name: string }[];
+  genre?: string;
+};
 
 export interface SearchResponse extends SubsonicResponse {
   searchResult3?: {
     artist: Artist[];
-    album: ExtendedAlbum[]; // Regular Subsonic API uses a singles tring 'genre' parameter
-    song: ExtendedSong[];
+    album: UnprocessedAlbum[]; // Regular Subsonic API uses a singles tring 'genre' parameter
+    song: UnprocessedSong[];
   };
 }
 
 export interface GetSongsByGenreResponse extends SubsonicResponse {
-  songsByGenre?: { song: ExtendedSong[] };
+  songsByGenre?: { song: UnprocessedSong[] };
 }
