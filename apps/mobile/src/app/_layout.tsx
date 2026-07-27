@@ -4,16 +4,12 @@ import 'react-native-get-random-values'; // Polyfill to replace crypto.randomVal
 import { Stack } from 'expo-router';
 import { useAuth } from '@choral/domain';
 import { useEffect } from 'react';
-import { initializeNativeAudioPlayer } from '@utils/initializeNativeAudioPlayer';
 
 const RootLayout = () => {
   const { loadCredentials, credentials, loading } = useAuth();
 
   async function connectToServer() {
-    const success = await loadCredentials();
-    if (success) {
-      await initializeNativeAudioPlayer();
-    }
+    await loadCredentials();
   }
 
   useEffect(() => {

@@ -1,8 +1,6 @@
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Button, Text, TextInput, TextInputProps, View } from 'react-native';
 import { validateServer, validateLogin, useAuth } from '@choral/domain';
-import { initializeNativeAudioPlayer } from '@utils/initializeNativeAudioPlayer';
 import { Credentials } from '@choral/types';
 
 const StyledInput = (props: TextInputProps) => (
@@ -50,13 +48,11 @@ const Login = () => {
     setError(undefined);
 
     const credentials: Credentials = { server, apiKey, username, password };
-
     const success = await validateLogin(credentials);
 
     if (success) {
-      // Store credentials, load client, and redirect to home
+      // Store credentials, triggers transfer to (app) home page via Stack.Protected in RootLayour
       login(credentials);
-      await initializeNativeAudioPlayer();
     } else
       setError(
         `Failed to log in.\n Please ${serverType === 'apiKey' ? 'API key' : 'username / password'} and try again.`
