@@ -90,6 +90,10 @@ export async function sync(client: SubsonicClient) {
       fetchAllSongs(client),
     ]);
 
+    // Create name lookup tables for artists / albums from in-memory data to avoid having to query the database for filling out the media_search table with name data
+    const artistNames = new Map(artists.map((artist) => [artist.id, artist.name]));
+    const albumNames = new Map(albums.map((album) => [album.id, album.name]));
+
     // Upsert all received media data from server to local SQL database in on atomic operation
     await db.withTransactionAsync(async () => {
       // Create temporary tables for pruning removed data
@@ -128,6 +132,11 @@ export async function sync(client: SubsonicClient) {
       await upsertGenre.finalizeAsync();
       await insertSeenGenre.finalizeAsync();
 
+      // Prepare message to replicate upserting on FTS5 search table since traditional ON CONFLICT DO UPDATE does not work for it
+      const deleteSearchEntry = await db.prepareAsync(
+        `DELETE FROM media_search WHERE id = $id AND type = $type;`
+      );
+
       // ------
       // Artists
       // ------
@@ -137,6 +146,9 @@ export async function sync(client: SubsonicClient) {
       INSERT INTO artists(id, name, coverArt, coverArtURL) VALUES ($id, $name, $coverArt, $coverArtURL)
       ON CONFLICT(id) DO UPDATE SET 
       name=excluded.name, coverArt=excluded.coverArt, coverArtURL=excluded.coverArtURL;
+      `);
+      const insertSearchArtist = await db.prepareAsync(`
+        INSERT INTO media_search(id, type, name) VALUES ($id, $type, $name);
       `);
       const insertSeenArtist = await db.prepareAsync(`INSERT INTO seen_artists(id) VALUES ($id);`);
 
@@ -149,12 +161,20 @@ export async function sync(client: SubsonicClient) {
             $coverArtURL: artist.coverArtURL ?? null,
           });
 
+          await deleteSearchEntry.executeAsync({ $id: artist.id, $type: 'artist' });
+          await insertSearchArtist.executeAsync({
+            $id: artist.id,
+            $type: 'artist',
+            $name: artist.name,
+          });
+
           await insertSeenArtist.executeAsync({ $id: artist.id });
         }
       } catch (e) {
         console.error('Upserting artists failed with ERROR:', e);
       } finally {
         await upsertArtist.finalizeAsync();
+        await insertSearchArtist.finalizeAsync();
         await insertSeenArtist.finalizeAsync();
         console.log(`${artists.length} artists synced!`);
       }
@@ -180,6 +200,9 @@ export async function sync(client: SubsonicClient) {
       ON CONFLICT(albumId, genre) 
         DO UPDATE SET albumId=excluded.albumId, genre=excluded.genre;
     `);
+      const insertSearchAlbum = await db.prepareAsync(
+        `INSERT INTO media_search(id, type, name, artistName) VALUES ($id, $type, $name, $artistName);`
+      );
       const insertSeenAlbum = await db.prepareAsync(`INSERT INTO seen_albums(id) VALUES ($id);`);
 
       try {
@@ -201,6 +224,16 @@ export async function sync(client: SubsonicClient) {
             }
           }
 
+          // "Upsert" media_search table with relevant data for the album to enable indexed FTS5 searching
+          const artistName = album.artistId ? (artistNames.get(album.artistId) ?? null) : null;
+          await deleteSearchEntry.executeAsync({ $id: album.id, $type: 'album' });
+          await insertSearchAlbum.executeAsync({
+            $id: album.id,
+            $type: 'album',
+            $name: album.name,
+            $artistName: artistName,
+          });
+
           await insertSeenAlbum.executeAsync({ $id: album.id });
         }
       } catch (e) {
@@ -208,6 +241,7 @@ export async function sync(client: SubsonicClient) {
       } finally {
         await upsertAlbum.finalizeAsync();
         await upsertAlbumGenre.finalizeAsync();
+        await insertSearchAlbum.finalizeAsync();
         await insertSeenAlbum.finalizeAsync();
         console.log(`${albums.length} albums synced!`);
       }
@@ -226,12 +260,16 @@ export async function sync(client: SubsonicClient) {
         albumId=excluded.albumId, 
         coverArt=excluded.coverArt, 
         coverArtURL=excluded.coverArtURL;
-    `);
+      `);
       const upsertSongGenre = await db.prepareAsync(`
       INSERT INTO song_genres(songId, genre) VALUES ($songId, $genre)
       ON CONFLICT(songId, genre) 
         DO UPDATE SET songId=excluded.songId, genre=excluded.genre;
-    `);
+      `);
+      const insertSearchSong = await db.prepareAsync(`
+      INSERT INTO media_search(id, type, name, artistName, albumName)
+        VALUES ($id, $type, $name, $artistName, $albumName);
+      `);
       const insertSeenSong = await db.prepareAsync(`INSERT INTO seen_songs(id) VALUES ($id);`);
 
       try {
@@ -252,6 +290,18 @@ export async function sync(client: SubsonicClient) {
             }
           }
 
+          // "Upsert" media_search table with relevant data for the song to enable indexed FTS5 searching
+          const artistName = song.artistId ? (artistNames.get(song.artistId) ?? null) : null;
+          const albumName = song.albumId ? (albumNames.get(song.albumId) ?? null) : null;
+          await deleteSearchEntry.executeAsync({ $id: song.id, $type: 'song' });
+          await insertSearchSong.executeAsync({
+            $id: song.id,
+            $type: 'song',
+            $name: song.title,
+            $artistName: artistName,
+            $albumName: albumName,
+          });
+
           await insertSeenSong.executeAsync({ $id: song.id });
         }
       } catch (e) {
@@ -259,8 +309,11 @@ export async function sync(client: SubsonicClient) {
       } finally {
         await upsertSong.finalizeAsync();
         await upsertSongGenre.finalizeAsync();
+        await insertSearchSong.finalizeAsync();
         await insertSeenSong.finalizeAsync();
         console.log(`${songs.length} songs synced!`);
+
+        await deleteSearchEntry.finalizeAsync();
       }
 
       // ------
