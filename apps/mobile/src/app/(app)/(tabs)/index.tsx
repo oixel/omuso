@@ -5,10 +5,11 @@ import { useQueue, usePlayback } from '@choral/domain';
 import { Image } from 'expo-image';
 import { Play, Pause, SkipBack, SkipForward, ListX } from 'lucide-react-native';
 import { clearDatabase, getArtist } from '@database';
+import { sync } from '@database';
 
 const Home = () => {
   const router = useRouter();
-  const { logout } = useAuth();
+  const { logout, client } = useAuth();
 
   const { removeFromQueue } = useQueue();
   const index = useQueue((state) => state.index);
@@ -21,7 +22,7 @@ const Home = () => {
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
-      <View className="flex-shrink pb-4 items-center justify-center w-full gap-2 mb-12">
+      <View className="flex-shrink items-center justify-center w-full gap-2">
         <Text className="font-extrabold color-white text-5xl mb-12">choral</Text>
         <Image
           style={{ height: '50%', aspectRatio: 1 }}
@@ -52,6 +53,13 @@ const Home = () => {
         </View>
       </View>
 
+      <Button
+        title="Sync DB"
+        onPress={() => {
+          if (client) sync(client);
+        }}
+      />
+      <View className="mb-4"></View>
       <Button title="Clear DB" onPress={clearDatabase} />
       <View className="mb-4"></View>
       <Button
