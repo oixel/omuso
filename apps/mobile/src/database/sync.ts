@@ -2,28 +2,6 @@ import { db } from './client';
 import { SubsonicClient } from '@choral/api';
 import { Album, Artist, Song } from '@choral/types';
 
-// Helper function to fill out genre join tables
-async function fillGenres(media: Album | Song, label: 'album' | 'song') {
-  if (media.genres !== undefined) {
-    for (const genre of media.genres) {
-      await db.runAsync(
-        `INSERT INTO genres(name) VALUES(?) 
-          ON CONFLICT(name) DO UPDATE SET name=excluded.name;`,
-        genre
-      );
-
-      await db.runAsync(
-        `INSERT INTO ${label}_genres(${label}Id, genre) VALUES(?, ?)
-          ON CONFLICT(${label}Id, genre) DO UPDATE SET ${label}Id=excluded.${label}Id, genre=excluded.genre;`,
-        media.id,
-        genre
-      );
-
-      await db.runAsync(`INSERT INTO seen_genres(name) VALUES(?)`, genre);
-    }
-  }
-}
-
 const PAGE_SIZE = 500;
 
 async function fetchAllArtists(client: SubsonicClient): Promise<Artist[]> {
@@ -114,30 +92,68 @@ export async function sync(client: SubsonicClient) {
         CREATE TEMP TABLE seen_genres (name TEXT NOT NULL);
     `);
 
+    // ------
+    // Genres
+    // ------
+
+    // Handle upserting genres first since both Albums and Songs use it as FOREIGN KEY in their join tables
+
+    // Dedupe all present genres to only upsert each once
+    const genres = new Set<string>();
+    for (const album of albums) album.genres?.forEach((genre) => genres.add(genre));
+    for (const song of songs) song.genres?.forEach((genre) => genres.add(genre));
+
+    const upsertGenre = await db.prepareAsync(`
+      INSERT INTO genres(name) VALUES ($name) 
+      ON CONFLICT(name) DO UPDATE SET name=excluded.name;
+    `);
+    const insertSeenGenre = await db.prepareAsync(`INSERT INTO seen_genres(name) VALUES ($name)`);
+
+    for (const genre of genres) {
+      await upsertGenre.executeAsync({ $name: genre });
+      await insertSeenGenre.executeAsync({ $name: genre });
+    }
+    await upsertGenre.finalizeAsync();
+    await insertSeenGenre.finalizeAsync();
+
+    // ------
+    // Artists
+    // ------
+
     // Prepare SQL statements once to avoid expo-sqlite parsing and recompiling on every loop
     const upsertArtist = await db.prepareAsync(`
       INSERT INTO artists(id, name, coverArt, coverArtURL) VALUES ($id, $name, $coverArt, $coverArtURL)
-        ON CONFLICT(id) DO UPDATE SET 
-        name=excluded.name, coverArt=excluded.coverArt, coverArtURL=excluded.coverArtURL;
-    `);
+      ON CONFLICT(id) DO UPDATE SET 
+      name=excluded.name, coverArt=excluded.coverArt, coverArtURL=excluded.coverArtURL;
+      `);
     const insertSeenArtist = await db.prepareAsync(`INSERT INTO seen_artists(id) VALUES ($id);`);
 
-    for (const artist of artists) {
-      await upsertArtist.executeAsync({
-        $id: artist.id,
-        $name: artist.name,
-        $coverArt: artist.coverArt ?? null,
-        $coverArtURL: artist.coverArtURL ?? null,
-      });
+    try {
+      for (const artist of artists) {
+        await upsertArtist.executeAsync({
+          $id: artist.id,
+          $name: artist.name,
+          $coverArt: artist.coverArt ?? null,
+          $coverArtURL: artist.coverArtURL ?? null,
+        });
 
-      await insertSeenArtist.executeAsync({ $id: artist.id });
+        await insertSeenArtist.executeAsync({ $id: artist.id });
+      }
+    } catch (e) {
+      console.error('Upserting artists failed with ERROR:', e);
+    } finally {
+      await upsertArtist.finalizeAsync();
+      await insertSeenArtist.finalizeAsync();
+      console.log(`${artists.length} artists synced!`);
     }
 
-    console.log(`${artists.length} artists synced!`);
+    // ------
+    // Albums
+    // ------
 
     const upsertAlbum = await db.prepareAsync(`
       INSERT INTO albums(id, name, songCount, duration, created, artistId, coverArt, coverArtURL) 
-        VALUES($id, $name, $songCount, $duration, $created, $artistId, $coverArt, $coverArtURL)
+        VALUES ($id, $name, $songCount, $duration, $created, $artistId, $coverArt, $coverArtURL)
         ON CONFLICT(id) DO UPDATE SET 
           name=excluded.name, 
           songCount=excluded.songCount, 
@@ -147,30 +163,50 @@ export async function sync(client: SubsonicClient) {
           coverArt=excluded.coverArt, 
           coverArtURL=excluded.coverArtURL;
     `);
-    const insertSeenAlbum = await db.prepareSync(`INSERT INTO seen_albums(id) VALUES ($id);`);
+    const upsertAlbumGenre = await db.prepareAsync(`
+      INSERT INTO album_genres(albumId, genre) VALUES ($albumId, $genre)
+      ON CONFLICT(albumId, genre) 
+        DO UPDATE SET albumId=excluded.albumId, genre=excluded.genre;
+    `);
+    const insertSeenAlbum = await db.prepareAsync(`INSERT INTO seen_albums(id) VALUES ($id);`);
 
-    for (const album of albums) {
-      await upsertAlbum.executeAsync({
-        $id: album.id,
-        $name: album.name,
-        $songCount: album.songCount,
-        $duration: album.duration,
-        $created: album.created,
-        $artistId: album.artistId ?? null,
-        $coverArt: album.coverArt ?? null,
-        $coverArtURL: album.coverArtURL ?? null,
-      });
+    try {
+      for (const album of albums) {
+        await upsertAlbum.executeAsync({
+          $id: album.id,
+          $name: album.name,
+          $songCount: album.songCount,
+          $duration: album.duration,
+          $created: album.created,
+          $artistId: album.artistId ?? null,
+          $coverArt: album.coverArt ?? null,
+          $coverArtURL: album.coverArtURL ?? null,
+        });
 
-      await insertSeenAlbum.executeAsync({ $id: album.id });
+        if (album.genres !== undefined) {
+          for (const genre of album.genres) {
+            await upsertAlbumGenre.executeAsync({ $albumId: album.id, $genre: genre });
+          }
+        }
 
-      await fillGenres(album, 'album');
+        await insertSeenAlbum.executeAsync({ $id: album.id });
+      }
+    } catch (e) {
+      console.error('Upserting albums failed with ERROR:', e);
+    } finally {
+      await upsertAlbum.finalizeAsync();
+      await upsertAlbumGenre.finalizeAsync();
+      await insertSeenAlbum.finalizeAsync();
+      console.log(`${albums.length} albums synced!`);
     }
 
-    console.log(`${albums.length} albums synced!`);
+    // ------
+    // Songs
+    // ------
 
     const upsertSong = await db.prepareAsync(`
       INSERT INTO songs(id, title, uri, artistId, albumId, coverArt, coverArtURL) 
-      VALUES($id, $title, $uri, $artistId, $albumId, $coverArt, $coverArtURL)
+      VALUES ($id, $title, $uri, $artistId, $albumId, $coverArt, $coverArtURL)
       ON CONFLICT(id) DO UPDATE SET 
         title=excluded.title, 
         uri=excluded.uri, 
@@ -179,25 +215,45 @@ export async function sync(client: SubsonicClient) {
         coverArt=excluded.coverArt, 
         coverArtURL=excluded.coverArtURL;
     `);
+    const upsertSongGenre = await db.prepareAsync(`
+      INSERT INTO song_genres(songId, genre) VALUES ($songId, $genre)
+      ON CONFLICT(songId, genre) 
+        DO UPDATE SET songId=excluded.songId, genre=excluded.genre;
+    `);
     const insertSeenSong = await db.prepareAsync(`INSERT INTO seen_songs(id) VALUES ($id);`);
 
-    for (const song of songs) {
-      await upsertSong.executeAsync({
-        $id: song.id,
-        $title: song.title,
-        $uri: song.uri,
-        $artistId: song.artistId ?? null,
-        $albumId: song.albumId ?? null,
-        $coverArt: song.coverArt ?? null,
-        $coverArtURL: song.coverArtURL ?? null,
-      });
+    try {
+      for (const song of songs) {
+        await upsertSong.executeAsync({
+          $id: song.id,
+          $title: song.title,
+          $uri: song.uri,
+          $artistId: song.artistId ?? null,
+          $albumId: song.albumId ?? null,
+          $coverArt: song.coverArt ?? null,
+          $coverArtURL: song.coverArtURL ?? null,
+        });
 
-      await insertSeenSong.executeAsync({ $id: song.id });
+        if (song.genres !== undefined) {
+          for (const genre of song.genres ?? []) {
+            await upsertSongGenre.executeAsync({ $songId: song.id, $genre: genre });
+          }
+        }
 
-      await fillGenres(song, 'song');
+        await insertSeenSong.executeAsync({ $id: song.id });
+      }
+    } catch (e) {
+      console.error('Upserting songs failed with ERROR:', e);
+    } finally {
+      await upsertSong.finalizeAsync();
+      await upsertSongGenre.finalizeAsync();
+      await insertSeenSong.finalizeAsync();
+      console.log(`${songs.length} songs synced!`);
     }
 
-    console.log(`${songs.length} songs synced!`);
+    // ------
+    // Pruning
+    // ------
 
     // Prune any media that no longer exists in the database
     await db.execAsync(`
