@@ -17,7 +17,7 @@ const Home = () => {
   const { togglePause, prev, skip } = usePlayback();
   const isPlaying = usePlayback((state) => state.isPlaying);
 
-  const artistId = queue[index].artistId;
+  const artistId = queue[index]?.artistId;
   const artist = artistId ? (getArtist(artistId)?.name ?? 'Unknown Artist') : 'Unknown Artist';
 
   return (
