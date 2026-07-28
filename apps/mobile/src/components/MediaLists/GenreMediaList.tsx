@@ -1,4 +1,4 @@
-import { StyleProp, View, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, View, ViewStyle, Text } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Media } from '@choral/types';
@@ -7,6 +7,7 @@ import { useAuth } from '@choral/domain';
 import MediaList from './MediaList';
 import GenreEntry from '@components/MediaEntries/GenreEntry';
 import { FlashListProps } from '@shopify/flash-list';
+import { getGenres } from '@database';
 
 type GenreMediaListProps = {
   style?: StyleProp<ViewStyle>;
@@ -19,35 +20,16 @@ const GenreMediaList = ({
   ...props
 }: GenreMediaListProps) => {
   const client = useAuth((state) => state.client);
+  const [genres, setGenres] = useState<Media[]>([]);
 
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  const [genres, setGenres] = useState<string[]>([]);
-
-  // const loadGenres = async (): Promise<GetGenresResult> => {
-  //   if (!client) return { success: false };
-
-  //   const result = await client.getGenres();
-  //   if (result.genres) setGenres(result.genres);
-
-  //   return result;
-
-  // };
-
-  const initialLoad = async () => {
-    // await loadGenres();
-    setIsInitialLoad(false);
+  const loadGenres = async () => {
+    const loadedGenres = await getGenres();
+    const mediaGenres: Media[] = loadedGenres.map((name) => ({ id: name }));
+    setGenres(mediaGenres);
   };
 
   useEffect(() => {
-    if (!isInitialLoad) {
-      setGenres([]);
-      // loadGenres();
-    }
-  }, []);
-
-  useEffect(() => {
-    initialLoad();
+    loadGenres();
 
     return () => {
       setGenres([]);
@@ -56,8 +38,11 @@ const GenreMediaList = ({
 
   return (
     <View style={style}>
+      <Pressable onPress={loadGenres}>
+        <Text>Reload genres</Text>
+      </Pressable>
       <MediaList
-        data={[{ id: 'TODO: create genres table in SQL DB' }]}
+        data={genres}
         Entry={GenreEntry}
         horizontal={horizontal}
         separator={() => <View style={{ width: 6, height: 6 }} />}
