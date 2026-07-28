@@ -4,6 +4,7 @@ import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { memo } from 'react';
 import { resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
+import { getArtist } from '@/src/database';
 
 // Type check to ensure passed-in Media item is a Song
 function isSong(item: Media): item is Song {
@@ -18,9 +19,10 @@ interface SongEntryProps {
 const SongEntry: React.FC<SongEntryProps> = memo(
   ({ item, horizontal }: SongEntryProps) => {
     if (!isSong(item)) return;
+    const artist = item.artistId ? getArtist(item.artistId) : undefined;
 
     const useTitleTicker = item.title.length > 35;
-    const useArtistTicker = (item.artist?.length ?? 0) > 35;
+    const useArtistTicker = (artist?.name?.length ?? 0) > 35;
 
     return (
       <Pressable
@@ -63,10 +65,10 @@ const SongEntry: React.FC<SongEntryProps> = memo(
               style={{ lineHeight: 18, fontSize: 15 }}
               className="color-blue-200"
             >
-              {item.artist || 'Unknown Artist'}
+              {artist?.name ?? 'Unknown Artist'}
             </TextTicker>
           ) : (
-            <Text className="color-blue-200"> {item.artist || 'Unknown Artist'}</Text>
+            <Text className="color-blue-200"> {artist?.name ?? 'Unknown Artist'}</Text>
           )}
         </View>
       </Pressable>
