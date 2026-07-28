@@ -40,6 +40,14 @@ export async function createSchema() {
     CREATE INDEX IF NOT EXISTS idx_songs_artistId ON songs(artistId);
     CREATE INDEX IF NOT EXISTS idx_songs_albumId ON songs(albumId);
 
+    CREATE VIRTUAL TABLE IF NOT EXISTS media_search USING fts5(
+      id UNINDEXED,  -- Store unique id but do not make it searchable
+      type UNINDEXED,  -- "artist", "album", "song". Not searchable
+      name,
+      artistName,
+      albumName
+    );
+
     CREATE TABLE IF NOT EXISTS genres (
       name TEXT PRIMARY KEY NOT NULL
     );
