@@ -1,8 +1,9 @@
 import { db } from './client';
 
 export async function createSchema() {
-  await db.execAsync('PRAGMA journal_mode = WAL');
-  await db.execAsync('PRAGMA foreign_keys = ON');
+  await db.execAsync('PRAGMA journal_mode = WAL;');
+  await db.execAsync('PRAGMA foreign_keys = ON;');
+  await db.execAsync('PRAGMA busy_timeout = 3000;');
 
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS artists (
