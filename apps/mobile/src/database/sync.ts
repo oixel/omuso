@@ -81,6 +81,8 @@ export async function sync(client: SubsonicClient) {
 
   syncing = true;
 
+  console.log('Starting database sync!');
+
   try {
     const [artists, albums, songs] = await Promise.all([
       fetchAllArtists(client),
