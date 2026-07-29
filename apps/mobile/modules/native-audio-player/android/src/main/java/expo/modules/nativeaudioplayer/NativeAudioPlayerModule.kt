@@ -26,6 +26,11 @@ class NativeAudioPlayerModule : Module() {
       audioSessionService = localBinder.getService()
       isBound = true
 
+      // Emit new playback state when player's state changes
+      audioSessionService?.onPlaybackStateChanged = { playbackState ->
+        sendEvent("onPlaybackStateChanged", mapOf("playbackState" to playbackState))
+      }
+
       // Emit new playing state when player is played / paused
       audioSessionService?.onIsPlayingChanged = { isPlaying ->
         sendEvent("onIsPlayingChanged", mapOf("isPlaying" to isPlaying))
@@ -59,6 +64,7 @@ class NativeAudioPlayerModule : Module() {
 
     Events(
       "onPlayerDestroyed",
+      "onPlaybackStateChanged",
       "onIsPlayingChanged",
       "onPositionChanged",
       "onSongChanged"

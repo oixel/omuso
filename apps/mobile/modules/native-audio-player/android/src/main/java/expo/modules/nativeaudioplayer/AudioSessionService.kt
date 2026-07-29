@@ -52,6 +52,7 @@ class AudioSessionService : MediaSessionService() {
 
     // Event listeners for the audio player
     var onPlayerDestroyed: (() -> Unit)? = null
+    var onPlaybackStateChanged: ((String) -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
     var onSongChanged: ((Int) -> Unit)? = null
@@ -75,6 +76,7 @@ class AudioSessionService : MediaSessionService() {
         }
 
         nativeAudioPlayer.onPlayerDestroyed = { onPlayerDestroyed?.invoke() }
+        nativeAudioPlayer.onPlaybackStateChanged = { playbackState -> onPlaybackStateChanged?.invoke(playbackState) }
         nativeAudioPlayer.onIsPlayingChanged = { playing -> onIsPlayingChanged?.invoke(playing) }
         nativeAudioPlayer.onPositionChanged = { position, duration ->
             onPositionChanged?.invoke(position, duration)

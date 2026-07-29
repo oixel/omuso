@@ -2,6 +2,7 @@ import { PlaybackState } from './PlaybackState';
 
 // States relating directly to current song's playback
 interface AudioPlaybackState {
+  playbackState: PlaybackState;
   isPlaying: boolean;
   position: number;
   duration: number;

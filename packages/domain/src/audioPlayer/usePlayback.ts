@@ -14,16 +14,18 @@ const RESTART_MARKER = 5000; // TODO: (milliseconds) make a preference
 export const usePlayback = create<PlaybackStore>()(
   persist(
     (set, get) => ({
+      playbackState: undefined,
       isPlaying: false,
       position: 0,
       duration: 0,
 
       syncPlayback: async () => {
         // Ensure that app's pause state matches AudioPlayer's when reopening the app
+        const playbackState = await getAudioPlayer().getPlaybackState();
         const isPlaying = await getAudioPlayer().getIsPlaying();
         const position = await getAudioPlayer().getPosition();
         const duration = await getAudioPlayer().getDuration();
-        set({ isPlaying, position, duration });
+        set({ playbackState, isPlaying, position, duration });
       },
       restorePlayback: async () => {
         // Restore progress from previous listening session in AudioPlayer

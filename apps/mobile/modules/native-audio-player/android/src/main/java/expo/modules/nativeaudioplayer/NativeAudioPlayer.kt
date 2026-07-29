@@ -16,13 +16,14 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     private val mainHandler = Handler(Looper.getMainLooper())
     lateinit var player: ExoPlayer
 
-    var playbackState: String = "STATE_IDLE"
+    var playbackState: String = "IDLE"
     var isPlaying: Boolean = false
     var position: Long = 0L
     var duration: Long = 0L
     var songIndex: Int = 0
 
     var onPlayerDestroyed: (() -> Unit)? = null
+    var onPlaybackStateChanged: ((String) -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
     var onPositionChanged: ((Long, Long) -> Unit)? = null
     var onSongChanged: ((Int) -> Unit)? = null
@@ -48,6 +49,18 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
 
             // Song state changes of the Player (Events are reported to Player.Listener)
             player.addListener(object : Player.Listener {
+                override fun onPlaybackStateChanged(stateInt: Int) {
+                    playbackState = when (stateInt) {
+                        Player.STATE_IDLE -> "IDLE"
+                        Player.STATE_BUFFERING -> "BUFFERING"
+                        Player.STATE_READY -> "READY"
+                        Player.STATE_ENDED -> "ENDED"
+                        else -> "UNKNOWN"
+                    }
+
+                    onPlaybackStateChanged?.invoke(playbackState)
+                }
+
                 override fun onIsPlayingChanged(playing: Boolean) {
                     isPlaying = playing
                     onIsPlayingChanged?.invoke(playing)
@@ -59,16 +72,6 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     songIndex = player.currentMediaItemIndex
                     onSongChanged?.invoke(player.currentMediaItemIndex)
-                }
-
-                override fun onPlaybackStateChanged(stateInt: Int) {
-                    playbackState = when (stateInt) {
-                        Player.STATE_IDLE -> "IDLE"
-                        Player.STATE_BUFFERING -> "BUFFERING"
-                        Player.STATE_READY -> "READY"
-                        Player.STATE_ENDED -> "ENDED"
-                        else -> "UNKNOWN"
-                    }
                 }
             })
 
