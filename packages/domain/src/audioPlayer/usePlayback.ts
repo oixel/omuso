@@ -36,8 +36,9 @@ export const usePlayback = create<PlaybackStore>()(
       pause: async () => {
         await getAudioPlayer().pause();
       },
-      togglePause: async () => {
-        await getAudioPlayer().togglePause();
+      togglePause: async (): Promise<void> => {
+        if ((await get().getPlaybackState()) === 'ENDED') get().seekTo(0);
+        else await getAudioPlayer().togglePause();
       },
       getPlaybackState: async (): Promise<PlaybackState> => {
         return await getAudioPlayer().getPlaybackState();
