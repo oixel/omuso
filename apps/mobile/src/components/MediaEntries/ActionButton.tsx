@@ -13,14 +13,14 @@ export interface ActionButtonProps {
 interface ActionButtonComponentProps extends ActionButtonProps {
   item: Media;
   translationX: SharedValue<number>;
-  swipe_range: number;
+  swipeThreshold: number;
   buttonCount: number;
 }
 
 export function ActionButton({
   item,
   translationX,
-  swipe_range,
+  swipeThreshold,
   buttonCount,
   Content,
   backgroundColor,
@@ -32,10 +32,10 @@ export function ActionButton({
       styles.staticStyle,
       {
         backgroundColor: backgroundColor,
-        width: swipe_range / buttonCount, // Ensure every button on this side has equal spacing
+        width: swipeThreshold / buttonCount, // Ensure every button on this side has equal spacing
       },
     ],
-    [backgroundColor, swipe_range, buttonCount]
+    [backgroundColor, swipeThreshold, buttonCount]
   );
 
   return (

@@ -5,8 +5,6 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { ActionButton, ActionButtonProps } from './ActionButton';
 
-const SWIPE_RANGE = 100; // How far right (+) or left (-) swipe must be before actions are shown
-
 interface EntryProps {
   item: Media;
   horizontal: boolean;
@@ -15,7 +13,8 @@ interface EntryProps {
 export function asSwipeable(
   Entry: React.FC<EntryProps>,
   leftButtons?: ActionButtonProps[],
-  rightButtons?: ActionButtonProps[]
+  rightButtons?: ActionButtonProps[],
+  swipeThreshold: number = 100
 ): React.FC<EntryProps> {
   return memo(
     ({ item, horizontal }: EntryProps) => {
@@ -34,8 +33,8 @@ export function asSwipeable(
         })
         .onEnd(() => {
           const springDirection =
-            translationX.value < -SWIPE_RANGE ? -1 : translationX.value > SWIPE_RANGE ? 1 : 0;
-          translationX.value = withSpring(springDirection * SWIPE_RANGE);
+            translationX.value < -swipeThreshold ? -1 : translationX.value > swipeThreshold ? 1 : 0;
+          translationX.value = withSpring(springDirection * swipeThreshold);
         });
 
       const animatedStyle = useAnimatedStyle(() => ({
@@ -63,7 +62,7 @@ export function asSwipeable(
                 key={'LeftActionButton_' + i}
                 item={item}
                 translationX={translationX}
-                swipe_range={SWIPE_RANGE}
+                swipeThreshold={swipeThreshold}
                 buttonCount={leftButtons.length}
                 {...buttonProps}
               />
@@ -73,7 +72,7 @@ export function asSwipeable(
                 key={'RightActionButton_' + i}
                 item={item}
                 translationX={translationX}
-                swipe_range={SWIPE_RANGE}
+                swipeThreshold={swipeThreshold}
                 buttonCount={rightButtons.length}
                 {...buttonProps}
               />
