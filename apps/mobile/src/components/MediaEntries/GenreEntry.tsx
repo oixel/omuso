@@ -1,6 +1,7 @@
 import { convertStringToColor } from '@choral/domain';
 import { Media } from '@choral/types';
 import { useRouter } from 'expo-router';
+import { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 interface GenreEntryProps {
@@ -8,21 +9,24 @@ interface GenreEntryProps {
   horizontal: boolean;
 }
 
-const GenreEntry: React.FC<GenreEntryProps> = ({ item, horizontal }: GenreEntryProps) => {
-  const router = useRouter();
+const GenreEntry: React.FC<GenreEntryProps> = memo(
+  ({ item, horizontal }: GenreEntryProps) => {
+    const router = useRouter();
 
-  return (
-    <Pressable
-      style={[
-        horizontal ? styles.horizontal : styles.vertical,
-        { backgroundColor: convertStringToColor(item.id, 5, 85, 45) },
-      ]}
-      onPress={() => router.navigate({ pathname: '/genres/[genre]', params: { genre: item.id } })}
-    >
-      <Text className="color-white font-bold">{item.id}</Text>
-    </Pressable>
-  );
-};
+    return (
+      <Pressable
+        style={[
+          horizontal ? styles.horizontal : styles.vertical,
+          { backgroundColor: convertStringToColor(item.id, 5, 85, 45) },
+        ]}
+        onPress={() => router.navigate({ pathname: '/genres/[genre]', params: { genre: item.id } })}
+      >
+        <Text className="color-white font-bold">{item.id}</Text>
+      </Pressable>
+    );
+  },
+  (prev: GenreEntryProps, next: GenreEntryProps) => prev.item.id === next.item.id
+);
 
 const styles = StyleSheet.create({
   vertical: {
