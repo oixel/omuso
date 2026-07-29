@@ -8,6 +8,8 @@ import { PlayerStorage } from '../storage';
 // Consumed by UI to get / alter AudioPlayer's state
 //
 
+const RESTART_MARKER = 5000; // TODO: (milliseconds) make a preference
+
 // Does not use set / get since this store is event-driven using listeners to ensure that states are in sync
 export const usePlayback = create<PlaybackStore>()(
   persist(
@@ -43,15 +45,19 @@ export const usePlayback = create<PlaybackStore>()(
       getIsPlaying: async (): Promise<boolean> => {
         return await getAudioPlayer().getIsPlaying();
       },
+
       seekTo: async (position: number) => {
         await getAudioPlayer().seekTo(position);
       },
-
       prev: async () => {
         await getAudioPlayer().prev();
       },
       skip: async () => {
         await getAudioPlayer().skip();
+      },
+      restartOrPrev: async (queueIndex?: number) => {
+        if (queueIndex === 0 || get().position > RESTART_MARKER) get().seekTo(0);
+        else get().prev();
       },
     }),
     {

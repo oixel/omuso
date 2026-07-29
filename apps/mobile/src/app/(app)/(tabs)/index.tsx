@@ -15,8 +15,8 @@ const Home = () => {
   const { removeFromQueue } = useQueue();
   const index = useQueue((state) => state.index);
   const queue = useQueue((state) => state.queue);
-  const { togglePause, prev, skip, getPlaybackState } = usePlayback();
 
+  const { getPlaybackState, togglePause, restartOrPrev, skip } = usePlayback();
   const playbackIsPlaying = usePlayback((state) => state.isPlaying); // Temporarily false while buffering
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -56,9 +56,9 @@ const Home = () => {
             <ListX color="white" size={32} />
           </Pressable>
           <Pressable
-            onPress={prev}
-            disabled={index === 0}
-            style={{ opacity: index === 0 ? 0.5 : 1 }}
+            onPress={() => restartOrPrev(index)}
+            disabled={!queue.length}
+            style={{ opacity: !queue.length ? 0.5 : 1 }}
           >
             <SkipBack color="white" size={32} />
           </Pressable>

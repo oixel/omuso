@@ -20,4 +20,5 @@ export interface PlaybackStore extends AudioPlaybackState {
   seekTo: (position: number) => Promise<void>;
   prev: () => Promise<void>;
   skip: () => Promise<void>;
+  restartOrPrev: (queue?: number) => Promise<void>;
 }
