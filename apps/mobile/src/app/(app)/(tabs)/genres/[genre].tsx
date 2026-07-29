@@ -3,8 +3,7 @@ import { Song } from '@choral/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import SongEntry from '@components/MediaEntries/SongEntry';
-import MediaList from '@components/MediaLists/MediaList';
+import { SwipeableSongEntry, MediaList } from '@components';
 
 const Genre = () => {
   const { genre } = useLocalSearchParams();
@@ -32,7 +31,7 @@ const Genre = () => {
         {genre}
       </Text>
       <View className="flex-1 w-full pb-4">
-        <MediaList data={songs} Entry={SongEntry} horizontal={false} />
+        <MediaList data={songs} Entry={SwipeableSongEntry} horizontal={false} />
       </View>
     </View>
   );
