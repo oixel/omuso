@@ -12,37 +12,37 @@ import { isSong, useQueue } from '@choral/domain';
 
 const PAGE_SIZE = 200;
 
+// Create swipeable SongEntry component
+const swipeableSongEntry = asSwipeable(
+  SongEntry,
+  [],
+  [
+    {
+      Content: () => <ListStart color="white" />,
+      onPress: (item) => {
+        if (!item) return;
+        if (isSong(item)) useQueue.getState().addNext([item]);
+      },
+      backgroundColor: '#3b82f6',
+    },
+    {
+      Content: () => <ListEnd color="white" />,
+      onPress: (item) => {
+        if (!item) return;
+        if (isSong(item)) useQueue.getState().addToEnd([item]);
+      },
+      backgroundColor: '#3b82f6',
+    },
+  ]
+);
+
 const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
   const [isLoadingSongs, setIsLoadingSongs] = useState(false);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
-  const { addNext, addToEnd } = useQueue();
 
   const latestQuery = useRef('');
-
-  const swipeableSongEntry = asSwipeable(
-    SongEntry,
-    [],
-    [
-      {
-        Content: () => <ListStart color="white" />,
-        onPress: (item) => {
-          if (!item) return;
-          if (isSong(item)) addNext([item]);
-        },
-        backgroundColor: '#3b82f6',
-      },
-      {
-        Content: () => <ListEnd color="white" />,
-        onPress: (item) => {
-          if (!item) return;
-          if (isSong(item)) addToEnd([item]);
-        },
-        backgroundColor: '#3b82f6',
-      },
-    ]
-  ); // Allow entry to be swiped
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;
