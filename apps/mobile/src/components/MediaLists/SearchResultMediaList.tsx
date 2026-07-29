@@ -1,79 +1,59 @@
 import { View, Text } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { useAuth, useDebounce } from '@choral/domain';
-import { Song, SearchResult } from '@choral/types';
+import { useDebounce } from '@choral/domain';
+import { Song } from '@choral/types';
 
 import MediaList from './MediaList';
 import SongEntry from '@components/MediaEntries/SongEntry';
+import { search } from '@database';
 
-const SearchResultMediaList = ({ search = '', horizontal = false }) => {
-  const client = useAuth((state) => state.client);
+const PAGE_SIZE = 200;
 
-  const PAGE_SIZE = 200;
+const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isLoadingSongs, setIsLoadingSongs] = useState(false);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
-  const debouncedSearch = useDebounce(search, 300); // Debounces every time search is updated
-
+  const debouncedSearch = useDebounce(searchQuery, 300); // Debounces every time search is updated
   const latestQuery = useRef('');
 
-  const loadSongs = async (
-    query: string,
-    songCount: number,
-    newPage: number
-  ): Promise<SearchResult> => {
-    if (!client) return { success: false };
-
+  const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;
     setPage(newPage);
-
     setIsLoadingSongs(true);
 
-    const result = await client.search({
-      query: query,
-      artistCount: 0,
-      albumCount: 0,
-      songCount,
-      songOffset: newPage * songCount,
-    });
+    const result = await search(query, ['song'], PAGE_SIZE, newPage * PAGE_SIZE);
+    const newSongs = result?.songs ?? [];
 
     // Discard current result if a newer query exists
-    if (latestQuery.current !== query) return result;
+    if (latestQuery.current !== query) return newSongs;
 
-    if (result?.songs) {
-      const newSongs = result.songs; // Capture narrowed value to use in setSongs closure
-      setSongs((prev) => [...prev, ...newSongs]);
-    }
-
+    setSongs((prev) => (newPage === 0 ? newSongs : [...prev, ...newSongs]));
     setIsLoadingSongs(false);
 
-    return result;
-  };
+    if (newSongs.length < PAGE_SIZE) setHasReachedEnd(true);
 
-  const initialLoad = async () => {
-    await loadSongs(search, PAGE_SIZE, 0);
-    setIsInitialLoad(false);
+    return newSongs;
   };
 
   useEffect(() => {
-    if (!isInitialLoad) {
-      setSongs([]);
-      setPage(0);
-      setHasReachedEnd(false);
-      loadSongs(debouncedSearch, PAGE_SIZE, 0);
-    }
-  }, [debouncedSearch]);
+    let cancelled = false;
 
-  useEffect(() => {
-    initialLoad();
+    setSongs([]);
+    setPage(0);
+    setHasReachedEnd(false);
+
+    (async () => {
+      await loadSongs(debouncedSearch, 0);
+      if (!cancelled) setIsInitialLoad(false);
+    })();
 
     return () => {
-      setSongs([]);
+      cancelled = true;
     };
-  }, [client]);
+  }, [debouncedSearch]);
 
   return (
     <View className="flex-1 w-full pb-4">
@@ -103,9 +83,7 @@ const SearchResultMediaList = ({ search = '', horizontal = false }) => {
           )}
           onEndReached={async () => {
             if (isInitialLoad || isLoadingSongs || hasReachedEnd) return;
-
-            const result = await loadSongs(search, PAGE_SIZE, page + 1);
-            if (!result.songs?.length || result.songs.length < PAGE_SIZE) setHasReachedEnd(true);
+            loadSongs(debouncedSearch, page + 1);
           }}
         />
       )}
