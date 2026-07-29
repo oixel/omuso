@@ -1,7 +1,7 @@
 import { View, Text, TextInput } from 'react-native';
 import { useState } from 'react';
 
-import SearchResultMediaList from '@components/MediaLists/SearchResultMediaList';
+import { SearchResultMediaList } from '@components';
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');

@@ -1,4 +1,4 @@
-import { Media } from '@choral/types/src/media/Media';
+import { Media } from '@choral/types';
 import { FlashList, FlashListProps } from '@shopify/flash-list';
 import { useCallback } from 'react';
 
@@ -9,7 +9,13 @@ interface MediaListProps extends Omit<FlashListProps<Media>, 'renderItem'> {
   footer?: React.ComponentType;
 }
 
-const MediaList = ({ Entry, horizontal = false, footer, separator, ...props }: MediaListProps) => {
+export function MediaList({
+  Entry,
+  horizontal = false,
+  footer,
+  separator,
+  ...props
+}: MediaListProps) {
   // Only re-render if the entry itself has changed
   const renderItem = useCallback(
     ({ item }: { item: Media }) => <Entry item={item} horizontal={horizontal} />,
@@ -32,6 +38,4 @@ const MediaList = ({ Entry, horizontal = false, footer, separator, ...props }: M
       {...props}
     />
   );
-};
-
-export default MediaList;
+}

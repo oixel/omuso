@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import GenreMediaList from '@components/MediaLists/GenreMediaList';
+import { GenreMediaList } from '@components';
 
 const Genres = () => {
   return (

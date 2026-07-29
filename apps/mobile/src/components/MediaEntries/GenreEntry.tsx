@@ -9,7 +9,7 @@ interface GenreEntryProps {
   horizontal: boolean;
 }
 
-const GenreEntry: React.FC<GenreEntryProps> = memo(
+export const GenreEntry: React.FC<GenreEntryProps> = memo(
   ({ item, horizontal }: GenreEntryProps) => {
     const router = useRouter();
 
@@ -54,5 +54,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
 });
-
-export default GenreEntry;

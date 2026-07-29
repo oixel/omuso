@@ -1,4 +1,4 @@
-import { initializeChoral } from '@/src/utils/initializeChoral';
+import { initializeChoral } from '@utils';
 import { useAuth } from '@choral/domain';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';

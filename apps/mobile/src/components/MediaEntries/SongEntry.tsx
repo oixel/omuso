@@ -4,14 +4,14 @@ import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { memo } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
-import { getArtist } from '@/src/database';
+import { getArtist } from '@database';
 
 interface SongEntryProps {
   item: Media;
   horizontal: boolean;
 }
 
-const SongEntry: React.FC<SongEntryProps> = memo(
+export const SongEntry: React.FC<SongEntryProps> = memo(
   ({ item, horizontal }: SongEntryProps) => {
     if (!isSong(item)) return;
     const artist = item.artistId ? getArtist(item.artistId) : undefined;
@@ -86,5 +86,3 @@ const styles = StyleSheet.create({
   },
   horizontal: {},
 });
-
-export default SongEntry;

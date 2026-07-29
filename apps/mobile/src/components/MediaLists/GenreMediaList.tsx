@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { Media } from '@choral/types';
 import { useAuth } from '@choral/domain';
 
-import MediaList from './MediaList';
-import GenreEntry from '@components/MediaEntries/GenreEntry';
+import { MediaList } from './MediaList';
+import { GenreEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
 import { getGenres } from '@database';
 
@@ -14,11 +14,11 @@ type GenreMediaListProps = {
   horizontal?: boolean;
 } & Omit<FlashListProps<Media>, 'renderItem' | 'data'>;
 
-const GenreMediaList = ({
+export function GenreMediaList({
   style = { height: 150, width: '100%' },
   horizontal = true,
   ...props
-}: GenreMediaListProps) => {
+}: GenreMediaListProps) {
   const client = useAuth((state) => state.client);
   const [genres, setGenres] = useState<Media[]>([]);
 
@@ -50,6 +50,4 @@ const GenreMediaList = ({
       />
     </View>
   );
-};
-
-export default GenreMediaList;
+}

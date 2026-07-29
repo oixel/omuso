@@ -2,41 +2,13 @@ import { View, Text } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import { Song } from '@choral/types';
 
-import MediaList from './MediaList';
-import { asSwipeable } from '../MediaEntries/asSwipeable';
-import SongEntry from '@components/MediaEntries/SongEntry';
+import { MediaList } from './MediaList';
+import { SwipeableSongEntry } from '../MediaEntries';
 import { search } from '@database';
-
-import { ListStart, ListEnd } from 'lucide-react-native';
-import { isSong, useQueue } from '@choral/domain';
 
 const PAGE_SIZE = 200;
 
-// Create swipeable SongEntry component
-const swipeableSongEntry = asSwipeable(
-  SongEntry,
-  [],
-  [
-    {
-      Content: () => <ListStart color="white" />,
-      onPress: (item) => {
-        if (!item) return;
-        if (isSong(item)) useQueue.getState().addNext([item]);
-      },
-      backgroundColor: '#3b82f6',
-    },
-    {
-      Content: () => <ListEnd color="white" />,
-      onPress: (item) => {
-        if (!item) return;
-        if (isSong(item)) useQueue.getState().addToEnd([item]);
-      },
-      backgroundColor: '#3b82f6',
-    },
-  ]
-);
-
-const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
+export function SearchResultMediaList({ searchQuery = '', horizontal = false }) {
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
   const [isLoadingSongs, setIsLoadingSongs] = useState(false);
@@ -82,7 +54,7 @@ const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
       {songs.length > 0 && (
         <MediaList
           data={songs}
-          Entry={swipeableSongEntry}
+          Entry={SwipeableSongEntry}
           horizontal={horizontal}
           footer={() => (
             <View className="flex items-center justify-center py-2">
@@ -101,6 +73,4 @@ const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
       )}
     </View>
   );
-};
-
-export default SearchResultMediaList;
+}
