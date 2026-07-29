@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 import { NativeAudioPlayerEvents } from './NativeAudioPlayer.types';
-import { AudioPlayer, QueuedSong } from '@choral/types';
+import { AudioPlayer, PlaybackState, QueuedSong } from '@choral/types';
 
 declare class NativeAudioPlayerModule
   extends NativeModule<NativeAudioPlayerEvents>
@@ -22,7 +22,7 @@ declare class NativeAudioPlayerModule
   getPosition: () => Promise<number>;
   getDuration: () => Promise<number>;
   getSongIndex: () => Promise<number>;
-  getPlaybackState: () => Promise<string>;
+  getPlaybackState: () => Promise<PlaybackState>;
 
   setQueue: (queue: QueuedSong[]) => Promise<void>;
   updateQueue: (queue: QueuedSong[]) => Promise<void>;
