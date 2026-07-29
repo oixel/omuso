@@ -1,4 +1,5 @@
 import { registerAudioPlayer, usePlayback, useQueue } from '@choral/domain';
+import { PlaybackState } from '@choral/types';
 import NativeAudioPlayer from 'native-audio-player';
 
 export async function initializeNativeAudioPlayer() {
@@ -23,10 +24,10 @@ export async function initializeNativeAudioPlayer() {
     useQueue.setState({ index });
   });
 
-  var playbackState = null;
+  var playbackState: PlaybackState;
 
   // Poll repeatedly until the audio player is fully initialized
-  while (playbackState == null) {
+  while (playbackState === undefined) {
     playbackState = await NativeAudioPlayer.getPlaybackState();
     await new Promise((resolve) => setTimeout(resolve, 10));
   }

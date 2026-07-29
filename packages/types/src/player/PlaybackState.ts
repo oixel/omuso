@@ -1,1 +1,1 @@
-export type PlaybackState = 'IDLE' | 'BUFFERING' | 'READY' | 'ENDED' | 'UNKNOWN';
+export type PlaybackState = 'IDLE' | 'BUFFERING' | 'READY' | 'ENDED' | 'UNKNOWN' | undefined;
