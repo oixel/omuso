@@ -1,17 +1,20 @@
+import { PlaybackState } from './PlaybackState';
+
 // States relating directly to current song's playback
-interface PlaybackState {
+interface AudioPlaybackState {
   isPlaying: boolean;
   position: number;
   duration: number;
 }
 
-export interface PlaybackStore extends PlaybackState {
+export interface PlaybackStore extends AudioPlaybackState {
   syncPlayback: () => Promise<void>;
   restorePlayback: () => Promise<void>;
 
   play: () => Promise<void>;
   pause: () => Promise<void>;
   togglePause: () => Promise<void>;
+  getPlaybackState: () => Promise<PlaybackState>;
   getIsPlaying: () => Promise<boolean>;
 
   seekTo: (position: number) => Promise<void>;

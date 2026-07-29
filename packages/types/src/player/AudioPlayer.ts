@@ -1,4 +1,5 @@
 import { QueuedSong } from '../queue';
+import { PlaybackState } from './PlaybackState';
 
 // Defines expected, cross-platform behavior from both NativeAudioPlayer module and WebAudioPlayer
 export interface AudioPlayer {
@@ -14,6 +15,7 @@ export interface AudioPlayer {
   skip: () => Promise<void>;
   prev: () => Promise<void>;
 
+  getPlaybackState: () => Promise<PlaybackState>;
   getIsPlaying: () => Promise<boolean>;
   getPosition: () => Promise<number>;
   getDuration: () => Promise<number>;

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getAudioPlayer } from './audioPlayerRegistery';
-import { PlaybackStore } from '@choral/types';
+import { PlaybackStore, PlaybackState } from '@choral/types';
 import { persist } from 'zustand/middleware';
 import { PlayerStorage } from '../storage';
 
@@ -36,6 +36,9 @@ export const usePlayback = create<PlaybackStore>()(
       },
       togglePause: async () => {
         await getAudioPlayer().togglePause();
+      },
+      getPlaybackState: async (): Promise<PlaybackState> => {
+        return await getAudioPlayer().getPlaybackState();
       },
       getIsPlaying: async (): Promise<boolean> => {
         return await getAudioPlayer().getIsPlaying();
