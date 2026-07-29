@@ -2,6 +2,7 @@ import { initializeChoral } from '@/src/utils/initializeChoral';
 import { useAuth } from '@choral/domain';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const AppLayout = () => {
   const { client } = useAuth();
@@ -15,9 +16,11 @@ const AppLayout = () => {
   }, []);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    </Stack>
+    <GestureHandlerRootView>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </GestureHandlerRootView>
   );
 };
 
