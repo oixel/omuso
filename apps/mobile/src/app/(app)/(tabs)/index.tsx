@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { Play, Pause, SkipBack, SkipForward, ListX } from 'lucide-react-native';
 import { clearDatabase, getArtist } from '@database';
 import { sync } from '@database';
+import { useEffect, useState } from 'react';
 
 const Home = () => {
   const router = useRouter();
@@ -14,11 +15,21 @@ const Home = () => {
   const { removeFromQueue } = useQueue();
   const index = useQueue((state) => state.index);
   const queue = useQueue((state) => state.queue);
-  const { togglePause, prev, skip } = usePlayback();
-  const isPlaying = usePlayback((state) => state.isPlaying);
+  const { togglePause, prev, skip, getPlaybackState } = usePlayback();
+
+  const playbackIsPlaying = usePlayback((state) => state.isPlaying); // Temporarily false while buffering
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const artistId = queue[index]?.artistId;
   const artist = artistId ? (getArtist(artistId)?.name ?? 'Unknown Artist') : 'Unknown Artist';
+
+  useEffect(() => {
+    // Only update isPlaying state when status actually changes, not while buffering during song transition
+    (async () => {
+      const playbackState = await getPlaybackState();
+      if (playbackState !== 'BUFFERING') setIsPlaying(playbackIsPlaying);
+    })();
+  }, [playbackIsPlaying]);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -56,8 +67,7 @@ const Home = () => {
             disabled={!queue.length}
             style={{ opacity: !queue.length ? 0.5 : 1 }}
           >
-            {isPlaying && <Pause color="white" size={32} />}
-            {!isPlaying && <Play color="white" size={32} />}
+            {isPlaying ? <Pause color="white" size={32} /> : <Play color="white" size={32} />}
           </Pressable>
           <Pressable
             onPress={skip}
