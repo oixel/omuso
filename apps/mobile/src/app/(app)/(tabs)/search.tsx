@@ -4,7 +4,7 @@ import { useState } from 'react';
 import SearchResultMediaList from '@components/MediaLists/SearchResultMediaList';
 
 const Search = () => {
-  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -14,11 +14,11 @@ const Search = () => {
           className="bg-white w-2/3 my-4 color-black placeholder:color-gray-600"
           autoCapitalize="none"
           autoCorrect={false}
-          value={search}
-          onChangeText={setSearch}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
         />
       </View>
-      <SearchResultMediaList search={search} />
+      <SearchResultMediaList searchQuery={searchQuery} />
     </View>
   );
 };
