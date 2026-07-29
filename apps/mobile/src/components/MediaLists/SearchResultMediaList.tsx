@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Song } from '@choral/types';
 
 import MediaList from './MediaList';
+import { asSwipeable } from '../MediaEntries/asSwipeable';
 import SongEntry from '@components/MediaEntries/SongEntry';
 import { search } from '@database';
 
@@ -15,6 +16,8 @@ const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const latestQuery = useRef('');
+
+  const swipeableSongEntry = asSwipeable(SongEntry); // Allow entry to be swiped
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;
@@ -54,7 +57,7 @@ const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
       {songs.length > 0 && (
         <MediaList
           data={songs}
-          Entry={SongEntry}
+          Entry={swipeableSongEntry}
           horizontal={horizontal}
           footer={() => (
             <View className="flex items-center justify-center py-2">
