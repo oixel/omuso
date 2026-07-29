@@ -37,17 +37,33 @@ const Home = () => {
         </Text>
         <Text className="mb-5 font-medium text-xl">{artist}</Text>
         <View className="flex flex-row gap-2">
-          <Pressable onPress={() => removeFromQueue(index)}>
+          <Pressable
+            onPress={() => removeFromQueue(index)}
+            disabled={!queue.length}
+            style={{ opacity: !queue.length ? 0.5 : 1 }}
+          >
             <ListX color="white" size={32} />
           </Pressable>
-          <Pressable onPress={prev}>
+          <Pressable
+            onPress={prev}
+            disabled={index === 0}
+            style={{ opacity: index === 0 ? 0.5 : 1 }}
+          >
             <SkipBack color="white" size={32} />
           </Pressable>
-          <Pressable onPress={togglePause}>
+          <Pressable
+            onPress={togglePause}
+            disabled={!queue.length}
+            style={{ opacity: !queue.length ? 0.5 : 1 }}
+          >
             {isPlaying && <Pause color="white" size={32} />}
             {!isPlaying && <Play color="white" size={32} />}
           </Pressable>
-          <Pressable onPress={skip}>
+          <Pressable
+            onPress={skip}
+            disabled={index === queue.length - 1 || !queue.length}
+            style={{ opacity: index === queue.length - 1 || !queue.length ? 0.5 : 1 }}
+          >
             <SkipForward color="white" size={32} />
           </Pressable>
         </View>
