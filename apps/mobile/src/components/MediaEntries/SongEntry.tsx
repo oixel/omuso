@@ -1,15 +1,10 @@
-import { Media, Song } from '@choral/types';
+import { Media } from '@choral/types';
 import { Image } from 'expo-image';
 import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { memo } from 'react';
-import { resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
+import { isSong, resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
 import { getArtist } from '@/src/database';
-
-// Type check to ensure passed-in Media item is a Song
-function isSong(item: Media): item is Song {
-  return (item as Song).title !== undefined;
-}
 
 interface SongEntryProps {
   item: Media;
