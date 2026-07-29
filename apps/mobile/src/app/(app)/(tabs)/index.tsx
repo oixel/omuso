@@ -17,19 +17,20 @@ const Home = () => {
   const queue = useQueue((state) => state.queue);
 
   const { getPlaybackState, togglePause, restartOrPrev, skip } = usePlayback();
-  const playbackIsPlaying = usePlayback((state) => state.isPlaying); // Temporarily false while buffering
+  const isPlaybackPlaying = usePlayback((state) => state.isPlaying); // Temporarily false while buffering
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   const artistId = queue[index]?.artistId;
   const artist = artistId ? (getArtist(artistId)?.name ?? 'Unknown Artist') : 'Unknown Artist';
 
   useEffect(() => {
-    // Only update isPlaying state when status actually changes, not while buffering during song transition
     (async () => {
-      const playbackState = await getPlaybackState();
-      if (playbackState !== 'BUFFERING') setIsPlaying(playbackIsPlaying);
+      const buffering = (await getPlaybackState()) === 'BUFFERING';
+      if (!buffering) setIsPlaying(isPlaybackPlaying);
+      setIsBuffering(buffering);
     })();
-  }, [playbackIsPlaying]);
+  }, [isPlaybackPlaying]);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -64,8 +65,8 @@ const Home = () => {
           </Pressable>
           <Pressable
             onPress={togglePause}
-            disabled={!queue.length}
-            style={{ opacity: !queue.length ? 0.5 : 1 }}
+            disabled={!queue.length || isBuffering}
+            style={{ opacity: !queue.length || isBuffering ? 0.5 : 1 }}
           >
             {isPlaying ? <Pause color="white" size={32} /> : <Play color="white" size={32} />}
           </Pressable>
