@@ -1,5 +1,6 @@
 import { Media } from '@choral/types';
-import { Pressable } from 'react-native';
+import { useMemo } from 'react';
+import { Pressable, StyleSheet } from 'react-native';
 import { SharedValue, withSpring } from 'react-native-reanimated';
 import { JSX } from 'react/jsx-runtime';
 
@@ -25,18 +26,21 @@ export function ActionButton({
   backgroundColor,
   onPress,
 }: ActionButtonComponentProps): JSX.Element {
-  return (
-    <Pressable
-      style={{
+  // Minor performance improvement, only update styling if styling has changed
+  const style = useMemo(
+    () => [
+      styles.staticStyle,
+      {
         backgroundColor: backgroundColor,
         width: swipe_range / buttonCount, // Ensure every button on this side has equal spacing
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderLeftWidth: 2,
-        borderColor: '#1d4ed8',
-      }}
+      },
+    ],
+    [backgroundColor, swipe_range, buttonCount]
+  );
+
+  return (
+    <Pressable
+      style={style}
       onPress={() => {
         onPress(item);
         translationX.value = withSpring(0);
@@ -46,3 +50,14 @@ export function ActionButton({
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  staticStyle: {
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderLeftWidth: 2,
+    borderColor: '#1d4ed8',
+  },
+});
