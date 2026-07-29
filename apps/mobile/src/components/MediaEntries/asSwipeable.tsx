@@ -1,61 +1,15 @@
 import { Media } from '@choral/types';
-import { JSX, memo, useEffect } from 'react';
-import { View, Pressable } from 'react-native';
+import { memo, useEffect } from 'react';
+import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  SharedValue,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import { ActionButton, ActionButtonProps } from './ActionButton';
 
 const SWIPE_RANGE = 100; // How far right (+) or left (-) swipe must be before actions are shown
 
 interface EntryProps {
   item: Media;
   horizontal: boolean;
-}
-
-interface ActionButtonProps {
-  Content: React.FC;
-  onPress: (item?: Media) => void;
-  backgroundColor: string;
-}
-
-interface ActionButtonComponentProps extends ActionButtonProps {
-  item: Media;
-  translationX: SharedValue<number>;
-  buttonCount: number;
-}
-
-function ActionButton({
-  item,
-  translationX,
-  buttonCount,
-  Content,
-  backgroundColor,
-  onPress,
-}: ActionButtonComponentProps): JSX.Element {
-  return (
-    <Pressable
-      style={{
-        backgroundColor: backgroundColor,
-        width: SWIPE_RANGE / buttonCount, // Ensure every button on this side has equal spacing
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderLeftWidth: 2,
-        borderColor: '#1d4ed8',
-      }}
-      onPress={() => {
-        onPress(item);
-        translationX.value = withSpring(0);
-      }}
-    >
-      <Content />
-    </Pressable>
-  );
 }
 
 export function asSwipeable(
@@ -109,6 +63,7 @@ export function asSwipeable(
                 key={'LeftActionButton_' + i}
                 item={item}
                 translationX={translationX}
+                swipe_range={SWIPE_RANGE}
                 buttonCount={leftButtons.length}
                 {...buttonProps}
               />
@@ -118,6 +73,7 @@ export function asSwipeable(
                 key={'RightActionButton_' + i}
                 item={item}
                 translationX={translationX}
+                swipe_range={SWIPE_RANGE}
                 buttonCount={rightButtons.length}
                 {...buttonProps}
               />
