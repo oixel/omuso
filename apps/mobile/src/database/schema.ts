@@ -45,7 +45,8 @@ export async function createSchema() {
       type UNINDEXED,  -- "artist", "album", "song". Not searchable
       name,
       artistName,
-      albumName
+      albumName,
+      tokenize = "unicode61 tokenchars '$!?#+×÷='"
     );
 
     CREATE TABLE IF NOT EXISTS genres (
@@ -74,13 +75,16 @@ export async function createSchema() {
 
 export async function clearDatabase() {
   await db.execAsync(`
-    DELETE FROM album_genres;
-    DELETE FROM song_genres;
-    DELETE FROM genres;
-    DELETE FROM songs;
-    DELETE FROM albums;
-    DELETE FROM artists;
+    DROP TABLE media_search;
+    DROP TABLE album_genres;
+    DROP TABLE song_genres;
+    DROP TABLE genres;
+    DROP TABLE songs;
+    DROP TABLE albums;
+    DROP TABLE artists;
   `);
+
+  await createSchema(); // Rebuild tables
 
   console.log('Database wiped!');
 }
