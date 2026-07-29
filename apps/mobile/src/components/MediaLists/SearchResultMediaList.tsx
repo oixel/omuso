@@ -1,6 +1,5 @@
 import { View, Text } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { useDebounce } from '@choral/domain';
 import { Song } from '@choral/types';
 
 import MediaList from './MediaList';
@@ -12,11 +11,9 @@ const PAGE_SIZE = 200;
 const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isLoadingSongs, setIsLoadingSongs] = useState(false);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
-  const debouncedSearch = useDebounce(searchQuery, 300); // Debounces every time search is updated
   const latestQuery = useRef('');
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
@@ -39,31 +36,19 @@ const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
   };
 
   useEffect(() => {
-    let cancelled = false;
-
-    setSongs([]);
     setPage(0);
     setHasReachedEnd(false);
 
     (async () => {
-      await loadSongs(debouncedSearch, 0);
-      if (!cancelled) setIsInitialLoad(false);
+      await loadSongs(searchQuery, 0);
     })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [debouncedSearch]);
+  }, [searchQuery]);
 
   return (
     <View className="flex-1 w-full pb-4">
       {!songs.length && (
         <View className="w-full flex-1 flex justify-center items-center">
-          <Text className="font-bold color-white">
-            {!isInitialLoad && !isLoadingSongs && songs.length == 0
-              ? 'No results found'
-              : 'Loading songs...'}
-          </Text>
+          <Text className="font-bold color-white">No results found</Text>
         </View>
       )}
       {songs.length > 0 && (
@@ -82,8 +67,7 @@ const SearchResultMediaList = ({ searchQuery = '', horizontal = false }) => {
             </View>
           )}
           onEndReached={async () => {
-            if (isInitialLoad || isLoadingSongs || hasReachedEnd) return;
-            loadSongs(debouncedSearch, page + 1);
+            if (!hasReachedEnd) loadSongs(searchQuery, page + 1);
           }}
         />
       )}
