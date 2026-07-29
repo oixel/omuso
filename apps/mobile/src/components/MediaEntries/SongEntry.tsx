@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     height: 80,
     gap: 12,
     minWidth: '100%',
+    backgroundColor: '#60a5fa',
   },
   horizontal: {},
 });
