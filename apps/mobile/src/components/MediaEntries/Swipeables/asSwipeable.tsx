@@ -14,7 +14,8 @@ export function asSwipeable(
   Entry: React.FC<EntryProps>,
   leftButtons?: ActionButtonProps[],
   rightButtons?: ActionButtonProps[],
-  swipeThreshold: number = 100
+  swipeThreshold: number = 100,
+  swipeIntent: [number, number] = [-20, 20] // How far user has to swipe before it starts panning
 ): React.FC<EntryProps> {
   return memo(
     ({ item, horizontal }: EntryProps) => {
@@ -26,14 +27,16 @@ export function asSwipeable(
       }, [item.id]);
 
       const panGesture = Gesture.Pan()
-        .activeOffsetX([-10, 10]) // Intent range
+        .activeOffsetX(swipeIntent) // Only pan on intent
         .onUpdate((event) => {
           // Update stored translation value to match current pan
           translationX.value = event.translationX;
         })
         .onEnd(() => {
-          const springDirection =
-            translationX.value < -swipeThreshold ? -1 : translationX.value > swipeThreshold ? 1 : 0;
+          const canSwipeLeft = leftButtons?.length && translationX.value > swipeThreshold;
+          const canSwipeRight = rightButtons?.length && translationX.value < -swipeThreshold;
+          const springDirection = canSwipeLeft ? 1 : canSwipeRight ? -1 : 0;
+
           translationX.value = withSpring(springDirection * swipeThreshold);
         });
 
