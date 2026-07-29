@@ -16,20 +16,16 @@ const Home = () => {
   const index = useQueue((state) => state.index);
   const queue = useQueue((state) => state.queue);
 
-  const { getPlaybackState, togglePause, restartOrPrev, skip } = usePlayback();
+  const { togglePause, restartOrPrev, skip } = usePlayback();
+  const isBuffering = usePlayback((state) => state.playbackState) === 'BUFFERING';
   const isPlaybackPlaying = usePlayback((state) => state.isPlaying); // Temporarily false while buffering
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isBuffering, setIsBuffering] = useState(false);
 
   const artistId = queue[index]?.artistId;
   const artist = artistId ? (getArtist(artistId)?.name ?? 'Unknown Artist') : 'Unknown Artist';
 
   useEffect(() => {
-    (async () => {
-      const buffering = (await getPlaybackState()) === 'BUFFERING';
-      if (!buffering) setIsPlaying(isPlaybackPlaying);
-      setIsBuffering(buffering);
-    })();
+    if (!isBuffering) setIsPlaying(isPlaybackPlaying);
   }, [isPlaybackPlaying]);
 
   return (
