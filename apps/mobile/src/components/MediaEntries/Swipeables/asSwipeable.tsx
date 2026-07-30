@@ -20,6 +20,8 @@ interface SwipeableProps<T extends object> {
   rightContent?: React.FC<SwipeableContentProps<T>>[];
   swipeThreshold?: number;
   swipeIntent?: [number, number]; // How far user has to swipe before it starts panning
+  leftSwipeBackgroundColor?: string;
+  rightSwipeBackgroundColor?: string;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -39,6 +41,8 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
     rightContent,
     swipeThreshold = 100,
     swipeIntent = [-20, 20],
+    leftSwipeBackgroundColor,
+    rightSwipeBackgroundColor,
     style,
   }: SwipeableProps<T>
 ): React.NamedExoticComponent<T> {
@@ -58,6 +62,11 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
       }));
       const rightContentOpacity = useAnimatedStyle(() => ({
         opacity: translationX.value < 0 ? 1 : 0,
+      }));
+
+      const dynamicBackgroundColor = useAnimatedStyle(() => ({
+        backgroundColor:
+          translationX.value > 0 ? leftSwipeBackgroundColor : rightSwipeBackgroundColor,
       }));
 
       const panGesture = Gesture.Pan()
@@ -96,7 +105,7 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
       return (
         <View style={{ overflow: 'hidden' }}>
           {/* Buttons hidden under swipeable entry */}
-          <View
+          <Animated.View
             style={[
               {
                 position: 'absolute',
@@ -105,8 +114,8 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
                 top: 0,
                 bottom: 0,
                 flexDirection: 'row',
-                backgroundColor: '#1d4ed8',
               },
+              dynamicBackgroundColor,
               style,
             ]}
           >
@@ -141,7 +150,7 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
                 />
               ))}
             </Animated.View>
-          </View>
+          </Animated.View>
 
           <GestureDetector gesture={panGesture}>
             <Animated.View style={animatedStyle}>

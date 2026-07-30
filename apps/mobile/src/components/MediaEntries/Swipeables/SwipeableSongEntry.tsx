@@ -48,5 +48,6 @@ export const SwipeableSongEntry = asSwipeable(SongEntry, {
         },
       }),
   ],
-  style: { backgroundColor: '#A2A1A6' },
+  leftSwipeBackgroundColor: '#663A3A',
+  rightSwipeBackgroundColor: '#5F8057',
 });
