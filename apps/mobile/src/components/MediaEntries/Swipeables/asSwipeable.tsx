@@ -20,6 +20,7 @@ interface SwipeableProps<T extends object> {
   rightContent?: React.FC<SwipeableContentProps<T>>[];
   swipeThreshold?: number;
   swipeIntent?: [number, number]; // How far user has to swipe before it starts panning
+  backgroundColor?: string;
   leftSwipeBackgroundColor?: string;
   rightSwipeBackgroundColor?: string;
   style?: StyleProp<ViewStyle>;
@@ -41,6 +42,7 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
     rightContent,
     swipeThreshold = 100,
     swipeIntent = [-20, 20],
+    backgroundColor,
     leftSwipeBackgroundColor,
     rightSwipeBackgroundColor,
     style,
@@ -66,7 +68,11 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
 
       const dynamicBackgroundColor = useAnimatedStyle(() => ({
         backgroundColor:
-          translationX.value > 0 ? leftSwipeBackgroundColor : rightSwipeBackgroundColor,
+          translationX.value > 0
+            ? leftSwipeBackgroundColor
+            : translationX.value < 0
+              ? rightSwipeBackgroundColor
+              : backgroundColor,
       }));
 
       const panGesture = Gesture.Pan()
@@ -115,8 +121,8 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
                 bottom: 0,
                 flexDirection: 'row',
               },
-              dynamicBackgroundColor,
               style,
+              dynamicBackgroundColor,
             ]}
           >
             <Animated.View
