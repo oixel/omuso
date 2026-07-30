@@ -1,44 +1,62 @@
-import { Media } from '@choral/types';
 import { memo, useEffect } from 'react';
-import { Dimensions, View } from 'react-native';
+import { Dimensions, StyleProp, View, ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withDelay,
+  SharedValue,
 } from 'react-native-reanimated';
-import { ActionButton, ActionButtonProps } from './ActionButton';
 import { runOnJS } from 'react-native-worklets';
-
-interface EntryProps {
-  item: Media;
-  horizontal: boolean;
-}
 
 const { width } = Dimensions.get('window');
 
-export function asSwipeable(
-  Entry: React.FC<EntryProps>,
-  leftButtons?: ActionButtonProps[],
-  rightButtons?: ActionButtonProps[],
-  swipeThreshold: number = 100,
-  swipeIntent: [number, number] = [-20, 20] // How far user has to swipe before it starts panning
-): React.FC<EntryProps> {
+interface SwipeableProps<T extends object> {
+  getId: (props: T) => string | number;
+  leftSoloSwipe?: (props?: T) => void;
+  rightSoloSwipe?: (props?: T) => void;
+  leftContent?: React.FC<SwipeableContentProps<T>>[];
+  rightContent?: React.FC<SwipeableContentProps<T>>[];
+  swipeThreshold?: number;
+  swipeIntent?: [number, number]; // How far user has to swipe before it starts panning
+  style?: StyleProp<ViewStyle>;
+}
+
+export interface SwipeableContentProps<T> {
+  entryProps: T;
+  translationX: SharedValue<number>;
+  swipeThreshold: number;
+}
+
+export function asSwipeable<T extends object>( // Note: `extends object` is to avoid TS quirk of generic spread props since T is unconstrained
+  Entry: React.FC<T>,
+  {
+    getId,
+    leftSoloSwipe,
+    rightSoloSwipe,
+    leftContent,
+    rightContent,
+    swipeThreshold = 100,
+    swipeIntent = [-20, 20],
+    style,
+  }: SwipeableProps<T>
+): React.NamedExoticComponent<T> {
   return memo(
-    ({ item, horizontal }: EntryProps) => {
+    (props: T) => {
+      const id = getId(props);
       const translationX = useSharedValue(0); // Tracks how far the entry has been swiped
 
       // Reset swipe status when entry gets recycled in FlashList
       useEffect(() => {
         translationX.value = 0;
-      }, [item.id]);
+      }, [id]);
 
       // Hide other side of buttons while swiping to avoid revealing them
-      const leftButtonsOpacity = useAnimatedStyle(() => ({
+      const leftContentOpacity = useAnimatedStyle(() => ({
         opacity: translationX.value > 0 ? 1 : 0,
       }));
-      const rightButtonsOpacity = useAnimatedStyle(() => ({
+      const rightContentOpacity = useAnimatedStyle(() => ({
         opacity: translationX.value < 0 ? 1 : 0,
       }));
 
@@ -49,23 +67,24 @@ export function asSwipeable(
           translationX.value = event.translationX;
         })
         .onEnd(() => {
-          const canSwipeLeft = !!leftButtons?.length && translationX.value > swipeThreshold;
-          const canSwipeRight = !!rightButtons?.length && translationX.value < -swipeThreshold;
+          const canSwipeLeft = !!leftContent?.length && translationX.value > swipeThreshold;
+          const canSwipeRight = !!rightContent?.length && translationX.value < -swipeThreshold;
 
-          // Run single ActionButton's function when fully swiped
-          if (canSwipeLeft && leftButtons?.length === 1) {
-            runOnJS(leftButtons[0].onPress)(item);
+          // Run defined action when only one element exists (e.g. add to playlist by swiping song left)
+          if (canSwipeLeft && leftContent?.length === 1 && leftSoloSwipe) {
+            runOnJS(leftSoloSwipe)(props);
             translationX.value = withSpring(width * 2);
             translationX.value = withDelay(250, withSpring(0)); // TODO: avoid hard code
             return;
           }
-          if (canSwipeRight && rightButtons?.length === 1) {
-            runOnJS(rightButtons[0].onPress)(item);
+          if (canSwipeRight && rightContent?.length === 1 && rightSoloSwipe) {
+            runOnJS(rightSoloSwipe)(props);
             translationX.value = withSpring(-width * 2);
             translationX.value = withDelay(250, withSpring(0));
             return;
           }
 
+          // Otherwise, if multiple content exists on a side, hold the swipeable open to make a decision
           const springDirection = canSwipeLeft ? 1 : canSwipeRight ? -1 : 0;
           translationX.value = withSpring(springDirection * swipeThreshold);
         });
@@ -78,44 +97,47 @@ export function asSwipeable(
         <View style={{ overflow: 'hidden' }}>
           {/* Buttons hidden under swipeable entry */}
           <View
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-              flexDirection: 'row',
-              backgroundColor: '#1d4ed8',
-            }}
+            style={[
+              {
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                bottom: 0,
+                flexDirection: 'row',
+                backgroundColor: '#1d4ed8',
+              },
+              style,
+            ]}
           >
             <Animated.View
-              style={[{ flexDirection: 'row', alignItems: 'center' }, leftButtonsOpacity]}
+              style={[
+                { flexDirection: 'row', alignItems: 'center', width: swipeThreshold },
+                leftContentOpacity,
+              ]}
             >
-              {leftButtons?.map((buttonProps, i) => (
-                <ActionButton
-                  key={'LeftActionButton_' + i}
-                  item={item}
+              {leftContent?.map((Content, i) => (
+                <Content
+                  key={'LeftSwipeableContent_' + i}
+                  entryProps={props}
                   translationX={translationX}
                   swipeThreshold={swipeThreshold}
-                  buttonCount={leftButtons.length}
-                  style={{ borderRightWidth: 2 }}
-                  {...buttonProps}
                 />
               ))}
             </Animated.View>
             <View style={{ flex: 1 }}></View>
             <Animated.View
-              style={[{ flexDirection: 'row', alignItems: 'center' }, rightButtonsOpacity]}
+              style={[
+                { flexDirection: 'row', alignItems: 'center', width: swipeThreshold },
+                rightContentOpacity,
+              ]}
             >
-              {rightButtons?.map((buttonProps, i) => (
-                <ActionButton
-                  key={'RightActionButton_' + i}
-                  item={item}
+              {rightContent?.map((Content, i) => (
+                <Content
+                  key={'RightSwipeableContent_' + i}
+                  entryProps={props}
                   translationX={translationX}
                   swipeThreshold={swipeThreshold}
-                  buttonCount={rightButtons.length}
-                  style={{ borderLeftWidth: 2 }}
-                  {...buttonProps}
                 />
               ))}
             </Animated.View>
@@ -123,12 +145,12 @@ export function asSwipeable(
 
           <GestureDetector gesture={panGesture}>
             <Animated.View style={animatedStyle}>
-              <Entry item={item} horizontal={horizontal} />
+              <Entry {...props} />
             </Animated.View>
           </GestureDetector>
         </View>
       );
     },
-    (prev, next) => prev.item.id === next.item.id
+    (prev, next) => getId(prev) === getId(next)
   );
 }
