@@ -12,7 +12,7 @@ const Home = () => {
   const router = useRouter();
   const { logout, client } = useAuth();
 
-  const { removeFromQueue } = useQueue();
+  const { removeFromQueue, setQueue } = useQueue();
   const index = useQueue((state) => state.index);
   const queue = useQueue((state) => state.queue);
 
@@ -47,6 +47,7 @@ const Home = () => {
         <View className="flex flex-row gap-2">
           <Pressable
             onPress={() => removeFromQueue(index)}
+            onLongPress={() => setQueue([])}
             disabled={!queue.length}
             style={{ opacity: !queue.length ? 0.5 : 1 }}
           >
