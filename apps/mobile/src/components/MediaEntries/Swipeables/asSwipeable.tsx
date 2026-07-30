@@ -55,7 +55,6 @@ export function asSwipeable(
               top: 0,
               bottom: 0,
               flexDirection: 'row',
-              justifyContent: 'flex-end',
               alignItems: 'center',
               backgroundColor: '#1d4ed8',
             }}
@@ -70,6 +69,7 @@ export function asSwipeable(
                 {...buttonProps}
               />
             ))}
+            <View style={{ flex: 1 }}></View>
             {rightButtons?.map((buttonProps, i) => (
               <ActionButton
                 key={'RightActionButton_' + i}
