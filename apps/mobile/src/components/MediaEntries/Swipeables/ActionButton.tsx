@@ -1,51 +1,38 @@
-import { Media } from '@choral/types';
 import { useMemo } from 'react';
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
-import { SharedValue, withSpring } from 'react-native-reanimated';
-import { JSX } from 'react/jsx-runtime';
+import { withSpring } from 'react-native-reanimated';
+import { SwipeableContentProps } from './asSwipeable';
+import * as Haptics from 'expo-haptics';
 
-export interface ActionButtonProps {
+interface ActionButtonProps<T> extends SwipeableContentProps<T> {
   Content: React.FC;
-  onPress: (item?: Media) => void;
+  onPress?: (props?: T) => void;
   backgroundColor: string;
-}
-
-interface ActionButtonComponentProps extends ActionButtonProps {
-  item: Media;
-  translationX: SharedValue<number>;
-  swipeThreshold: number;
-  buttonCount: number;
   style?: StyleProp<ViewStyle>;
 }
 
-export function ActionButton({
-  item,
+export function ActionButton<T>({
+  entryProps,
   translationX,
-  swipeThreshold,
-  buttonCount,
   Content,
   backgroundColor,
   style,
   onPress,
-}: ActionButtonComponentProps): JSX.Element {
+}: ActionButtonProps<T>) {
   // Minor performance improvement, only update styling if styling has changed
   const activeStyle = useMemo(
-    () => [
-      styles.staticStyle,
-      {
-        backgroundColor: backgroundColor,
-        width: swipeThreshold / buttonCount, // Ensure every button on this side has equal spacing
-      },
-      { ...style },
-    ],
-    [backgroundColor, swipeThreshold, buttonCount]
+    () => [styles.staticStyle, { backgroundColor: backgroundColor }, style],
+    [backgroundColor, style]
   );
 
   return (
     <Pressable
       style={activeStyle}
+      disabled={!onPress}
       onPress={() => {
-        onPress(item);
+        if (!onPress) return;
+        onPress(entryProps);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         translationX.value = withSpring(0);
       }}
     >
@@ -56,6 +43,7 @@ export function ActionButton({
 
 const styles = StyleSheet.create({
   staticStyle: {
+    flex: 1,
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
