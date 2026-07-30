@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 
 interface ActionButtonProps<T> extends SwipeableContentProps<T> {
   Content: React.FC;
+  accessibilityLabel: string;
   onPress?: (props?: T) => void;
   backgroundColor: string;
   style?: StyleProp<ViewStyle>;
@@ -13,22 +14,19 @@ interface ActionButtonProps<T> extends SwipeableContentProps<T> {
 
 export function ActionButton<T>({
   entryProps,
+  accessibilityLabel,
   translationX,
   Content,
   backgroundColor,
   style,
   onPress,
 }: ActionButtonProps<T>) {
-  // Minor performance improvement, only update styling if styling has changed
-  const activeStyle = useMemo(
-    () => [styles.staticStyle, { backgroundColor: backgroundColor }, style],
-    [backgroundColor, style]
-  );
-
   return (
     <Pressable
-      style={activeStyle}
+      style={[styles.staticStyle, { backgroundColor: backgroundColor }, style]}
       disabled={!onPress}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       onPress={() => {
         if (!onPress) return;
         onPress(entryProps);

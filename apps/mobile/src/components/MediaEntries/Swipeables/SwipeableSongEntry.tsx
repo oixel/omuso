@@ -23,6 +23,7 @@ export const SwipeableSongEntry = asSwipeable(SongEntry, {
       ActionButton({
         ...props,
         Content: PlusIcon,
+        accessibilityLabel: 'Add song to playlist.',
         backgroundColor: '#8F4040',
       }),
   ],
@@ -31,6 +32,7 @@ export const SwipeableSongEntry = asSwipeable(SongEntry, {
       ActionButton({
         ...props,
         Content: ListStartIcon,
+        accessibilityLabel: 'Add song to play next in queue.',
         backgroundColor: '#74A667',
         onPress: (props) => {
           const item = props?.item;
@@ -41,6 +43,7 @@ export const SwipeableSongEntry = asSwipeable(SongEntry, {
       ActionButton({
         ...props,
         Content: ListEndIcon,
+        accessibilityLabel: 'Add song to end of queue.',
         backgroundColor: '#7367A6',
         onPress: (props) => {
           const item = props?.item;
