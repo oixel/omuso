@@ -1,4 +1,5 @@
 import { memo, useEffect } from 'react';
+import { StyleSheet } from 'react-native';
 import { Dimensions, StyleProp, View, ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -16,6 +17,7 @@ interface SwipeableProps<T extends object> {
   getId: (props: T) => string | number;
   leftSoloSwipe?: (props?: T) => void;
   rightSoloSwipe?: (props?: T) => void;
+  soloSwipeHoldDelay?: number; // How long it takes before solo-swipe animations resets (milliseconds)
   leftContent?: React.FC<SwipeableContentProps<T>>[];
   rightContent?: React.FC<SwipeableContentProps<T>>[];
   swipeThreshold?: number;
@@ -32,12 +34,19 @@ export interface SwipeableContentProps<T> {
   swipeThreshold: number;
 }
 
+const styles = StyleSheet.create({
+  container: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, flexDirection: 'row' },
+  content: { flexDirection: 'row', alignItems: 'center' },
+  divider: { flex: 1 },
+});
+
 export function asSwipeable<T extends object>( // Note: `extends object` is to avoid TS quirk of generic spread props since T is unconstrained
   Entry: React.FC<T>,
   {
     getId,
     leftSoloSwipe,
     rightSoloSwipe,
+    soloSwipeHoldDelay = 250,
     leftContent,
     rightContent,
     swipeThreshold = 100,
@@ -89,13 +98,13 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
           if (canSwipeLeft && leftContent?.length === 1 && leftSoloSwipe) {
             runOnJS(leftSoloSwipe)(props);
             translationX.value = withSpring(width * 2);
-            translationX.value = withDelay(250, withSpring(0)); // TODO: avoid hard code
+            translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
             return;
           }
           if (canSwipeRight && rightContent?.length === 1 && rightSoloSwipe) {
             runOnJS(rightSoloSwipe)(props);
             translationX.value = withSpring(-width * 2);
-            translationX.value = withDelay(250, withSpring(0));
+            translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
             return;
           }
 
@@ -111,26 +120,8 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
       return (
         <View style={{ overflow: 'hidden' }}>
           {/* Buttons hidden under swipeable entry */}
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: 0,
-                bottom: 0,
-                flexDirection: 'row',
-              },
-              style,
-              dynamicBackgroundColor,
-            ]}
-          >
-            <Animated.View
-              style={[
-                { flexDirection: 'row', alignItems: 'center', width: swipeThreshold },
-                leftContentOpacity,
-              ]}
-            >
+          <Animated.View style={[styles.container, style, dynamicBackgroundColor]}>
+            <Animated.View style={[styles.content, { width: swipeThreshold }, leftContentOpacity]}>
               {leftContent?.map((Content, i) => (
                 <Content
                   key={'LeftSwipeableContent_' + i}
@@ -140,13 +131,8 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
                 />
               ))}
             </Animated.View>
-            <View style={{ flex: 1 }}></View>
-            <Animated.View
-              style={[
-                { flexDirection: 'row', alignItems: 'center', width: swipeThreshold },
-                rightContentOpacity,
-              ]}
-            >
+            <View style={styles.divider}></View>
+            <Animated.View style={[styles.content, { width: swipeThreshold }, rightContentOpacity]}>
               {rightContent?.map((Content, i) => (
                 <Content
                   key={'RightSwipeableContent_' + i}
