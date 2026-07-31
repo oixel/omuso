@@ -37,7 +37,7 @@ const Home = () => {
   // Update star icon when a new song enters playback
   useEffect(() => {
     if (queue[index]) setStarred(!!queue[index].starred);
-  }, [index]);
+  }, [index, queue]);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -48,10 +48,21 @@ const Home = () => {
           uri={queue[index]?.coverArtURL}
           recyclingKey={queue[index]?.id}
         />
-        <Text className="text-xl font-bold color-white mt-5 self-start pl-10">
+
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          className="text-xl font-bold color-white mt-5 self-start px-10"
+        >
           {queue[index]?.title || 'No song'}
         </Text>
-        <Text className="mb-2 font-medium text-xl self-start pl-10 color-slate-700">{artist}</Text>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          className="mb-2 font-medium text-xl self-start pl-10 color-slate-700"
+        >
+          {artist}
+        </Text>
         <Slider
           disabled={!queue.length}
           style={{ width: '90%', height: 20 }}
@@ -105,15 +116,18 @@ const Home = () => {
           >
             <SkipForward color="white" size={32} />
           </Pressable>
-          <Pressable onPress={skip} disabled={true} style={{ opacity: 1, marginLeft: 20 }}>
+          <Pressable
+            onPress={skip}
+            disabled={!client || !queue[index]}
+            style={{ opacity: !client || !queue[index] ? 0.5 : 1, marginLeft: 20 }}
+          >
             <Star
               color="white"
               fill={starred ? 'white' : 'none'}
               size={32}
               onPress={async () => {
-                if (!client) return;
                 setStarred(!starred); // Toggle star excitedly
-                const newStatus = await toggleStarred(client, queue[index]);
+                const newStatus = await toggleStarred(client!, queue[index]);
                 setStarred(newStatus);
               }}
             />
