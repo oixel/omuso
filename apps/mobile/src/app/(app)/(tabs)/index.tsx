@@ -2,11 +2,11 @@ import { View, Text, Button, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
-import { Image } from 'expo-image';
 import { Play, Pause, SkipBack, SkipForward, ListX } from 'lucide-react-native';
 import { clearDatabase, getArtist } from '@database';
 import { sync } from '@database';
 import { useEffect, useState } from 'react';
+import { CoverArt } from '@/src/components';
 
 const Home = () => {
   const router = useRouter();
@@ -32,13 +32,10 @@ const Home = () => {
     <View className="flex-1 items-center justify-center bg-blue-400">
       <View className="flex-shrink items-center justify-center w-full gap-2">
         <Text className="font-extrabold color-white text-5xl mb-12">choral</Text>
-        <Image
+        <CoverArt
           style={{ height: '50%', aspectRatio: 1 }}
-          source={{ uri: queue[index]?.coverArtURL }}
-          contentFit="cover"
+          uri={queue[index]?.coverArtURL}
           recyclingKey={queue[index]?.id}
-          cachePolicy="memory-disk"
-          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
         />
         <Text className="text-xl font-bold color-white mt-5">
           {queue[index]?.title || 'No song'}
