@@ -1,10 +1,11 @@
 import * as RequestParam from '@choral/types/src/requests/requestParams';
 import * as Response from '@choral/types/src/requests/responses';
 import * as Result from '@choral/types/src/requests/results';
-import { Credentials } from '@choral/types';
+import { Credentials, Media } from '@choral/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
 import { processAlbums, processArtists, processSongs } from './utils/processMedia';
+import { isAlbum, isArtist } from '@choral/domain/src/utils/verifyMedia';
 
 export class SubsonicClient {
   constructor(private credentials: Credentials) {}
@@ -28,6 +29,28 @@ export class SubsonicClient {
 
     return response as Response;
   }
+
+  //
+  // Getters from media IDs
+  //
+
+  getArtist = async (id: string): Promise<Result.GetArtistResult> => {
+    const response = await this.request<Response.GetArtistResponse>('getArtist', { id });
+    if (!response || response.status !== 'ok' || !response.artist) return { success: false };
+    return { success: true, artist: processArtists(this.credentials, [response.artist])?.at(0) };
+  };
+
+  getAlbum = async (id: string): Promise<Result.GetAlbumResult> => {
+    const response = await this.request<Response.GetAlbumResponse>('getAlbum', { id });
+    if (!response || response.status !== 'ok' || !response.album) return { success: false };
+    return { success: true, album: processAlbums(this.credentials, [response.album])?.at(0) };
+  };
+
+  getSong = async (id: string): Promise<Result.GetSongResult> => {
+    const response = await this.request<Response.GetSongResponse>('getSong', { id });
+    if (!response || response.status !== 'ok' || !response.song) return { success: false };
+    return { success: true, song: processSongs(this.credentials, [response.song])?.at(0) };
+  };
 
   search = async ({
     query = '',
@@ -66,25 +89,26 @@ export class SubsonicClient {
     };
   };
 
-  //
-  // Getters from media IDs
-  //
+  toggleStarred = async (
+    media: Media,
+    currentlyStarred: boolean
+  ): Promise<Result.ToggleStarredResult> => {
+    const endpoint = currentlyStarred ? 'unstar' : 'star'; // Run opposite endpoint of starred status
 
-  getArtist = async (id: string): Promise<Result.GetArtistResult> => {
-    const response = await this.request<Response.GetArtistResponse>('getArtist', { id });
-    if (!response || response.status !== 'ok' || !response.artist) return { success: false };
-    return { success: true, artist: processArtists(this.credentials, [response.artist])?.at(0) };
-  };
+    const response = await this.request<Response.SubsonicResponse>(
+      endpoint,
+      cleanParams({
+        id: media.id,
+        albumId: isAlbum(media) ? media.id : undefined,
+        artistId: isArtist(media) ? media.id : undefined,
+      })
+    );
 
-  getAlbum = async (id: string): Promise<Result.GetAlbumResult> => {
-    const response = await this.request<Response.GetAlbumResponse>('getAlbum', { id });
-    if (!response || response.status !== 'ok' || !response.album) return { success: false };
-    return { success: true, album: processAlbums(this.credentials, [response.album])?.at(0) };
-  };
+    if (!response || response.status !== 'ok') return { success: false };
 
-  getSong = async (id: string): Promise<Result.GetSongResult> => {
-    const response = await this.request<Response.GetSongResponse>('getSong', { id });
-    if (!response || response.status !== 'ok' || !response.song) return { success: false };
-    return { success: true, song: processSongs(this.credentials, [response.song])?.at(0) };
+    return {
+      success: true,
+      starred: !currentlyStarred ? new Date().toISOString() : undefined, // Return new status
+    };
   };
 }

@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, msToTime, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
 import { Play, Pause, SkipBack, SkipForward, ListX, Star } from 'lucide-react-native';
-import { clearDatabase, getArtist } from '@database';
+import { clearDatabase, getArtist, getSong, toggleStarred } from '@database';
 import { sync } from '@database';
 import { useEffect, useState } from 'react';
 import { CoverArt } from '@/src/components';
@@ -28,9 +28,16 @@ const Home = () => {
   const artistId = queue[index]?.artistId;
   const artist = artistId ? (getArtist(artistId)?.name ?? 'Unknown Artist') : 'Unknown Artist';
 
+  const [starred, setStarred] = useState(false);
+
   useEffect(() => {
     if (!isBuffering) setIsPlaying(isPlaybackPlaying);
   }, [isPlaybackPlaying]);
+
+  // Update star icon when a new song enters playback
+  useEffect(() => {
+    if (queue[index]) setStarred(!!queue[index].starred);
+  }, [index]);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -99,12 +106,22 @@ const Home = () => {
             <SkipForward color="white" size={32} />
           </Pressable>
           <Pressable onPress={skip} disabled={true} style={{ opacity: 1, marginLeft: 20 }}>
-            <Star color="white" size={32} />
+            <Star
+              color="white"
+              fill={starred ? 'white' : 'none'}
+              size={32}
+              onPress={async () => {
+                if (!client) return;
+                setStarred(!starred); // Toggle star excitedly
+                const newStatus = await toggleStarred(client, queue[index]);
+                setStarred(newStatus);
+              }}
+            />
           </Pressable>
         </View>
       </View>
 
-      <Button
+      {/* <Button
         title="Sync DB"
         onPress={() => {
           if (client) sync(client);
@@ -121,7 +138,7 @@ const Home = () => {
           router.replace('/login');
         }}
       />
-      <View className="mb-8"></View>
+      <View className="mb-8"></View> */}
     </View>
   );
 };
