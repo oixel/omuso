@@ -54,7 +54,8 @@ class AudioSessionService : MediaSessionService() {
     var onPlayerDestroyed: (() -> Unit)? = null
     var onPlaybackStateChanged: ((String) -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
-    var onPositionChanged: ((Long, Long) -> Unit)? = null
+    var onPositionChanged: ((Long) -> Unit)? = null
+    var onDurationChanged: ((Long) -> Unit)? = null
     var onSongChanged: ((Int) -> Unit)? = null
 
     override fun onCreate() {
@@ -78,9 +79,8 @@ class AudioSessionService : MediaSessionService() {
         nativeAudioPlayer.onPlayerDestroyed = { onPlayerDestroyed?.invoke() }
         nativeAudioPlayer.onPlaybackStateChanged = { playbackState -> onPlaybackStateChanged?.invoke(playbackState) }
         nativeAudioPlayer.onIsPlayingChanged = { playing -> onIsPlayingChanged?.invoke(playing) }
-        nativeAudioPlayer.onPositionChanged = { position, duration ->
-            onPositionChanged?.invoke(position, duration)
-        }
+        nativeAudioPlayer.onPositionChanged = { position -> onPositionChanged?.invoke(position) }
+        nativeAudioPlayer.onDurationChanged = { duration -> onDurationChanged?.invoke(duration) }
         nativeAudioPlayer.onSongChanged = { index -> onSongChanged?.invoke(index) }
     }
 

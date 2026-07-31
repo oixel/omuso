@@ -37,11 +37,13 @@ class NativeAudioPlayerModule : Module() {
       }
 
       // Emit new playback position when player progresses
-      audioSessionService?.onPositionChanged = { position, duration ->
-        sendEvent(
-          "onPositionChanged",
-          mapOf("position" to position, "duration" to duration)
-        )
+      audioSessionService?.onPositionChanged = { position ->
+        sendEvent("onPositionChanged", mapOf("position" to position))
+      }
+
+      // Emit new song duration when song changes
+      audioSessionService?.onDurationChanged = { duration -> 
+        sendEvent("onDurationChanged", mapOf("duration" to duration))
       }
 
       // Emit new song index when song changes in player
@@ -67,6 +69,7 @@ class NativeAudioPlayerModule : Module() {
       "onPlaybackStateChanged",
       "onIsPlayingChanged",
       "onPositionChanged",
+      "onDurationChanged",
       "onSongChanged"
     )
 

@@ -25,7 +25,8 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     var onPlayerDestroyed: (() -> Unit)? = null
     var onPlaybackStateChanged: ((String) -> Unit)? = null
     var onIsPlayingChanged: ((Boolean) -> Unit)? = null
-    var onPositionChanged: ((Long, Long) -> Unit)? = null
+    var onPositionChanged: ((Long) -> Unit)? = null
+    var onDurationChanged: ((Long) -> Unit)? = null
     var onSongChanged: ((Int) -> Unit)? = null
     
     // Poll current song progress periodically to update app UI
@@ -33,8 +34,7 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     private val progressRunnable = object : Runnable {
         override fun run() {
             position = player.currentPosition
-            duration = player.duration
-            onPositionChanged?.invoke(position, duration)
+            onPositionChanged?.invoke(position)
             progressHandler.postDelayed(this, 500)
         }
     }
@@ -59,6 +59,9 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
                     }
 
                     onPlaybackStateChanged?.invoke(playbackState)
+
+                    duration = player.duration
+                    onDurationChanged?.invoke(duration)
                 }
 
                 override fun onIsPlayingChanged(playing: Boolean) {
@@ -72,6 +75,10 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     songIndex = player.currentMediaItemIndex
                     onSongChanged?.invoke(player.currentMediaItemIndex)
+
+                    // Reflect new song's duration
+                    duration = player.duration
+                    onDurationChanged?.invoke(duration)
                 }
             })
 
@@ -97,10 +104,21 @@ class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
     fun pause() = mainHandler.post { player.pause() }
     fun togglePause() = if (isPlaying) pause() else play()
 
-    fun seekTo(position: Long) = mainHandler.post { player.seekTo(position) }
+    fun seekTo(seekPos: Long) = mainHandler.post { 
+        player.seekTo(seekPos) 
+
+        position = seekPos
+        onPositionChanged?.invoke(position)
+    }
     fun playSong(index: Int) = mainHandler.post { player.seekTo(index, 0L) }
-    fun skip() = mainHandler.post { player.seekToNextMediaItem() }
-    fun prev() = mainHandler.post { player.seekToPreviousMediaItem() }
+    fun skip() = mainHandler.post {
+        seekTo(0L)
+        player.seekToNextMediaItem()
+    }
+    fun prev() = mainHandler.post { 
+        seekTo(0L)
+        player.seekToPreviousMediaItem() 
+    }
 
     // Replaces entire queue with new queue and wipes current progress
     fun setQueue(queue: List<MediaItem>) = mainHandler.post {
