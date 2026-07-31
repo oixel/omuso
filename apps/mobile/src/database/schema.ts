@@ -11,7 +11,8 @@ export async function createSchema() {
         name TEXT NOT NULL,
         coverArt TEXT,
         coverArtURL TEXT,
-        starred TEXT
+        starred TEXT,
+        updated INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS albums (
@@ -24,6 +25,7 @@ export async function createSchema() {
         coverArt TEXT,
         coverArtURL TEXT,
         starred TEXT,
+        updated INTEGER,
         FOREIGN KEY(artistId) REFERENCES artists(id) ON DELETE SET NULL
     );
     CREATE INDEX IF NOT EXISTS idx_albums_artistId ON albums(artistId);
@@ -37,6 +39,7 @@ export async function createSchema() {
         coverArt TEXT,
         coverArtURL TEXT,
         starred TEXT,
+        updated INTEGER,
         FOREIGN KEY(artistId) REFERENCES artists(id) ON DELETE SET NULL,
         FOREIGN KEY(albumId) REFERENCES albums(id) ON DELETE SET NULL
     );
