@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { withSpring } from 'react-native-reanimated';
 import { SwipeableContentProps } from './asSwipeable';
