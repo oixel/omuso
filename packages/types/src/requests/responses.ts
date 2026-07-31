@@ -6,7 +6,7 @@
 
 import { Album, Artist, Song } from '../media';
 
-interface SubsonicResponse {
+export interface SubsonicResponse {
   status: string;
 }
 
