@@ -143,9 +143,9 @@ export async function sync(client: SubsonicClient) {
 
       // Prepare SQL statements once to avoid expo-sqlite parsing and recompiling on every loop
       const upsertArtist = await db.prepareAsync(`
-      INSERT INTO artists(id, name, coverArt, coverArtURL) VALUES ($id, $name, $coverArt, $coverArtURL)
+      INSERT INTO artists(id, name, coverArt, coverArtURL, starred) VALUES ($id, $name, $coverArt, $coverArtURL, $starred)
       ON CONFLICT(id) DO UPDATE SET 
-      name=excluded.name, coverArt=excluded.coverArt, coverArtURL=excluded.coverArtURL;
+      name=excluded.name, coverArt=excluded.coverArt, coverArtURL=excluded.coverArtURL, starred=excluded.starred;
       `);
       const insertSearchArtist = await db.prepareAsync(`
         INSERT INTO media_search(id, type, name) VALUES ($id, $type, $name);
@@ -159,6 +159,7 @@ export async function sync(client: SubsonicClient) {
             $name: artist.name,
             $coverArt: artist.coverArt ?? null,
             $coverArtURL: artist.coverArtURL ?? null,
+            $starred: artist.starred ?? null,
           });
 
           await deleteSearchEntry.executeAsync({ $id: artist.id, $type: 'artist' });
@@ -184,8 +185,8 @@ export async function sync(client: SubsonicClient) {
       // ------
 
       const upsertAlbum = await db.prepareAsync(`
-      INSERT INTO albums(id, name, songCount, duration, created, artistId, coverArt, coverArtURL) 
-        VALUES ($id, $name, $songCount, $duration, $created, $artistId, $coverArt, $coverArtURL)
+      INSERT INTO albums(id, name, songCount, duration, created, artistId, coverArt, coverArtURL, starred) 
+        VALUES ($id, $name, $songCount, $duration, $created, $artistId, $coverArt, $coverArtURL, $starred)
         ON CONFLICT(id) DO UPDATE SET 
           name=excluded.name, 
           songCount=excluded.songCount, 
@@ -193,7 +194,8 @@ export async function sync(client: SubsonicClient) {
           created=excluded.created, 
           artistId=excluded.artistId, 
           coverArt=excluded.coverArt, 
-          coverArtURL=excluded.coverArtURL;
+          coverArtURL=excluded.coverArtURL,
+          starred=excluded.starred;
     `);
       const upsertAlbumGenre = await db.prepareAsync(`
       INSERT INTO album_genres(albumId, genre) VALUES ($albumId, $genre)
@@ -216,6 +218,7 @@ export async function sync(client: SubsonicClient) {
             $artistId: album.artistId ?? null,
             $coverArt: album.coverArt ?? null,
             $coverArtURL: album.coverArtURL ?? null,
+            $starred: album.starred ?? null,
           });
 
           if (album.genres !== undefined) {
@@ -251,15 +254,16 @@ export async function sync(client: SubsonicClient) {
       // ------
 
       const upsertSong = await db.prepareAsync(`
-      INSERT INTO songs(id, title, uri, artistId, albumId, coverArt, coverArtURL) 
-      VALUES ($id, $title, $uri, $artistId, $albumId, $coverArt, $coverArtURL)
+      INSERT INTO songs(id, title, uri, artistId, albumId, coverArt, coverArtURL, starred) 
+      VALUES ($id, $title, $uri, $artistId, $albumId, $coverArt, $coverArtURL, $starred)
       ON CONFLICT(id) DO UPDATE SET 
         title=excluded.title, 
         uri=excluded.uri, 
         artistId=excluded.artistId, 
         albumId=excluded.albumId, 
         coverArt=excluded.coverArt, 
-        coverArtURL=excluded.coverArtURL;
+        coverArtURL=excluded.coverArtURL,
+        starred=excluded.starred;
       `);
       const upsertSongGenre = await db.prepareAsync(`
       INSERT INTO song_genres(songId, genre) VALUES ($songId, $genre)
@@ -282,6 +286,7 @@ export async function sync(client: SubsonicClient) {
             $albumId: song.albumId ?? null,
             $coverArt: song.coverArt ?? null,
             $coverArtURL: song.coverArtURL ?? null,
+            $starred: song.starred ?? null,
           });
 
           if (song.genres !== undefined) {
