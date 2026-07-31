@@ -1,10 +1,10 @@
 import { Media } from '@choral/types';
-import { Image } from 'expo-image';
 import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 import TextTicker from 'react-native-text-ticker';
 import { memo } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
 import { getArtist } from '@database';
+import { CoverArt } from '../CoverArt';
 
 interface SongEntryProps {
   item: Media;
@@ -27,13 +27,10 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
           usePlayback.getState().play();
         }}
       >
-        <Image
+        <CoverArt
           style={{ height: '100%', aspectRatio: 1 }}
-          source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
-          contentFit="cover"
+          uri={resizeCoverArt(item.coverArtURL, 100)}
           recyclingKey={item.id}
-          cachePolicy="memory-disk"
-          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
         />
         <View className="border-b border-blue-500 flex-1 h-full">
           {useTitleTicker ? (
