@@ -1,8 +1,8 @@
 import { View, Text, Button, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { destroyAudioPlayer, useAuth } from '@choral/domain';
+import { destroyAudioPlayer, msToTime, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
-import { Play, Pause, SkipBack, SkipForward, ListX, Heart } from 'lucide-react-native';
+import { Play, Pause, SkipBack, SkipForward, ListX, Star } from 'lucide-react-native';
 import { clearDatabase, getArtist } from '@database';
 import { sync } from '@database';
 import { useEffect, useState } from 'react';
@@ -23,8 +23,6 @@ const Home = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const position = usePlayback((state) => state.position);
-  const toMinutes = (ms: number) => Math.floor(ms / 1000 / 60);
-  const toRemainingSeconds = (ms: number) => Math.floor((ms / 1000) % 60);
   const duration = usePlayback((state) => state.duration);
 
   const artistId = queue[index]?.artistId;
@@ -46,7 +44,7 @@ const Home = () => {
         <Text className="text-xl font-bold color-white mt-5 self-start pl-10">
           {queue[index]?.title || 'No song'}
         </Text>
-        <Text className="mb-2 font-medium text-xl self-start pl-10">{artist}</Text>
+        <Text className="mb-2 font-medium text-xl self-start pl-10 color-slate-700">{artist}</Text>
         <Slider
           disabled={!queue.length}
           style={{ width: '90%', height: 20 }}
@@ -67,8 +65,8 @@ const Home = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Text className="text-white justify-start">{`${toMinutes(position)}:${String(toRemainingSeconds(position)).padStart(2, '0')}`}</Text>
-          <Text className="text-white justify-start">{`-${toMinutes(duration - position)}:${String(toRemainingSeconds(duration - position)).padStart(2, '0')}`}</Text>
+          <Text className="text-white justify-start">{msToTime(position)}</Text>
+          <Text className="text-white justify-start">{'-' + msToTime(duration - position)}</Text>
         </View>
         <View className="flex flex-row gap-2">
           <Pressable
@@ -101,12 +99,12 @@ const Home = () => {
             <SkipForward color="white" size={32} />
           </Pressable>
           <Pressable onPress={skip} disabled={true} style={{ opacity: 1, marginLeft: 20 }}>
-            <Heart color="white" size={32} />
+            <Star color="white" size={32} />
           </Pressable>
         </View>
       </View>
 
-      {/* <Button
+      <Button
         title="Sync DB"
         onPress={() => {
           if (client) sync(client);
@@ -123,7 +121,7 @@ const Home = () => {
           router.replace('/login');
         }}
       />
-      <View className="mb-8"></View> */}
+      <View className="mb-8"></View>
     </View>
   );
 };
