@@ -10,15 +10,15 @@ interface SubsonicResponse {
   status: string;
 }
 
-export type UnprocessedAlbum = Omit<Album, 'genres'> & {
+export interface UnprocessedAlbum extends Omit<Album, 'genres'> {
   genres?: { name: string }[];
   genre?: string;
-};
+}
 
-export type UnprocessedSong = Omit<Song, 'genres'> & {
+export interface UnprocessedSong extends Omit<Song, 'genres'> {
   genres?: { name: string }[];
   genre?: string;
-};
+}
 
 export interface SearchResponse extends SubsonicResponse {
   searchResult3?: {
@@ -30,4 +30,16 @@ export interface SearchResponse extends SubsonicResponse {
 
 export interface GetSongsByGenreResponse extends SubsonicResponse {
   songsByGenre?: { song: UnprocessedSong[] };
+}
+
+export interface GetArtistResponse extends SubsonicResponse {
+  artist?: Artist;
+}
+
+export interface GetAlbumResponse extends SubsonicResponse {
+  album?: UnprocessedAlbum;
+}
+
+export interface GetSongResponse extends SubsonicResponse {
+  song?: UnprocessedSong;
 }

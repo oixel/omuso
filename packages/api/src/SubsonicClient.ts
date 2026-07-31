@@ -65,4 +65,26 @@ export class SubsonicClient {
       songs: processSongs(this.credentials, response.searchResult3?.song),
     };
   };
+
+  //
+  // Getters from media IDs
+  //
+
+  getArtist = async (id: string): Promise<Result.GetArtistResult> => {
+    const response = await this.request<Response.GetArtistResponse>('getArtist', { id });
+    if (!response || response.status !== 'ok' || !response.artist) return { success: false };
+    return { success: true, artist: processArtists(this.credentials, [response.artist])?.at(0) };
+  };
+
+  getAlbum = async (id: string): Promise<Result.GetAlbumResult> => {
+    const response = await this.request<Response.GetAlbumResponse>('getAlbum', { id });
+    if (!response || response.status !== 'ok' || !response.album) return { success: false };
+    return { success: true, album: processAlbums(this.credentials, [response.album])?.at(0) };
+  };
+
+  getSong = async (id: string): Promise<Result.GetSongResult> => {
+    const response = await this.request<Response.GetSongResponse>('getSong', { id });
+    if (!response || response.status !== 'ok' || !response.song) return { success: false };
+    return { success: true, song: processSongs(this.credentials, [response.song])?.at(0) };
+  };
 }

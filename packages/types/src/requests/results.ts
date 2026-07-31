@@ -10,7 +10,6 @@ interface Result {
 }
 
 export interface ServerResult extends Result {
-  success: boolean;
   usesAPIKey?: boolean;
 }
 
@@ -20,6 +19,14 @@ export interface SearchResult extends Result {
   songs?: Song[];
 }
 
-export interface GetSongsByGenreResult extends Result {
-  songs?: Song[];
+export interface GetArtistResult extends Result {
+  artist?: Artist;
+}
+
+export interface GetAlbumResult extends Result {
+  album?: Album;
+}
+
+export interface GetSongResult extends Result {
+  song?: Song;
 }
