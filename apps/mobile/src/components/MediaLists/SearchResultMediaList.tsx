@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Song } from '@choral/types';
 
 import { MediaList } from './MediaList';
-import { SwipeableSongEntry } from '../MediaEntries';
+import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { search } from '@database';
 
 const PAGE_SIZE = 200;
