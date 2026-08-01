@@ -7,7 +7,6 @@ import { useAuth } from '@choral/domain';
 import { MediaList } from './MediaList';
 import { GenreEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
-import { getGenres } from '@database';
 
 type GenreMediaListProps = {
   style?: StyleProp<ViewStyle>;
@@ -23,9 +22,12 @@ export function GenreMediaList({
   const [genres, setGenres] = useState<Media[]>([]);
 
   const loadGenres = async () => {
-    const loadedGenres = await getGenres();
-    const mediaGenres: Media[] = loadedGenres.map((name) => ({ id: name }));
-    setGenres(mediaGenres);
+    if (!client) return;
+    const response = await client.getGenres();
+    if (response.success && response.genres) {
+      const mediaGenres: Media[] = response.genres.map((name) => ({ id: name }));
+      setGenres(mediaGenres);
+    }
   };
 
   useEffect(() => {

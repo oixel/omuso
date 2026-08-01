@@ -11,3 +11,9 @@ export interface SearchParams {
   albumOffset?: number;
   songOffset?: number;
 }
+
+export interface GetSongsByGenreParams {
+  genre: string;
+  count?: number;
+  offset?: number;
+}

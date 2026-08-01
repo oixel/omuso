@@ -31,6 +31,14 @@ export interface SearchResult extends Result {
   songs?: Song[];
 }
 
+export interface GetGenresResult extends Result {
+  genres?: string[];
+}
+
+export interface GetSongsByGenreResult extends Result {
+  songs?: Song[];
+}
+
 export interface ToggleStarredResult extends Result {
   starred?: string;
 }

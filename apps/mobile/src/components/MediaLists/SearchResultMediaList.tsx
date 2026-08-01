@@ -4,24 +4,36 @@ import { Song } from '@choral/types';
 
 import { MediaList } from './MediaList';
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
-import { search } from '@database';
+import { useAuth, useDebounce } from '@choral/domain';
 
 const PAGE_SIZE = 200;
 
-export function SearchResultMediaList({ searchQuery = '', horizontal = false }) {
+export function SearchResultMediaList({
+  searchQuery = '',
+  onlyStarred = false,
+  horizontal = false,
+}) {
+  const { client } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
   const [isLoadingSongs, setIsLoadingSongs] = useState(false);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const latestQuery = useRef('');
+  const debouncedSearch = useDebounce(searchQuery, 300); // Resetart countdown every time the search input is updated
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;
     setPage(newPage);
     setIsLoadingSongs(true);
 
-    const result = await search(query, ['song'], PAGE_SIZE, newPage * PAGE_SIZE);
+    const result = await client?.search({
+      query,
+      artistCount: 0,
+      albumCount: 0,
+      songCount: PAGE_SIZE,
+      songOffset: newPage * PAGE_SIZE,
+    });
     const newSongs = result?.songs ?? [];
 
     // Discard current result if a newer query exists
@@ -40,18 +52,23 @@ export function SearchResultMediaList({ searchQuery = '', horizontal = false }) 
     setHasReachedEnd(false);
 
     (async () => {
-      await loadSongs(searchQuery, 0);
+      await loadSongs(debouncedSearch, 0);
     })();
-  }, [searchQuery]);
+  }, [debouncedSearch, onlyStarred]);
 
   return (
     <View className="flex-1 w-full pb-4">
-      {!songs.length && (
+      {isLoadingSongs && page === 0 && (
+        <View className="w-full flex-1 flex justify-start mt-12 items-center">
+          <Text className="font-bold color-white">Searching...</Text>
+        </View>
+      )}
+      {!isLoadingSongs && !songs.length && (
         <View className="w-full flex-1 flex justify-center items-center">
           <Text className="font-bold color-white">No results found</Text>
         </View>
       )}
-      {songs.length > 0 && (
+      {!(isLoadingSongs && page === 0) && songs.length > 0 && (
         <MediaList
           data={songs}
           Entry={SwipeableSongEntry}

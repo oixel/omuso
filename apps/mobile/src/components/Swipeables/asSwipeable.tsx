@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useLayoutEffect, useMemo, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Dimensions, StyleProp, View, ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -7,6 +7,7 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withDelay,
+  cancelAnimation,
   SharedValue,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
@@ -61,11 +62,25 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
     (props: T) => {
       const id = getId(props);
       const translationX = useSharedValue(0); // Tracks how far the entry has been swiped
+      const [hasInteracted, setHasInteracted] = useState(false);
 
-      // Reset swipe status when entry gets recycled in FlashList
-      useEffect(() => {
+      // Reset swip when entry gets recycled in FlashList
+      useLayoutEffect(() => {
+        cancelAnimation(translationX);
         translationX.value = 0;
       }, [id]);
+
+      const dynamicBackgroundColor = useAnimatedStyle(() => {
+        const isLeft = translationX.value > 0;
+        const isRight = translationX.value < 0;
+        return {
+          backgroundColor: isLeft
+            ? leftSwipeBackgroundColor
+            : isRight
+              ? rightSwipeBackgroundColor
+              : backgroundColor,
+        };
+      });
 
       // Hide other side of buttons while swiping to avoid revealing them
       const leftContentOpacity = useAnimatedStyle(() => ({
@@ -75,43 +90,41 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
         opacity: translationX.value < 0 ? 1 : 0,
       }));
 
-      const dynamicBackgroundColor = useAnimatedStyle(() => ({
-        backgroundColor:
-          translationX.value > 0
-            ? leftSwipeBackgroundColor
-            : translationX.value < 0
-              ? rightSwipeBackgroundColor
-              : backgroundColor,
-      }));
+      const panGesture = useMemo(
+        () =>
+          Gesture.Pan()
+            .activeOffsetX(swipeIntent) // Only pan on intent
+            .onStart(() => {
+              runOnJS(setHasInteracted)(true);
+            })
+            .onUpdate((event) => {
+              // Update stored translation value to match current pan
+              translationX.value = event.translationX;
+            })
+            .onEnd(() => {
+              const canSwipeLeft = !!leftContent?.length && translationX.value > swipeThreshold;
+              const canSwipeRight = !!rightContent?.length && translationX.value < -swipeThreshold;
 
-      const panGesture = Gesture.Pan()
-        .activeOffsetX(swipeIntent) // Only pan on intent
-        .onUpdate((event) => {
-          // Update stored translation value to match current pan
-          translationX.value = event.translationX;
-        })
-        .onEnd(() => {
-          const canSwipeLeft = !!leftContent?.length && translationX.value > swipeThreshold;
-          const canSwipeRight = !!rightContent?.length && translationX.value < -swipeThreshold;
+              // Run defined action when only one element exists (e.g. add to playlist by swiping song left)
+              if (canSwipeLeft && leftContent?.length === 1 && leftSoloSwipe) {
+                runOnJS(leftSoloSwipe)(props);
+                translationX.value = withSpring(width * 2);
+                translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
+                return;
+              }
+              if (canSwipeRight && rightContent?.length === 1 && rightSoloSwipe) {
+                runOnJS(rightSoloSwipe)(props);
+                translationX.value = withSpring(-width * 2);
+                translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
+                return;
+              }
 
-          // Run defined action when only one element exists (e.g. add to playlist by swiping song left)
-          if (canSwipeLeft && leftContent?.length === 1 && leftSoloSwipe) {
-            runOnJS(leftSoloSwipe)(props);
-            translationX.value = withSpring(width * 2);
-            translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
-            return;
-          }
-          if (canSwipeRight && rightContent?.length === 1 && rightSoloSwipe) {
-            runOnJS(rightSoloSwipe)(props);
-            translationX.value = withSpring(-width * 2);
-            translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
-            return;
-          }
-
-          // Otherwise, if multiple content exists on a side, hold the swipeable open to make a decision
-          const springDirection = canSwipeLeft ? 1 : canSwipeRight ? -1 : 0;
-          translationX.value = withSpring(springDirection * swipeThreshold);
-        });
+              // Otherwise, if multiple content exists on a side, hold the swipeable open to make a decision
+              const springDirection = canSwipeLeft ? 1 : canSwipeRight ? -1 : 0;
+              translationX.value = withSpring(springDirection * swipeThreshold);
+            }),
+        [id]
+      );
 
       const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: translationX.value }],
@@ -122,25 +135,29 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
           {/* Buttons hidden under swipeable entry */}
           <Animated.View style={[styles.container, style, dynamicBackgroundColor]}>
             <Animated.View style={[styles.content, { width: swipeThreshold }, leftContentOpacity]}>
-              {leftContent?.map((Content, i) => (
-                <Content
-                  key={'LeftSwipeableContent_' + i}
-                  entryProps={props}
-                  translationX={translationX}
-                  swipeThreshold={swipeThreshold}
-                />
-              ))}
+              {/* Only render left buttons when user starts swiping */}
+              {hasInteracted &&
+                leftContent?.map((Content, i) => (
+                  <Content
+                    key={'LeftSwipeableContent_' + i}
+                    entryProps={props}
+                    translationX={translationX}
+                    swipeThreshold={swipeThreshold}
+                  />
+                ))}
             </Animated.View>
             <View style={styles.divider}></View>
             <Animated.View style={[styles.content, { width: swipeThreshold }, rightContentOpacity]}>
-              {rightContent?.map((Content, i) => (
-                <Content
-                  key={'RightSwipeableContent_' + i}
-                  entryProps={props}
-                  translationX={translationX}
-                  swipeThreshold={swipeThreshold}
-                />
-              ))}
+              {/* Onl render right buttons when user starts swiping */}
+              {hasInteracted &&
+                rightContent?.map((Content, i) => (
+                  <Content
+                    key={'RightSwipeableContent_' + i}
+                    entryProps={props}
+                    translationX={translationX}
+                    swipeThreshold={swipeThreshold}
+                  />
+                ))}
             </Animated.View>
           </Animated.View>
 

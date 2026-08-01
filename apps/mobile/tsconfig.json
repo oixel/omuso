@@ -9,8 +9,7 @@
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
       "@utils": ["./src/utils/index.ts"],
-      "@components": ["./src/components/index.ts"],
-      "@database": ["./src/database/index.ts"]
+      "@components": ["./src/components/index.ts"]
     }
   }
 }

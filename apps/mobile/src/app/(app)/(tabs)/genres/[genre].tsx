@@ -1,17 +1,23 @@
-import { getSongsByGenre } from '@database';
 import { Song } from '@choral/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, MediaList } from '@components';
+import { useAuth } from '@choral/domain';
 
 const Genre = () => {
   const { genre } = useLocalSearchParams();
+  const { client } = useAuth();
   const [songs, setSongs] = useState<Song[]>();
   const router = useRouter();
 
   useEffect(() => {
-    getSongsByGenre(genre as string).then(setSongs);
+    if (!client) return;
+
+    (async () => {
+      const response = await client.getSongsByGenre({ genre: genre as string });
+      if (response.success) setSongs(response.songs);
+    })();
 
     return () => {
       setSongs([]);

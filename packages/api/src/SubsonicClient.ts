@@ -10,6 +10,25 @@ import { isAlbum, isArtist } from '@choral/domain/src/utils/verifyMedia';
 export class SubsonicClient {
   constructor(private credentials: Credentials) {}
 
+  // Allow UI components to subscribe to media being updated
+  private _updatedMedia?: Media;
+  private listeners = new Set<() => void>();
+
+  get updatedMedia() {
+    return this._updatedMedia;
+  }
+
+  private setUpdatedMedia(media: Media) {
+    this._updatedMedia = media;
+    this.listeners.forEach((listener) => listener()); // Notify all listeners that media has been updated
+  }
+
+  // Called in useUpdatedMedia to connect to useSyncExternalStore
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener); // Add listener to Set so it can get notified
+    return () => this.listeners.delete(listener); // Unsubscribe handle for future disconnecting
+  };
+
   private async request<Response>(
     endpoint: string,
     params?: Record<string, string>
@@ -89,6 +108,35 @@ export class SubsonicClient {
     };
   };
 
+  getGenres = async (): Promise<Result.GetGenresResult> => {
+    const response = await this.request<Response.GetGenresResponse>('getGenres');
+    if (!response || response.status !== 'ok') return { success: false };
+
+    return {
+      success: true,
+      genres: response.genres?.genre?.map(({ value }) => value), // Simply return all genre names
+    };
+  };
+
+  getSongsByGenre = async ({
+    genre,
+    count, // Defaults to 10 if not provided
+    offset, // Defaults to 0 if not provided
+  }: RequestParam.GetSongsByGenreParams): Promise<Result.GetSongsByGenreResult> => {
+    const response = await this.request<Response.GetSongsByGenreResponse>(
+      'getSongsByGenre',
+      cleanParams({ genre, count, offset })
+    );
+
+    if (!response || response.status !== 'ok' || !response.songsByGenre?.song)
+      return { success: false };
+
+    return {
+      success: true,
+      songs: processSongs(this.credentials, response.songsByGenre.song),
+    };
+  };
+
   toggleStarred = async (
     media: Media,
     currentlyStarred: boolean
@@ -106,9 +154,14 @@ export class SubsonicClient {
 
     if (!response || response.status !== 'ok') return { success: false };
 
+    // Notify listeners that media has been updated
+    const updateTime = new Date().toISOString();
+    const newStatus = !currentlyStarred ? updateTime : undefined; // Time or undefined matches OpenSubsonic's API response
+    this.setUpdatedMedia({ ...media, starred: newStatus });
+
     return {
       success: true,
-      starred: !currentlyStarred ? new Date().toISOString() : undefined, // Return new status
+      starred: newStatus,
     };
   };
 }
