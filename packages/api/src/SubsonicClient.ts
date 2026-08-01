@@ -10,6 +10,25 @@ import { isAlbum, isArtist } from '@choral/domain/src/utils/verifyMedia';
 export class SubsonicClient {
   constructor(private credentials: Credentials) {}
 
+  // Allow UI components to subscribe to media being updated
+  private _updatedMedia?: Media;
+  private listeners = new Set<() => void>();
+
+  get updatedMedia() {
+    return this._updatedMedia;
+  }
+
+  private setUpdatedMedia(media: Media) {
+    this._updatedMedia = media;
+    this.listeners.forEach((listener) => listener()); // Notify all listeners that media has been updated
+  }
+
+  // Called in useUpdatedMedia to connect to useSyncExternalStore
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener); // Add listener to Set so it can get notified
+    return () => this.listeners.delete(listener); // Unsubscribe handle for future disconnecting
+  };
+
   private async request<Response>(
     endpoint: string,
     params?: Record<string, string>
@@ -106,9 +125,14 @@ export class SubsonicClient {
 
     if (!response || response.status !== 'ok') return { success: false };
 
+    // Notify listeners that media has been updated
+    const updateTime = new Date().toISOString();
+    const newStatus = !currentlyStarred ? updateTime : undefined; // Time or undefined matches OpenSubsonic's API response
+    this.setUpdatedMedia({ ...media, starred: newStatus });
+
     return {
       success: true,
-      starred: !currentlyStarred ? new Date().toISOString() : undefined, // Return new status
+      starred: newStatus,
     };
   };
 }
