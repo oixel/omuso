@@ -40,9 +40,6 @@ export function GenreList({
 
   return (
     <View style={style}>
-      <Pressable onPress={loadGenres}>
-        <Text>Reload genres</Text>
-      </Pressable>
       <MediaList
         data={genres}
         Entry={GenreEntry}
