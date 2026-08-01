@@ -1,4 +1,4 @@
-import { initializeChoral } from '@utils';
+import { initializeNativeAudioPlayer } from '@utils';
 import { useAuth } from '@choral/domain';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -8,7 +8,7 @@ const AppLayout = () => {
   const { client } = useAuth();
 
   async function connectToServer() {
-    if (client) await initializeChoral(client);
+    if (client) await initializeNativeAudioPlayer();
   }
 
   useEffect(() => {
