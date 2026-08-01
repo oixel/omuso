@@ -3,7 +3,7 @@ import { Song } from '@omuso/types';
 import { useEffect } from 'react';
 
 // Syncs songs in component using its setSongs state setter
-export function syncSongs(setSongs: React.Dispatch<React.SetStateAction<Song[]>>) {
+export function useSyncSongs(setSongs: React.Dispatch<React.SetStateAction<Song[]>>) {
   const { client } = useAuth();
   const updatedMedia = useUpdatedMedia(client);
 

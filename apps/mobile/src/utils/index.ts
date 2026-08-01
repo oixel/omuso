@@ -1,2 +1,2 @@
 export * from './initializeApp';
-export * from './syncSongs';
+export * from './useSyncSongs';

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, MediaList } from '@components';
 import { useAuth } from '@omuso/domain';
-import { syncSongs } from '@utils';
+import { useSyncSongs } from '@utils';
 
 const Genre = () => {
   const { genre } = useLocalSearchParams();
@@ -12,7 +12,7 @@ const Genre = () => {
   const [songs, setSongs] = useState<Song[]>([]);
   const router = useRouter();
 
-  syncSongs(setSongs);
+  useSyncSongs(setSongs);
 
   useEffect(() => {
     if (!client) return;
