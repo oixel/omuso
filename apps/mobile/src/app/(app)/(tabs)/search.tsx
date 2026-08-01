@@ -1,7 +1,7 @@
 import { View, Text, TextInput } from 'react-native';
 import { useState } from 'react';
 
-import { SearchResultMediaList } from '@components';
+import { SearchResultList } from '@components';
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,7 +18,7 @@ const Search = () => {
           onChangeText={setSearchQuery}
         />
       </View>
-      <SearchResultMediaList searchQuery={searchQuery} />
+      <SearchResultList searchQuery={searchQuery} />
     </View>
   );
 };

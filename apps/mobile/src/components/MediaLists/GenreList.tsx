@@ -8,16 +8,16 @@ import { MediaList } from './MediaList';
 import { GenreEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
 
-type GenreMediaListProps = {
+type GenreListProps = {
   style?: StyleProp<ViewStyle>;
   horizontal?: boolean;
 } & Omit<FlashListProps<Media>, 'renderItem' | 'data'>;
 
-export function GenreMediaList({
+export function GenreList({
   style = { height: 150, width: '100%' },
   horizontal = true,
   ...props
-}: GenreMediaListProps) {
+}: GenreListProps) {
   const client = useAuth((state) => state.client);
   const [genres, setGenres] = useState<Media[]>([]);
 

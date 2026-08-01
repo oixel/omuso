@@ -5,15 +5,11 @@ import { Song } from '@omuso/types';
 import { MediaList } from './MediaList';
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { useAuth, useDebounce } from '@omuso/domain';
-import { syncSongs } from '@/src/utils/syncSongs';
+import { syncSongs } from '@utils';
 
 const PAGE_SIZE = 200;
 
-export function SearchResultMediaList({
-  searchQuery = '',
-  onlyStarred = false,
-  horizontal = false,
-}) {
+export function SearchResultList({ searchQuery = '', onlyStarred = false, horizontal = false }) {
   const { client } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const [page, setPage] = useState(0);
