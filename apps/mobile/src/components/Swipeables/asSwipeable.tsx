@@ -169,6 +169,6 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
         </View>
       );
     },
-    (prev, next) => getId(prev) === getId(next)
+    (prev, next) => getId(prev) === getId(next) && (prev as any).item === (next as any).item
   );
 }
