@@ -1,3 +1,4 @@
-export * from './GenreMediaList';
 export * from './MediaList';
-export * from './SearchResultMediaList';
+export * from './AlbumList';
+export * from './GenreList';
+export * from './SearchResultList';
