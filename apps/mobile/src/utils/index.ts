@@ -1,1 +1,2 @@
-export * from './initializeNativeAudioPlayer';
+export * from './initializeApp';
+export * from './syncSongs';

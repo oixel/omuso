@@ -5,6 +5,7 @@ import { Song } from '@omuso/types';
 import { MediaList } from './MediaList';
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { useAuth, useDebounce } from '@omuso/domain';
+import { syncSongs } from '@/src/utils/syncSongs';
 
 const PAGE_SIZE = 200;
 
@@ -21,6 +22,8 @@ export function SearchResultMediaList({
 
   const latestQuery = useRef('');
   const debouncedSearch = useDebounce(searchQuery, 300); // Resetart countdown every time the search input is updated
+
+  syncSongs(setSongs);
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;

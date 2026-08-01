@@ -4,19 +4,22 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, MediaList } from '@components';
 import { useAuth } from '@omuso/domain';
+import { syncSongs } from '@utils';
 
 const Genre = () => {
   const { genre } = useLocalSearchParams();
   const { client } = useAuth();
-  const [songs, setSongs] = useState<Song[]>();
+  const [songs, setSongs] = useState<Song[]>([]);
   const router = useRouter();
+
+  syncSongs(setSongs);
 
   useEffect(() => {
     if (!client) return;
 
     (async () => {
       const response = await client.getSongsByGenre({ genre: genre as string });
-      if (response.success) setSongs(response.songs);
+      if (response.success) setSongs(response.songs ?? []);
     })();
 
     return () => {
