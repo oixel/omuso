@@ -1,9 +1,11 @@
-import { QueueStore, Song, QueuedSong } from '@omuso/types';
+import { QueueStore, Song, QueuedSong, Media } from '@omuso/types';
 import { getAudioPlayer } from '../audioPlayer';
 import { create } from 'zustand';
-import { PlayerStorage } from '../storage';
+import { PlayerStorage, useUpdatedMedia } from '../storage';
 import { persist } from 'zustand/middleware';
 import { v4 as uuid } from 'uuid';
+import { isSong } from '../utils';
+import { SubsonicClient } from '@omuso/api';
 
 // Generate a unique ID for every new song added to queue to ensure that different instances of the same song still differ
 function createQueuedSong(song: Song): QueuedSong {
@@ -29,15 +31,30 @@ export const useQueue = create<QueueStore>()(
         getAudioPlayer().setQueue(get().queue);
         getAudioPlayer().playSong(get().index);
       },
+      updateMedia: async (media: Media) => {
+        if (!isSong(media)) return;
+        set((state) => {
+          const exists = state.queue.some((song) => song.id === media.id);
+          if (!exists) return {};
+
+          return {
+            queue: state.queue.map((song) =>
+              song.id === media.id ? { queueId: song.queueId, ...media } : song
+            ),
+          };
+        });
+
+        get().updateQueue();
+      },
 
       setQueue: async (songs: Song[]) => {
         let queue = songs.map((song) => createQueuedSong(song));
         getAudioPlayer().setQueue(queue);
         set({ queue });
       },
-      updateQueue: async (songs: Song[]) => {
-        // getAudioPlayer().updateQueue(get().queue);
-        console.log('TODO: Update Queue');
+      updateQueue: async () => {
+        // Updates the audio player's queue to match the this store's queue state
+        getAudioPlayer().updateQueue(get().queue);
       },
       addNext: async (songs: Song[]) => {
         if (get().queue.length == 0) {
@@ -88,3 +105,10 @@ export const useQueue = create<QueueStore>()(
     }
   )
 );
+
+// Called in initializeApp.ts
+export function connectQueueToClient(client: SubsonicClient) {
+  return client.subscribe(() => {
+    if (client.updatedMedia) useQueue.getState().updateMedia(client.updatedMedia);
+  });
+}
