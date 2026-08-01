@@ -65,6 +65,27 @@ export class SubsonicClient {
     return { success: true, album: processAlbums(this.credentials, [response.album])?.at(0) };
   };
 
+  getAlbumList = async ({
+    type,
+    size,
+    offset,
+    fromYear,
+    toYear,
+    genre,
+  }: RequestParam.GetAlbumListParams): Promise<Result.GetAlbumListResult> => {
+    const response = await this.request<Response.GetAlbumListResponse>(
+      'getAlbumList2',
+      cleanParams({ type, size, offset, fromYear, toYear, genre })
+    );
+
+    if (!response || response.status !== 'ok') return { success: false };
+
+    return {
+      success: true,
+      albums: processAlbums(this.credentials, response.albumList2?.album),
+    };
+  };
+
   getSong = async (id: string): Promise<Result.GetSongResult> => {
     const response = await this.request<Response.GetSongResponse>('getSong', { id });
     if (!response || response.status !== 'ok' || !response.song) return { success: false };

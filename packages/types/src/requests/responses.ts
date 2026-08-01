@@ -50,6 +50,10 @@ export interface GetAlbumResponse extends SubsonicResponse {
   album?: UnprocessedAlbum;
 }
 
+export interface GetAlbumListResponse extends SubsonicResponse {
+  albumList2?: { album: UnprocessedAlbum[] };
+}
+
 export interface GetSongResponse extends SubsonicResponse {
   song?: UnprocessedSong;
 }

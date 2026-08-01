@@ -21,6 +21,10 @@ export interface GetAlbumResult extends Result {
   album?: Album;
 }
 
+export interface GetAlbumListResult extends Result {
+  albums?: Album[];
+}
+
 export interface GetSongResult extends Result {
   song?: Song;
 }
