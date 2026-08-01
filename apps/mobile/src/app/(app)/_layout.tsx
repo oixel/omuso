@@ -1,4 +1,4 @@
-import { initializeNativeAudioPlayer } from '@utils';
+import { initializeApp } from '@utils';
 import { useAuth } from '@omuso/domain';
 import { Stack } from 'expo-router';
 import { useEffect } from 'react';
@@ -8,7 +8,7 @@ const AppLayout = () => {
   const { client } = useAuth();
 
   async function connectToServer() {
-    if (client) await initializeNativeAudioPlayer();
+    if (client) await initializeApp(client);
   }
 
   useEffect(() => {
