@@ -1,4 +1,6 @@
+import { UnprocessedSong } from '../requests';
 import { Media } from './Media';
+import { Song } from './Song';
 
 export interface Album extends Media {
   name: string;
@@ -7,6 +9,7 @@ export interface Album extends Media {
   created: string;
   artistId?: string;
   artist?: string;
+  song?: UnprocessedSong[];
   genres?: string[];
   coverArt?: string;
   coverArtURL?: string;

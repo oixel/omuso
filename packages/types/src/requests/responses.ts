@@ -13,6 +13,7 @@ export interface SubsonicResponse {
 export interface UnprocessedAlbum extends Omit<Album, 'genres'> {
   genres?: { name: string }[];
   genre?: string;
+  song?: UnprocessedSong[];
 }
 
 export interface UnprocessedSong extends Omit<Song, 'genres'> {

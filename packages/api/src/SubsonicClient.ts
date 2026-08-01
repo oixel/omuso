@@ -1,7 +1,7 @@
 import * as RequestParam from '@omuso/types/src/requests/requestParams';
 import * as Response from '@omuso/types/src/requests/responses';
 import * as Result from '@omuso/types/src/requests/results';
-import { Credentials, Media } from '@omuso/types';
+import { Album, Credentials, Media } from '@omuso/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
 import { processAlbums, processArtists, processSongs } from './utils/processMedia';
@@ -84,6 +84,10 @@ export class SubsonicClient {
       success: true,
       albums: processAlbums(this.credentials, response.albumList2?.album),
     };
+  };
+
+  processSongsInAlbum = (album: Album) => {
+    return processSongs(this.credentials, album.song);
   };
 
   getSong = async (id: string): Promise<Result.GetSongResult> => {
