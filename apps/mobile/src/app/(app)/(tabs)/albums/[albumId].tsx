@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, MediaList } from '@components';
 import { useAuth } from '@omuso/domain';
-import { syncSongs } from '@utils';
+import { useSyncSongs } from '@utils';
 import { useQuery } from '@tanstack/react-query';
 
 const AlbumPage = () => {
@@ -20,15 +20,10 @@ const AlbumPage = () => {
   });
 
   useEffect(() => {
-    if (!client || !album) return;
-    setSongs(client.processSongsInAlbum(album) ?? []);
-
-    return () => {
-      setSongs([]);
-    };
+    setSongs(album?.songs ?? []);
   }, [album]);
 
-  syncSongs(setSongs);
+  useSyncSongs(setSongs);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">

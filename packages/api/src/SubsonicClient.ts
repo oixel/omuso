@@ -86,10 +86,6 @@ export class SubsonicClient {
     };
   };
 
-  processSongsInAlbum = (album: Album) => {
-    return processSongs(this.credentials, album.song);
-  };
-
   getSong = async (id: string): Promise<Result.GetSongResult> => {
     const response = await this.request<Response.GetSongResponse>('getSong', { id });
     if (!response || response.status !== 'ok' || !response.song) return { success: false };

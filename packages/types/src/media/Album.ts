@@ -9,7 +9,7 @@ export interface Album extends Media {
   created: string;
   artistId?: string;
   artist?: string;
-  song?: UnprocessedSong[];
+  songs?: Song[];
   genres?: string[];
   coverArt?: string;
   coverArtURL?: string;

@@ -24,6 +24,14 @@ function mergeGenres<T extends UnprocessedAlbum | UnprocessedSong>(
   })) as unknown as Processed<T>[];
 }
 
+// Convert UnprocessedSong[] in album's 'song' array into proccessed 'songs' Song[] array
+function getSongs(credentials: Credentials, albums: UnprocessedAlbum[]): UnprocessedAlbum[] {
+  return albums.map((album) => ({
+    ...album,
+    songs: processSongs(credentials, album.song),
+  }));
+}
+
 // Helper function to generate a cover art URL from the cover art's ID
 function getCoverArtURL(credentials: Credentials, coverArt: string): string {
   return buildRequestURL({
@@ -71,7 +79,8 @@ export function processAlbums(
   albums: UnprocessedAlbum[] | undefined
 ): Album[] | undefined {
   if (!albums) return undefined;
-  const merged = mergeGenres(albums);
+  const withSongs = getSongs(credentials, albums);
+  const merged = mergeGenres(withSongs);
   return attachCoverArt(credentials, merged);
 }
 
