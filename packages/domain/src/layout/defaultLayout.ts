@@ -1,4 +1,4 @@
-import type { ComponentDefinition } from '@choral/types';
+import type { ComponentDefinition } from '@omuso/types';
 
 export const COMPONENTS: ComponentDefinition[] = [
   {

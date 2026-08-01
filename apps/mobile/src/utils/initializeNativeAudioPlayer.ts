@@ -1,5 +1,5 @@
-import { registerAudioPlayer, usePlayback, useQueue } from '@choral/domain';
-import { PlaybackState } from '@choral/types';
+import { registerAudioPlayer, usePlayback, useQueue } from '@omuso/domain';
+import { PlaybackState } from '@omuso/types';
 import NativeAudioPlayer from 'native-audio-player';
 
 export async function initializeNativeAudioPlayer() {

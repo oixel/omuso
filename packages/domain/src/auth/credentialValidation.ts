@@ -1,5 +1,5 @@
-import { buildRequestURL } from '@choral/api';
-import { ServerResult, Credentials } from '@choral/types';
+import { buildRequestURL } from '@omuso/api';
+import { ServerResult, Credentials } from '@omuso/types';
 
 // Checks whether the given server actually exists, and returns extensions (indicates if apiKey is used)
 export async function validateServer(server: string): Promise<ServerResult> {

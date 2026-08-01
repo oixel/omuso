@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "@choral/domain": "workspace:*",
-    "@choral/types": "workspace:*",
+    "@omuso/domain": "workspace:*",
+    "@omuso/types": "workspace:*",
     "@gorhom/bottom-sheet": "^5.2.14",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/slider": "5.2.0",

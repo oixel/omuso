@@ -1,11 +1,11 @@
-import * as RequestParam from '@choral/types/src/requests/requestParams';
-import * as Response from '@choral/types/src/requests/responses';
-import * as Result from '@choral/types/src/requests/results';
-import { Credentials, Media } from '@choral/types';
+import * as RequestParam from '@omuso/types/src/requests/requestParams';
+import * as Response from '@omuso/types/src/requests/responses';
+import * as Result from '@omuso/types/src/requests/results';
+import { Credentials, Media } from '@omuso/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
 import { processAlbums, processArtists, processSongs } from './utils/processMedia';
-import { isAlbum, isArtist } from '@choral/domain/src/utils/verifyMedia';
+import { isAlbum, isArtist } from '@omuso/domain/src/utils/verifyMedia';
 
 export class SubsonicClient {
   constructor(private credentials: Credentials) {}

@@ -1,4 +1,4 @@
-import { Media, Artist, Album, Song } from '@choral/types';
+import { Media, Artist, Album, Song } from '@omuso/types';
 
 export function isArtist(item: Media): item is Artist {
   // Artist has overlapping properties with other Media types, so deduce whether it is not those

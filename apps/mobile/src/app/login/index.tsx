@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Text, TextInput, TextInputProps, View } from 'react-native';
-import { validateServer, validateLogin, useAuth } from '@choral/domain';
-import { Credentials } from '@choral/types';
+import { validateServer, validateLogin, useAuth } from '@omuso/domain';
+import { Credentials } from '@omuso/types';
 
 const StyledInput = (props: TextInputProps) => (
   <TextInput
@@ -64,7 +64,7 @@ const Login = () => {
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
       <View className="flex-1 items-center justify-center w-full">
-        <Text className="font-extrabold color-white text-5xl mb-4">choral</Text>
+        <Text className="font-extrabold color-white text-5xl mb-4">omuso</Text>
         <StyledInput
           placeholder="Enter Server URL"
           value={server}

@@ -1,4 +1,4 @@
-import { SubsonicClient } from '@choral/api';
+import { SubsonicClient } from '@omuso/api';
 import { Credentials } from './Credentials';
 
 interface AuthState {

@@ -1,4 +1,4 @@
-import { Media } from '@choral/types';
+import { Media } from '@omuso/types';
 import { FlashList, FlashListProps } from '@shopify/flash-list';
 import { useCallback } from 'react';
 

@@ -1,5 +1,5 @@
 import { useSyncExternalStore, useCallback } from 'react';
-import { SubsonicClient } from '@choral/api';
+import { SubsonicClient } from '@omuso/api';
 
 export function useUpdatedMedia(client: SubsonicClient | null) {
   // Wrappd in useCallback to avoid recreating subscribe on every render

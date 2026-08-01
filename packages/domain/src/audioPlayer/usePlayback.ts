@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { getAudioPlayer } from './audioPlayerRegistery';
-import { PlaybackStore, PlaybackState } from '@choral/types';
+import { PlaybackStore, PlaybackState } from '@omuso/types';
 import { persist } from 'zustand/middleware';
 import { PlayerStorage } from '../storage';
 

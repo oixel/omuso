@@ -25,8 +25,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="choral"/>
-        <data android:scheme="exp+choral"/>
+        <data android:scheme="omuso"/>
+        <data android:scheme="exp+omuso"/>
       </intent-filter>
     </activity>
   </application>

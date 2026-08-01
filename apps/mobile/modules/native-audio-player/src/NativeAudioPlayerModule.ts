@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 import { NativeAudioPlayerEvents } from './NativeAudioPlayer.types';
-import { AudioPlayer, PlaybackState, QueuedSong } from '@choral/types';
+import { AudioPlayer, PlaybackState, QueuedSong } from '@omuso/types';
 
 declare class NativeAudioPlayerModule
   extends NativeModule<NativeAudioPlayerEvents>

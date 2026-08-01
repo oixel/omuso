@@ -1,10 +1,10 @@
 import { View, Text } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
-import { Song } from '@choral/types';
+import { Song } from '@omuso/types';
 
 import { MediaList } from './MediaList';
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
-import { useAuth, useDebounce } from '@choral/domain';
+import { useAuth, useDebounce } from '@omuso/domain';
 
 const PAGE_SIZE = 200;
 

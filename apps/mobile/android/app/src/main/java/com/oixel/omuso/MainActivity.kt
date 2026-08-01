@@ -1,4 +1,4 @@
-package com.oixel.choral
+package com.oixel.omuso
 
 import android.os.Build
 import android.os.Bundle

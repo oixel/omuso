@@ -1,7 +1,7 @@
-import { Media } from '@choral/types';
+import { Media } from '@omuso/types';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { memo } from 'react';
-import { isSong, resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
+import { isSong, resizeCoverArt, usePlayback, useQueue } from '@omuso/domain';
 import { Image } from 'expo-image';
 
 interface SongEntryProps {

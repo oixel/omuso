@@ -1,5 +1,5 @@
 {
-  "name": "choral-root",
+  "name": "omuso-root",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.61.1",
     "@typescript-eslint/parser": "^8.61.1",

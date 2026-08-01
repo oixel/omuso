@@ -2,7 +2,7 @@ import '@/global.css';
 import 'react-native-get-random-values'; // Polyfill to replace crypto.randomValues on mobile
 
 import { Stack } from 'expo-router';
-import { useAuth } from '@choral/domain';
+import { useAuth } from '@omuso/domain';
 import { useEffect } from 'react';
 
 const RootLayout = () => {

@@ -1,6 +1,6 @@
 import { SongEntry } from '../MediaEntries/SongEntry';
 import { Plus, ListStart, ListEnd } from 'lucide-react-native';
-import { isSong, useQueue } from '@choral/domain';
+import { isSong, useQueue } from '@omuso/domain';
 import * as Haptics from 'expo-haptics';
 import { asSwipeable } from './asSwipeable';
 import { ActionButton } from './ActionButton';

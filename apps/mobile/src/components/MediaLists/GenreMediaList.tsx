@@ -1,8 +1,8 @@
 import { Pressable, StyleProp, View, ViewStyle, Text } from 'react-native';
 import { useState, useEffect } from 'react';
 
-import { Media } from '@choral/types';
-import { useAuth } from '@choral/domain';
+import { Media } from '@omuso/types';
+import { useAuth } from '@omuso/domain';
 
 import { MediaList } from './MediaList';
 import { GenreEntry } from '../MediaEntries';

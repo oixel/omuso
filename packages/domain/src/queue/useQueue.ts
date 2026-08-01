@@ -1,4 +1,4 @@
-import { QueueStore, Song, QueuedSong } from '@choral/types';
+import { QueueStore, Song, QueuedSong } from '@omuso/types';
 import { getAudioPlayer } from '../audioPlayer';
 import { create } from 'zustand';
 import { PlayerStorage } from '../storage';

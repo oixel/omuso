@@ -2,7 +2,7 @@
 // A collection of helper functions to convert from OpenSubsonic's results to functional Media types
 //
 
-import { Album, Artist, Credentials, Song, UnprocessedAlbum, UnprocessedSong } from '@choral/types';
+import { Album, Artist, Credentials, Song, UnprocessedAlbum, UnprocessedSong } from '@omuso/types';
 import { buildRequestURL } from './buildRequestURL';
 
 type Processed<T> = T extends UnprocessedAlbum ? Album : Song;

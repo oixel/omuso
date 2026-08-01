@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Choral",
+    "name": "Omuso",
     "description": "An OpenSubsonic music player",
-    "slug": "choral",
-    "scheme": "choral",
+    "slug": "omuso",
+    "scheme": "omuso",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "githubUrl": "https://github.com/oixel/choral",
+    "githubUrl": "https://github.com/oixel/omuso",
     "ios": {
       "supportsTablet": true
     },
@@ -20,7 +20,7 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.oixel.choral"
+      "package": "com.oixel.omuso"
     },
     "web": {
       "bundler": "metro",

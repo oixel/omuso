@@ -1,11 +1,11 @@
 {
-  "name": "@choral/domain",
+  "name": "@omuso/domain",
   "version": "0.0.1",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
-    "@choral/api": "workspace:*",
-    "@choral/types": "workspace:*",
+    "@omuso/api": "workspace:*",
+    "@omuso/types": "workspace:*",
     "uuid": "^14.0.0",
     "zustand": "^4.5.0"
   },

@@ -1,5 +1,5 @@
 import { SubsonicError } from '../SubsonicError';
-import { Credentials } from '@choral/types';
+import { Credentials } from '@omuso/types';
 import { md5 } from '@noble/hashes/legacy.js';
 import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 
@@ -41,7 +41,7 @@ export function buildRequestURL({
   }
 
   url.searchParams.set('v', '1.16.1'); // Subsonic REST API version
-  url.searchParams.set('c', 'choral');
+  url.searchParams.set('c', 'omuso');
   url.searchParams.set('f', 'json');
 
   Object.entries(params).forEach(([param, value]) => url.searchParams.set(param, value));

@@ -1,4 +1,4 @@
-import type { AudioPlayer } from '@choral/types';
+import type { AudioPlayer } from '@omuso/types';
 
 let audioPlayer: AudioPlayer | null = null;
 

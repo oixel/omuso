@@ -1,7 +1,7 @@
-import { AuthStore, Credentials } from '@choral/types';
+import { AuthStore, Credentials } from '@omuso/types';
 import { create } from 'zustand';
 import { SecureStorage } from '../storage';
-import { SubsonicClient } from '@choral/api';
+import { SubsonicClient } from '@omuso/api';
 
 export const useAuth = create<AuthStore>()((set, get) => ({
   credentials: null,

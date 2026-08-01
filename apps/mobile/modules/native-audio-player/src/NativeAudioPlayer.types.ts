@@ -1,4 +1,4 @@
-import { PlaybackState } from '@choral/types';
+import { PlaybackState } from '@omuso/types';
 
 export type NativeAudioPlayerEvents = {
   onPlayerDestroyed: () => void;

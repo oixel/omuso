@@ -1,7 +1,7 @@
 import { View, Text, Button, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { destroyAudioPlayer, msToTime, useAuth } from '@choral/domain';
-import { useQueue, usePlayback } from '@choral/domain';
+import { destroyAudioPlayer, msToTime, useAuth } from '@omuso/domain';
+import { useQueue, usePlayback } from '@omuso/domain';
 import { Play, Pause, SkipBack, SkipForward, ListX, Star } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { CoverArt } from '@/src/components';
@@ -42,7 +42,7 @@ const Home = () => {
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
       <View className="flex-shrink items-center justify-center w-full gap-2">
-        <Text className="font-extrabold color-white text-5xl mb-12">choral</Text>
+        <Text className="font-extrabold color-white text-5xl mb-12">omuso</Text>
         <CoverArt
           style={{ height: '50%', aspectRatio: 1, borderRadius: 8 }}
           uri={queue[index]?.coverArtURL}
