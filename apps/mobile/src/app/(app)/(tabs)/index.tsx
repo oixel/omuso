@@ -3,8 +3,6 @@ import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, msToTime, useAuth } from '@choral/domain';
 import { useQueue, usePlayback } from '@choral/domain';
 import { Play, Pause, SkipBack, SkipForward, ListX, Star } from 'lucide-react-native';
-import { clearDatabase, getArtist, getSong, toggleStarred } from '@database';
-import { sync } from '@database';
 import { useEffect, useState } from 'react';
 import { CoverArt } from '@/src/components';
 import Slider from '@react-native-community/slider';
@@ -23,10 +21,8 @@ const Home = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const position = usePlayback((state) => state.position);
+  const [slidePosition, setSlidePosition] = useState<number | null>(null);
   const duration = usePlayback((state) => state.duration);
-
-  const artistId = queue[index]?.artistId;
-  const artist = artistId ? (getArtist(artistId)?.name ?? 'Unknown Artist') : 'Unknown Artist';
 
   const [starred, setStarred] = useState(false);
 
@@ -38,6 +34,10 @@ const Home = () => {
   useEffect(() => {
     if (queue[index]) setStarred(!!queue[index].starred);
   }, [index, queue]);
+
+  useEffect(() => {
+    if (slidePosition) setSlidePosition(null);
+  }, [position]);
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
@@ -61,7 +61,7 @@ const Home = () => {
           ellipsizeMode="tail"
           className="mb-2 font-medium text-xl self-start pl-10 color-slate-700"
         >
-          {artist}
+          {queue[index]?.artist ?? 'Unknown artist'}
         </Text>
         <Slider
           disabled={!queue.length}
@@ -73,6 +73,7 @@ const Home = () => {
           minimumValue={0}
           maximumValue={duration}
           value={position}
+          onValueChange={(newPosition) => setSlidePosition(newPosition)}
           onSlidingComplete={(newPosition) => seekTo(newPosition)}
         />
         <View
@@ -83,8 +84,13 @@ const Home = () => {
             justifyContent: 'space-between',
           }}
         >
-          <Text className="text-white justify-start">{msToTime(position)}</Text>
-          <Text className="text-white justify-start">{'-' + msToTime(duration - position)}</Text>
+          <Text className="text-white justify-start">
+            {slidePosition ? msToTime(slidePosition) : msToTime(position)}
+          </Text>
+          <Text className="text-white justify-start">
+            {'-' +
+              (slidePosition ? msToTime(duration - slidePosition) : msToTime(duration - position))}
+          </Text>
         </View>
         <View className="flex flex-row gap-2">
           <Pressable
@@ -127,22 +133,15 @@ const Home = () => {
               size={32}
               onPress={async () => {
                 setStarred(!starred); // Toggle star excitedly
-                const newStatus = await toggleStarred(client!, queue[index]);
-                setStarred(newStatus);
+                const newStatus = (await client?.toggleStarred(queue[index], starred))?.starred;
+                setStarred(!!newStatus);
               }}
             />
           </Pressable>
         </View>
       </View>
 
-      {/* <Button
-        title="Sync DB"
-        onPress={() => {
-          if (client) sync(client);
-        }}
-      />
-      <View className="mb-4"></View>
-      <Button title="Clear DB" onPress={clearDatabase} />
+      {/* 
       <View className="mb-4"></View>
       <Button
         title="Log Out"
