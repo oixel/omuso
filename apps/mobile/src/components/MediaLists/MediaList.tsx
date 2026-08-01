@@ -30,8 +30,8 @@ export function MediaList({
       keyExtractor={(item) => {
         return item.id;
       }}
-      drawDistance={150}
-      onEndReachedThreshold={0.5}
+      drawDistance={1000}
+      onEndReachedThreshold={1.5}
       ListFooterComponent={footer}
       renderItem={renderItem}
       ItemSeparatorComponent={separator}

@@ -1,10 +1,8 @@
 import { Media } from '@choral/types';
-import { Easing, Pressable, StyleSheet, Text, View } from 'react-native';
-import TextTicker from 'react-native-text-ticker';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { memo } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@choral/domain';
-import { getArtist } from '@database';
-import { CoverArt } from '../CoverArt';
+import { Image } from 'expo-image';
 
 interface SongEntryProps {
   item: Media;
@@ -14,10 +12,6 @@ interface SongEntryProps {
 export const SongEntry: React.FC<SongEntryProps> = memo(
   ({ item, horizontal }: SongEntryProps) => {
     if (!isSong(item)) return;
-    const artist = item.artistId ? getArtist(item.artistId) : undefined;
-
-    const useTitleTicker = item.title.length > 35;
-    const useArtistTicker = (artist?.name?.length ?? 0) > 35;
 
     return (
       <Pressable
@@ -27,41 +21,22 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
           usePlayback.getState().play();
         }}
       >
-        <CoverArt
+        <Image
           style={{ height: '100%', aspectRatio: 1 }}
-          uri={resizeCoverArt(item.coverArtURL, 100)}
+          source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
+          contentFit="cover"
           recyclingKey={item.id}
+          cachePolicy="memory-disk"
+          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+          transition={100}
         />
         <View className="border-b border-blue-500 flex-1 h-full">
-          {useTitleTicker ? (
-            <TextTicker
-              scrollSpeed={25}
-              marqueeDelay={1500}
-              repeatSpacer={30}
-              easing={Easing.linear}
-              animationType="scroll"
-              className="color-white font-medium text-xl"
-            >
-              {item.title || 'Untitled Song'}
-            </TextTicker>
-          ) : (
-            <Text className="color-white font-medium text-xl">{item.title || 'Untitled Song'}</Text>
-          )}
-          {useArtistTicker ? (
-            <TextTicker
-              scrollSpeed={25}
-              marqueeDelay={1500}
-              repeatSpacer={30}
-              easing={Easing.linear}
-              animationType="scroll"
-              style={{ lineHeight: 18, fontSize: 15 }}
-              className="color-blue-200"
-            >
-              {artist?.name ?? 'Unknown Artist'}
-            </TextTicker>
-          ) : (
-            <Text className="color-blue-200"> {artist?.name ?? 'Unknown Artist'}</Text>
-          )}
+          <Text numberOfLines={1} ellipsizeMode="tail" className="color-white font-medium text-xl">
+            {item.title || 'Untitled Song'}
+          </Text>
+          <Text numberOfLines={1} ellipsizeMode="tail" className="color-blue-200">
+            {item.artist ?? 'Unknown Artist'}
+          </Text>
         </View>
       </Pressable>
     );
