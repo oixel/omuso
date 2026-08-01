@@ -108,6 +108,35 @@ export class SubsonicClient {
     };
   };
 
+  getGenres = async (): Promise<Result.GetGenresResult> => {
+    const response = await this.request<Response.GetGenresResponse>('getGenres');
+    if (!response || response.status !== 'ok') return { success: false };
+
+    return {
+      success: true,
+      genres: response.genres?.genre?.map(({ value }) => value), // Simply return all genre names
+    };
+  };
+
+  getSongsByGenre = async ({
+    genre,
+    count, // Defaults to 10 if not provided
+    offset, // Defaults to 0 if not provided
+  }: RequestParam.GetSongsByGenreParams): Promise<Result.GetSongsByGenreResult> => {
+    const response = await this.request<Response.GetSongsByGenreResponse>(
+      'getSongsByGenre',
+      cleanParams({ genre, count, offset })
+    );
+
+    if (!response || response.status !== 'ok' || !response.songsByGenre?.song)
+      return { success: false };
+
+    return {
+      success: true,
+      songs: processSongs(this.credentials, response.songsByGenre.song),
+    };
+  };
+
   toggleStarred = async (
     media: Media,
     currentlyStarred: boolean

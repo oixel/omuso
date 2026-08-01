@@ -28,6 +28,16 @@ export interface SearchResponse extends SubsonicResponse {
   };
 }
 
+export interface GetGenresResponse extends SubsonicResponse {
+  genres?: {
+    genre: {
+      value: string;
+      songCount: number;
+      albumCount: number;
+    }[];
+  };
+}
+
 export interface GetSongsByGenreResponse extends SubsonicResponse {
   songsByGenre?: { song: UnprocessedSong[] };
 }
