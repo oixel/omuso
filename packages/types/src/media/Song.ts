@@ -7,6 +7,7 @@ export interface Song extends Media {
   artist?: string;
   albumId?: string;
   album?: string;
+  track?: number;
   year?: number;
   genres?: string[];
   coverArt?: string; // Cover art's ID
