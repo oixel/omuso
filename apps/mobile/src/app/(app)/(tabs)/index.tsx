@@ -51,18 +51,25 @@ const Home = () => {
         />
 
         <Text
+          onPress={() => {
+            if (!client || !queue.length || !queue[index].albumId) return;
+            router.navigate({
+              pathname: '/album/[albumId]',
+              params: { albumId: queue[index].albumId },
+            });
+          }}
           numberOfLines={1}
           ellipsizeMode="tail"
           className="text-xl font-bold color-white mt-5 self-start px-10"
         >
-          {queue[index]?.title || 'No song'}
+          {queue[index]?.title ?? (queue.length ? 'Unknown song' : 'No song')}
         </Text>
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
           className="mb-2 font-medium text-xl self-start pl-10 color-blue-100"
         >
-          {queue[index]?.artist ?? 'Unknown artist'}
+          {queue[index]?.artist ?? (queue.length ? 'Unknown artist' : 'No artist')}
         </Text>
         <Slider
           disabled={!queue.length}
