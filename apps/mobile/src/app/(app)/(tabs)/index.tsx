@@ -35,6 +35,7 @@ const Home = () => {
     if (queue[index]) setStarred(!!queue[index].starred);
   }, [index, queue]);
 
+  // Wipe slidePosition when the player properly seeks to new position
   useEffect(() => {
     if (slidePosition) setSlidePosition(null);
   }, [position]);
@@ -85,7 +86,7 @@ const Home = () => {
           }}
         >
           <Text className="text-white justify-start">
-            {slidePosition ? msToTime(slidePosition) : msToTime(position)}
+            {slidePosition ? msToTime(slidePosition) : msToTime(queue.length ? position : 0)}
           </Text>
           <Text className="text-white justify-start">
             {'-' +
@@ -123,20 +124,15 @@ const Home = () => {
             <SkipForward color="white" size={32} />
           </Pressable>
           <Pressable
-            onPress={skip}
-            disabled={!client || !queue[index]}
-            style={{ opacity: !client || !queue[index] ? 0.5 : 1, marginLeft: 20 }}
+            onPress={async () => {
+              setStarred(!starred); // Toggle star excitedly
+              const newStatus = (await client?.toggleStarred(queue[index], starred))?.starred;
+              setStarred(!!newStatus);
+            }}
+            disabled={!queue.length || !queue[index]}
+            style={{ opacity: !queue.length || !queue[index] ? 0.5 : 1, marginLeft: 20 }}
           >
-            <Star
-              color="white"
-              fill={starred ? 'white' : 'none'}
-              size={32}
-              onPress={async () => {
-                setStarred(!starred); // Toggle star excitedly
-                const newStatus = (await client?.toggleStarred(queue[index], starred))?.starred;
-                setStarred(!!newStatus);
-              }}
-            />
+            <Star color="white" fill={starred ? 'white' : 'none'} size={32} />
           </Pressable>
         </View>
       </View>
