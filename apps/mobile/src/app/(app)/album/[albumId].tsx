@@ -1,11 +1,12 @@
 import { Song } from '@omuso/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, CoverArt } from '@components';
 import { months, msToDuration, useAuth, useQueue } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { useQuery } from '@tanstack/react-query';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const AlbumPage = () => {
   const { client } = useAuth();
@@ -13,6 +14,7 @@ const AlbumPage = () => {
   const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
 
+  // Instantly load album metadata from cache, and then fetch songs using ID
   const { data: album } = useQuery({
     queryKey: ['album', albumId],
     queryFn: async () => (await client!.getAlbum(albumId as string)).album,
@@ -22,6 +24,9 @@ const AlbumPage = () => {
   useEffect(() => {
     setSongs(album?.songs ?? []);
   }, [album]);
+
+  // Use SwipeableSongEntry factory to create song entry that only changes on mount
+  const SongEntry = useMemo(() => SwipeableSongEntry(true, false, false), []);
 
   useSyncSongs(setSongs);
 
@@ -38,42 +43,51 @@ const AlbumPage = () => {
       >
         <Text className="font-bold text-white">{'< Go Back'}</Text>
       </Pressable>
-      <CoverArt
-        style={{ marginTop: 24, width: '80%', aspectRatio: 1, borderRadius: 8 }}
-        uri={album?.coverArtURL}
-        recyclingKey={album?.id}
-      />
-      <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
-        {album?.name ?? 'Unknown Album'}
-      </Text>
-      <Text style={{ width: '80%' }} className="text-2xl color-blue-100 font-medium text-center">
-        {album?.artist ?? 'Unknown Artist'}
-      </Text>
-      <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
-        {album?.genres && (
-          <Text
-            onPress={() =>
-              router.push({ pathname: '/genre/[genre]', params: { genre: album.genres![0] } })
-            }
-            className="text-lg color-blue-200 font-medium"
-          >
-            {album.genres[0] + (album?.year ? ' • ' : '')}
-          </Text>
-        )}
-        {album?.year && <Text className="text-lg color-blue-200 font-medium">{album.year}</Text>}
-      </View>
-      <Pressable
-        onPress={() => useQueue.getState().setQueue(songs)}
-        style={{ borderRadius: 8, marginBottom: 10 }}
-        className="text-xl font-bold py-2 px-5 bg-blue-500"
+      <View
+        style={{
+          alignItems: 'center',
+          width: '95%',
+        }}
       >
-        <Text className="font-bold text-white">Play</Text>
-      </Pressable>
+        <CoverArt
+          style={{ marginTop: 24, width: '80%', aspectRatio: 1, borderRadius: 8 }}
+          uri={album?.coverArtURL}
+          recyclingKey={album?.id}
+        />
+        <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
+          {album?.name ?? 'Unknown Album'}
+        </Text>
+        <Text style={{ width: '80%' }} className="text-2xl color-blue-100 font-medium text-center">
+          {album?.artist ?? 'Unknown Artist'}
+        </Text>
+        <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
+          {album?.genres && (
+            <Text
+              onPress={() =>
+                router.push({ pathname: '/genre/[genre]', params: { genre: album.genres![0] } })
+              }
+              className="text-lg color-blue-200 font-medium"
+            >
+              {album.genres[0] + (album?.year ? ' • ' : '')}
+            </Text>
+          )}
+          {album?.year && <Text className="text-lg color-blue-200 font-medium">{album.year}</Text>}
+        </View>
+        <Pressable
+          onPress={() => useQueue.getState().setQueue(songs)}
+          style={{ borderRadius: 8, marginBottom: 10 }}
+          className="text-xl font-bold py-2 px-5 bg-blue-500"
+        >
+          <Text className="font-bold text-white">Play</Text>
+        </Pressable>
+      </View>
       {songs.length ? (
         <>
           <View className="w-full pb-4">
-            {songs.map((song) => (
-              <SwipeableSongEntry item={song} key={song.id} horizontal={false} />
+            {songs.map((song, index) => (
+              <Animated.View key={song.id} entering={FadeInDown.duration(300).delay(index * 40)}>
+                <SongEntry item={song} horizontal={false} />
+              </Animated.View>
             ))}
           </View>
           <View className="w-full px-8 pt-4 pb-12">
