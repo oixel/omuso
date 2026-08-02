@@ -51,7 +51,7 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
     leftContent,
     rightContent,
     swipeThreshold = 100,
-    swipeIntent = [-20, 20],
+    swipeIntent = [-30, 30],
     backgroundColor,
     leftSwipeBackgroundColor,
     rightSwipeBackgroundColor,
