@@ -35,7 +35,22 @@ export const AlbumEntry: React.FC<AlbumEntryProps> = memo(
           placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
           transition={100}
         />
-        <Text className="color-white font-bold">{item.name}</Text>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={{ width: '90%' }}
+          className="color-white font-medium pt-2"
+        >
+          {item.name}
+        </Text>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={{ width: '90%' }}
+          className="font-white color-slate-700"
+        >
+          {item.artist || 'Unknown Artist'}
+        </Text>
       </Pressable>
     );
   },
@@ -46,12 +61,12 @@ const styles = StyleSheet.create({
   vertical: {
     flex: 1,
     margin: 2,
+    marginBottom: 12,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
-    height: 200,
-    // aspectRatio: 1,
+    height: 210,
   },
   horizontal: {
     height: 100,
