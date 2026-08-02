@@ -102,8 +102,8 @@ const AlbumPage = () => {
               album.originalReleaseDate.day &&
               album.originalReleaseDate.year && (
                 <Text className="text-lg color-blue-200 font-medium">
-                  {months[album.originalReleaseDate.month]} {album.originalReleaseDate.day},{' '}
-                  {album.originalReleaseDate.year}
+                  Released on {months[album.originalReleaseDate.month]}{' '}
+                  {album.originalReleaseDate.day}, {album.originalReleaseDate.year}
                 </Text>
               )) ||
               (album?.year && (
