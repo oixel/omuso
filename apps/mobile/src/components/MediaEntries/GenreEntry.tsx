@@ -3,14 +3,10 @@ import { Media } from '@omuso/types';
 import { useRouter } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { MediaListEntryProps } from './MediaListEntry';
 
-interface GenreEntryProps {
-  item: Media;
-  horizontal: boolean;
-}
-
-export const GenreEntry: React.FC<GenreEntryProps> = memo(
-  ({ item, horizontal }: GenreEntryProps) => {
+export const GenreEntry: React.FC<MediaListEntryProps> = memo(
+  ({ item, horizontal }: MediaListEntryProps) => {
     const router = useRouter();
 
     return (
@@ -25,7 +21,7 @@ export const GenreEntry: React.FC<GenreEntryProps> = memo(
       </Pressable>
     );
   },
-  (prev: GenreEntryProps, next: GenreEntryProps) => prev.item.id === next.item.id
+  (prev: MediaListEntryProps, next: MediaListEntryProps) => prev.item.id === next.item.id
 );
 
 const styles = StyleSheet.create({

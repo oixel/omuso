@@ -5,14 +5,10 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { MediaListEntryProps } from './MediaListEntry';
 
-interface AlbumEntryProps {
-  item: Media;
-  horizontal: boolean;
-}
-
-export const AlbumEntry: React.FC<AlbumEntryProps> = memo(
-  ({ item, horizontal }: AlbumEntryProps) => {
+export const AlbumEntry: React.FC<MediaListEntryProps> = memo(
+  ({ item, horizontal }: MediaListEntryProps) => {
     if (!isAlbum(item)) return;
 
     const router = useRouter();
@@ -22,7 +18,7 @@ export const AlbumEntry: React.FC<AlbumEntryProps> = memo(
       <Pressable
         style={[horizontal ? styles.horizontal : styles.vertical]}
         onPress={() => {
-          queryClient.setQueryData(['album', item.id], item); // Seed query
+          queryClient.setQueryData(['album', item.id], item); // Seed query for album metadata
           router.navigate({ pathname: '/album/[albumId]', params: { albumId: item.id } });
         }}
       >
@@ -54,7 +50,7 @@ export const AlbumEntry: React.FC<AlbumEntryProps> = memo(
       </Pressable>
     );
   },
-  (prev: AlbumEntryProps, next: AlbumEntryProps) => prev.item.id === next.item.id
+  (prev: MediaListEntryProps, next: MediaListEntryProps) => prev.item.id === next.item.id
 );
 
 const styles = StyleSheet.create({
