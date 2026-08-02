@@ -60,7 +60,7 @@ const Home = () => {
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          className="mb-2 font-medium text-xl self-start pl-10 color-slate-700"
+          className="mb-2 font-medium text-xl self-start pl-10 color-blue-100"
         >
           {queue[index]?.artist ?? 'Unknown artist'}
         </Text>

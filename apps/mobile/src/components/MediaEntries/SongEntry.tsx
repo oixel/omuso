@@ -45,7 +45,7 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
             >
               {item.title || 'Untitled Song'}
             </Text>
-            <Text numberOfLines={1} ellipsizeMode="tail" className="color-blue-200">
+            <Text numberOfLines={1} ellipsizeMode="tail" className="color-blue-100">
               {item.artist ?? 'Unknown Artist'}
             </Text>
           </View>
