@@ -23,7 +23,7 @@ export const AlbumEntry: React.FC<AlbumEntryProps> = memo(
         style={[horizontal ? styles.horizontal : styles.vertical]}
         onPress={() => {
           queryClient.setQueryData(['album', item.id], item); // Seed query
-          router.navigate({ pathname: '/albums/[albumId]', params: { albumId: item.id } });
+          router.navigate({ pathname: '/album/[albumId]', params: { albumId: item.id } });
         }}
       >
         <Image
@@ -47,7 +47,7 @@ export const AlbumEntry: React.FC<AlbumEntryProps> = memo(
           numberOfLines={1}
           ellipsizeMode="tail"
           style={{ width: '90%' }}
-          className="font-white color-slate-700"
+          className="font-white color-blue-100"
         >
           {item.artist || 'Unknown Artist'}
         </Text>
