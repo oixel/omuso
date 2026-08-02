@@ -7,6 +7,8 @@ export interface Album extends Media {
   songCount: number;
   duration: number;
   created: string;
+  year?: number;
+  originalReleaseDate?: { year: number; month: number; day: number };
   artistId?: string;
   artist?: string;
   songs?: Song[];
