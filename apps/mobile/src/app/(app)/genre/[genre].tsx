@@ -1,6 +1,6 @@
 import { Song } from '@omuso/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, MediaList } from '@components';
 import { useAuth, useQueue } from '@omuso/domain';
@@ -11,6 +11,9 @@ const Genre = () => {
   const { client } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const router = useRouter();
+
+  // Use SwipeableSongEntry factory to create song entry that only changes on mount
+  const SongEntry = useMemo(() => SwipeableSongEntry(false, true, true), []);
 
   useSyncSongs(setSongs);
 
@@ -47,7 +50,7 @@ const Genre = () => {
         <Text className="font-bold text-white">Play</Text>
       </Pressable>
       <View className="flex-1 w-full pb-4">
-        <MediaList data={songs} Entry={SwipeableSongEntry} horizontal={false} />
+        <MediaList data={songs} Entry={SongEntry} horizontal={false} />
       </View>
     </View>
   );

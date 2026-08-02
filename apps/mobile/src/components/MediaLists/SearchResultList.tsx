@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Song } from '@omuso/types';
 
 import { MediaList } from './MediaList';
@@ -20,6 +20,9 @@ export function SearchResultList({ searchQuery = '', onlyStarred = false, horizo
   const debouncedSearch = useDebounce(searchQuery, 300); // Resetart countdown every time the search input is updated
 
   useSyncSongs(setSongs);
+
+  // Use SwipeableSongEntry factory to create song entry that only changes on mount
+  const SongEntry = useMemo(() => SwipeableSongEntry(false, true, true), []);
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;
@@ -70,7 +73,7 @@ export function SearchResultList({ searchQuery = '', onlyStarred = false, horizo
       {!(isLoadingSongs && page === 0) && songs.length > 0 && (
         <MediaList
           data={songs}
-          Entry={SwipeableSongEntry}
+          Entry={SongEntry}
           horizontal={horizontal}
           footer={() => (
             <View className="flex items-center justify-center py-2">
