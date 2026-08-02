@@ -1,5 +1,5 @@
 import { QueueStore, Song, QueuedSong, Media } from '@omuso/types';
-import { getAudioPlayer } from '../audioPlayer';
+import { getAudioPlayer, usePlayback } from '../audioPlayer';
 import { create } from 'zustand';
 import { PlayerStorage, useUpdatedMedia } from '../storage';
 import { persist } from 'zustand/middleware';
@@ -51,6 +51,7 @@ export const useQueue = create<QueueStore>()(
         let queue = songs.map((song) => createQueuedSong(song));
         getAudioPlayer().setQueue(queue);
         set({ queue });
+        usePlayback.getState().seekTo(0);
       },
       updateQueue: async () => {
         // Updates the audio player's queue to match the this store's queue state
