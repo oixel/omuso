@@ -1,10 +1,12 @@
 import { Media } from '@omuso/types';
 import { FlashList, FlashListProps } from '@shopify/flash-list';
 import { useCallback } from 'react';
+import { MediaListEntryProps } from '../MediaEntries/MediaListEntry';
 
 interface MediaListProps extends Omit<FlashListProps<Media>, 'renderItem'> {
-  Entry: React.FC<{ item: Media; horizontal: boolean }>;
+  Entry: React.FC<MediaListEntryProps>;
   horizontal?: boolean;
+  isBigEntry?: boolean;
   separator?: React.ComponentType;
   footer?: React.ComponentType;
 }
@@ -12,13 +14,14 @@ interface MediaListProps extends Omit<FlashListProps<Media>, 'renderItem'> {
 export function MediaList({
   Entry,
   horizontal = false,
+  isBigEntry = false,
   footer,
   separator,
   ...props
 }: MediaListProps) {
   // Only re-render if the entry itself has changed
   const renderItem = useCallback(
-    ({ item }: { item: Media }) => <Entry item={item} horizontal={horizontal} />,
+    ({ item }: { item: Media }) => <Entry item={item} isBigEntry={isBigEntry} />,
     [Entry, horizontal]
   );
 

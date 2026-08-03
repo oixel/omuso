@@ -27,7 +27,7 @@ const AlbumPage = () => {
   }, [album]);
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false), []);
+  const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
 
   useSyncSongs(setSongs);
 
@@ -104,7 +104,7 @@ const AlbumPage = () => {
           <View className="w-full pb-4">
             {songs.map((song, index) => (
               <Animated.View key={song.id} entering={FadeInDown.duration(300).delay(index * 40)}>
-                <SongEntry item={song} horizontal={false} />
+                <SongEntry item={song} isBigEntry={false} />
               </Animated.View>
             ))}
           </View>
