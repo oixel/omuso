@@ -7,13 +7,14 @@ import { months, msToDuration, useAuth, useQueue } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { useQuery } from '@tanstack/react-query';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Play } from 'lucide-react-native';
+import { Download, Play, Shuffle, Star } from 'lucide-react-native';
 
 const AlbumPage = () => {
   const { client } = useAuth();
   const { albumId } = useLocalSearchParams();
   const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
+  const [starred, setStarred] = useState(false);
 
   // Instantly load album metadata from cache, and then fetch songs using ID
   const { data: album } = useQuery({
@@ -24,6 +25,7 @@ const AlbumPage = () => {
 
   useEffect(() => {
     setSongs(album?.songs ?? []);
+    setStarred(!!album?.starred);
   }, [album]);
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
@@ -89,14 +91,42 @@ const AlbumPage = () => {
             )}
             {album?.year && <Text className="text-lg text-blue-200 font-medium">{album.year}</Text>}
           </View>
-          <Pressable
-            onPress={() => useQueue.getState().setQueue(songs)}
-            style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
-            className="text-xl font-bold py-2 px-8 flex-row gap-4 justify-center items-center"
-          >
-            <Play color="white" fill="white" size={20} />
-            <Text className="font-medium text-white text-lg">Play</Text>
-          </Pressable>
+          <View className="flex-row gap-2">
+            <Pressable
+              onPress={() =>
+                useQueue.getState().setQueue([...songs].sort(() => Math.random() - 0.5))
+              } // TODO: Make a proper shuffle rather than randomize
+              style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
+              className="text-xl font-bold py-2 px-4 flex-row gap-4 justify-center items-center"
+            >
+              <Shuffle color="white" size={20} />
+            </Pressable>
+            <Pressable
+              onPress={() => useQueue.getState().setQueue(songs)}
+              style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
+              className="text-xl font-bold py-2 px-8 flex-row gap-4 justify-center items-center"
+            >
+              <Play color="white" fill="white" size={20} />
+              <Text className="font-medium text-white text-lg">Play</Text>
+            </Pressable>
+            <Pressable
+              disabled={!album}
+              onPress={async () => {
+                setStarred(!starred); // Toggle star excitedly
+                const newStatus = (await client?.toggleStarred(album, starred))?.starred;
+                setStarred(!!newStatus);
+              }}
+              style={{
+                opacity: !album ? 0.5 : 1,
+                borderRadius: 24,
+                marginBottom: 10,
+                backgroundColor: '#5186dc',
+              }}
+              className="text-xl font-bold py-2 px-4 flex-row gap-4 justify-center items-center"
+            >
+              <Star color="white" fill={starred ? 'white' : 'none'} size={20} />
+            </Pressable>
+          </View>
         </Animated.View>
       )}
       {songs.length ? (
