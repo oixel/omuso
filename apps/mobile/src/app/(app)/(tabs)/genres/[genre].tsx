@@ -13,7 +13,7 @@ const Genre = () => {
   const router = useRouter();
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(false, true, true), []);
+  const SongEntry = useMemo(() => SwipeableSongEntry(true, false, true, true), []);
 
   useSyncSongs(setSongs);
 

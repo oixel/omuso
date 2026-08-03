@@ -1,28 +1,68 @@
-import { Media } from '@omuso/types';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@omuso/domain';
 import { Image } from 'expo-image';
 import { Star } from 'lucide-react-native';
 import { MediaListEntryProps } from './MediaListEntry';
+import { Song } from '@omuso/types';
 
-export interface SongEntryProps extends MediaListEntryProps {
+interface SongEntryProps extends MediaListEntryProps {
+  showIsPlaying: boolean;
   showTrackNumber: boolean;
   showAlbumCover: boolean;
   showArtist: boolean;
 }
 
+// Bail before mounting proper SongEntry if item is not an actual Song
 export const SongEntry: React.FC<SongEntryProps> = memo(
-  ({ item, horizontal, showTrackNumber, showAlbumCover, showArtist }: SongEntryProps) => {
-    if (!isSong(item)) return;
+  (props) => {
+    if (!isSong(props.item)) return null;
+    return <InnerSongEntry {...props} item={props.item} />;
+  },
+  (prev, next) =>
+    prev.item === next.item &&
+    prev.horizontal === next.horizontal &&
+    prev.showIsPlaying === next.showIsPlaying &&
+    prev.showTrackNumber === next.showTrackNumber &&
+    prev.showAlbumCover === next.showAlbumCover &&
+    prev.showArtist === next.showArtist
+);
+
+// Type item to Song since it was proven to be
+interface InnerSongEntryProps extends Omit<SongEntryProps, 'item'> {
+  item: Song;
+}
+
+// Only rendered if item is Song, so all hooks are free to run safely
+export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
+  ({
+    item,
+    horizontal,
+    showIsPlaying,
+    showTrackNumber,
+    showAlbumCover,
+    showArtist,
+  }: InnerSongEntryProps) => {
+    const currentPlayingId = useQueue((state) =>
+      showIsPlaying ? state.queue[state.index]?.id : undefined
+    );
+
+    // Memoize method to avoid every render giving a new function reference
+    const playSong = useCallback(() => {
+      useQueue.getState().setQueue([item]);
+      usePlayback.getState().play();
+    }, [item]);
+
+    // Only cause a re-render when the state actively changes
+    const isPlaying = showIsPlaying && currentPlayingId === item.id;
 
     return (
       <Pressable
-        style={horizontal ? styles.rowHorizontal : styles.rowVertical}
-        onPress={() => {
-          useQueue.getState().setQueue([item]);
-          usePlayback.getState().play();
-        }}
+        style={[
+          horizontal ? styles.rowHorizontal : styles.rowVertical,
+          { backgroundColor: isPlaying ? '#5186dc' : '#60a5fa' },
+        ]}
+        onPress={playSong}
       >
         {item.starred ? (
           <View className="pb-2">
@@ -35,14 +75,14 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
           {showTrackNumber && (
             <Text
               style={{ marginRight: 4, alignSelf: 'center' }}
-              className="color-blue-100 w-5 max-w-5"
+              className="text-blue-100 w-5 max-w-5"
             >
               {item.track}
             </Text>
           )}
           {showAlbumCover && (
             <Image
-              style={{ height: 60, aspectRatio: 1, marginRight: 8, borderRadius: 4 }}
+              style={styles.cover}
               source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
               contentFit="cover"
               recyclingKey={item.id}
@@ -52,15 +92,11 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
             />
           )}
           <View className="flex-1 justify-center">
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              className="color-white font-medium text-xl"
-            >
+            <Text numberOfLines={1} ellipsizeMode="tail" className="text-white font-medium text-xl">
               {item.title || 'Untitled Song'}
             </Text>
             {showArtist && (
-              <Text numberOfLines={1} ellipsizeMode="tail" className="color-blue-100">
+              <Text numberOfLines={1} ellipsizeMode="tail" className="text-blue-100">
                 {item.artist ?? 'Unknown Artist'}
               </Text>
             )}
@@ -99,4 +135,5 @@ const styles = StyleSheet.create({
   },
   contentHorizontal: {},
   rowHorizontal: {},
+  cover: { height: 60, aspectRatio: 1, marginRight: 8, borderRadius: 4 },
 });
