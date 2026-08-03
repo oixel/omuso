@@ -1,5 +1,5 @@
 import { Song } from '@omuso/types';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Link } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, CoverArt } from '@components';
@@ -7,6 +7,7 @@ import { months, msToDuration, useAuth, useQueue } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { useQuery } from '@tanstack/react-query';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Play } from 'lucide-react-native';
 
 const AlbumPage = () => {
   const { client } = useAuth();
@@ -26,7 +27,7 @@ const AlbumPage = () => {
   }, [album]);
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(true, false, false), []);
+  const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false), []);
 
   useSyncSongs(setSongs);
 
@@ -38,52 +39,66 @@ const AlbumPage = () => {
     >
       <Pressable
         onPress={router.back}
-        style={{ marginLeft: 18, marginTop: 75, alignSelf: 'flex-start', borderRadius: 8 }}
-        className="text-xl font-bold  p-2 bg-blue-500"
+        style={{
+          marginLeft: 18,
+          marginTop: 75,
+          alignSelf: 'flex-start',
+          borderRadius: 8,
+          backgroundColor: '#5186dc',
+        }}
+        className="text-xl font-bold  p-2"
       >
         <Text className="font-bold text-white">{'< Go Back'}</Text>
       </Pressable>
-      <View
-        style={{
-          alignItems: 'center',
-          width: '95%',
-        }}
-      >
-        <CoverArt
-          style={{ marginTop: 24, width: '80%', aspectRatio: 1, borderRadius: 8 }}
-          uri={album?.coverArtURL}
-          recyclingKey={album?.id}
-        />
-        <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
-          {album?.name ?? 'Unknown Album'}
-        </Text>
-        <Text style={{ width: '80%' }} className="text-2xl color-blue-100 font-medium text-center">
-          {album?.artist ?? 'Unknown Artist'}
-        </Text>
-        <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
-          {album?.genres && (
-            <Text
-              onPress={() =>
-                router.push({
-                  pathname: '/genres/[genre]',
-                  params: { genre: album.genres![0] },
-                })
-              }
-              className="text-lg color-blue-200 font-medium"
-            >
-              {album.genres[0] + (album?.year ? ' • ' : '')}
-            </Text>
-          )}
-          {album?.year && <Text className="text-lg color-blue-200 font-medium">{album.year}</Text>}
-        </View>
-        <Pressable
-          onPress={() => useQueue.getState().setQueue(songs)}
-          style={{ borderRadius: 8, marginBottom: 10 }}
-          className="text-xl font-bold py-2 px-5 bg-blue-500"
+      {album && (
+        <Animated.View
+          entering={FadeInDown.duration(200)}
+          style={{
+            alignItems: 'center',
+            width: '95%',
+          }}
         >
-          <Text className="font-bold text-white">Play</Text>
-        </Pressable>
-      </View>
+          <CoverArt
+            style={{ marginTop: 24, width: '80%', aspectRatio: 1, borderRadius: 8 }}
+            uri={album?.coverArtURL}
+            recyclingKey={album?.id}
+          />
+          <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
+            {album?.name ?? 'Unknown Album'}
+          </Text>
+          <Text style={{ width: '80%' }} className="text-2xl text-blue-100 font-medium text-center">
+            {album?.artist ?? 'Unknown Artist'}
+          </Text>
+          <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
+            {album?.genres && (
+              <Link
+                href={{ pathname: '/genres/[genre]', params: { genre: album.genres![0] } }}
+                withAnchor
+                asChild
+              >
+                <Pressable
+                  onPress={(e) => {
+                    if (!album.genres?.length) e.preventDefault();
+                  }}
+                >
+                  <Text className="text-lg text-blue-200 font-medium">
+                    {album.genres[0] + (album?.year ? ' • ' : '')}
+                  </Text>
+                </Pressable>
+              </Link>
+            )}
+            {album?.year && <Text className="text-lg text-blue-200 font-medium">{album.year}</Text>}
+          </View>
+          <Pressable
+            onPress={() => useQueue.getState().setQueue(songs)}
+            style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
+            className="text-xl font-bold py-2 px-8 flex-row gap-4 justify-center items-center"
+          >
+            <Play color="white" fill="white" size={20} />
+            <Text className="font-medium text-white text-lg">Play</Text>
+          </Pressable>
+        </Animated.View>
+      )}
       {songs.length ? (
         <>
           <View className="w-full pb-4">
@@ -94,23 +109,26 @@ const AlbumPage = () => {
             ))}
           </View>
           <View className="w-full px-8 pt-4 pb-12">
-            <Text className="text-lg color-blue-200 font-medium">{album?.songCount} songs</Text>
+            <Text className="text-lg text-blue-200 font-medium">{album?.songCount} songs</Text>
             {album?.duration && (
-              <Text className="text-lg color-blue-200 font-medium">
+              <Text className="text-lg text-blue-200 font-medium">
                 {msToDuration(album.duration * 1000)}
               </Text>
             )}
             {album?.genres && (
               <View className="flex-row">
                 {album.genres.slice(0, 3).map((genre, index) => (
-                  <Text
+                  <Link
                     key={genre}
-                    onPress={() => router.push({ pathname: '/genres/[genre]', params: { genre } })}
-                    className="text-lg color-blue-200 font-medium"
+                    href={{ pathname: '/genres/[genre]', params: { genre: genre } }}
+                    withAnchor
+                    asChild
                   >
-                    {genre}
-                    {index !== album.genres!.length - 1 ? '; ' : ''}
-                  </Text>
+                    <Text key={genre} className="text-lg text-blue-200 font-medium">
+                      {genre}
+                      {index !== album.genres!.length - 1 ? '; ' : ''}
+                    </Text>
+                  </Link>
                 ))}
               </View>
             )}
@@ -118,13 +136,13 @@ const AlbumPage = () => {
               album.originalReleaseDate.month &&
               album.originalReleaseDate.day &&
               album.originalReleaseDate.year && (
-                <Text className="text-lg color-blue-200 font-medium">
+                <Text className="text-lg text-blue-200 font-medium">
                   Released on {months[album.originalReleaseDate.month]}{' '}
                   {album.originalReleaseDate.day}, {album.originalReleaseDate.year}
                 </Text>
               )) ||
               (album?.year && (
-                <Text className="text-lg color-blue-200 font-medium">Released in {album.year}</Text>
+                <Text className="text-lg text-blue-200 font-medium">Released in {album.year}</Text>
               ))}
             <View className="pt-8">
               <Text className="text-xl text-white font-bold">
@@ -135,7 +153,7 @@ const AlbumPage = () => {
         </>
       ) : (
         <View className="w-full flex-1 flex justify-start mt-12 items-center">
-          <Text className="font-bold color-white">Loading...</Text>
+          <Text className="font-bold text-white">Loading...</Text>
         </View>
       )}
     </ScrollView>

@@ -1,10 +1,10 @@
 import { View, Text, Button, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, Link } from 'expo-router';
 import { destroyAudioPlayer, msToTime, useAuth } from '@omuso/domain';
 import { useQueue, usePlayback } from '@omuso/domain';
 import { Play, Pause, SkipBack, SkipForward, ListX, Star } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { CoverArt } from '@/src/components';
+import { CoverArt } from '@components';
 import Slider from '@react-native-community/slider';
 
 const Home = () => {
@@ -43,31 +43,38 @@ const Home = () => {
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
       <View className="flex-shrink items-center justify-center w-full gap-2">
-        <Text className="font-extrabold color-white text-5xl mb-12">omuso</Text>
+        <Text className="font-extrabold text-white text-5xl mb-12">omuso</Text>
         <CoverArt
           style={{ height: '50%', aspectRatio: 1, borderRadius: 8 }}
           uri={queue[index]?.coverArtURL}
           recyclingKey={queue[index]?.id}
         />
 
-        <Text
-          onPress={() => {
-            if (!client || !queue.length || !queue[index].albumId) return;
-            router.push({
-              pathname: '/albums/[albumId]',
-              params: { albumId: queue[index].albumId },
-            });
-          }}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          className="text-xl font-bold color-white mt-5 self-start px-10"
+        <Link
+          href={{ pathname: '/albums/[albumId]', params: { albumId: queue[index].albumId } }}
+          withAnchor
+          asChild
         >
-          {queue[index]?.title ?? (queue.length ? 'Unknown song' : 'No song')}
-        </Text>
+          <Pressable
+            className="w-full"
+            onPress={(e) => {
+              // Avoid loading album page with Link if no album exists
+              if (!client || !queue.length || !queue[index].albumId) e.preventDefault();
+            }}
+          >
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              className="text-xl font-bold text-white mt-5 self-start px-10"
+            >
+              {queue[index]?.title ?? (queue.length ? 'Unknown song' : 'No song')}
+            </Text>
+          </Pressable>
+        </Link>
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          className="mb-2 font-medium text-xl self-start pl-10 color-blue-100"
+          className="mb-2 font-medium text-xl self-start pl-10 text-blue-100"
         >
           {queue[index]?.artist ?? (queue.length ? 'Unknown artist' : 'No artist')}
         </Text>
