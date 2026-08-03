@@ -1,11 +1,12 @@
 import { isAlbum, resizeCoverArt } from '@omuso/domain';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import React, { memo } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { View, Pressable, StyleSheet, Text } from 'react-native';
 import { MediaListEntryProps } from './MediaListEntry';
 import { Album } from '@omuso/types';
+import { LibrarySquare, Star } from 'lucide-react-native';
 
 // Bail before mounting proper AlbumEntry if item is not an actual Album
 export const AlbumEntry: React.FC<MediaListEntryProps> = memo((props) => {
@@ -20,70 +21,123 @@ interface InnerAlbumEntryProps extends Omit<MediaListEntryProps, 'item'> {
 
 // Only rendered if item is Album
 const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
-  ({ item, horizontal }: InnerAlbumEntryProps) => {
+  ({ item, isBigEntry }: InnerAlbumEntryProps) => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
     return (
-      <Pressable
-        style={[horizontal ? styles.horizontal : styles.vertical]}
-        onPress={() => {
-          queryClient.setQueryData(['album', item.id], item); // Seed query for album metadata
-          router.navigate({ pathname: '/albums/[albumId]', params: { albumId: item.id } });
-        }}
+      <Link
+        href={{ pathname: '/albums/[albumId]', params: { albumId: item.id } }}
+        withAnchor
+        asChild
       >
-        <Image
-          style={{ width: '100%', aspectRatio: 1, borderRadius: 8 }}
-          source={{ uri: resizeCoverArt(item.coverArtURL, 500) }}
-          contentFit="cover"
-          recyclingKey={item.id}
-          cachePolicy="memory-disk"
-          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-          transition={100}
-        />
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={{ width: '90%' }}
-          className="text-white font-medium pt-2"
+        <Pressable
+          style={isBigEntry ? styles.rowBig : styles.rowSmall}
+          onPress={() => {
+            queryClient.setQueryData(['album', item.id], item); // Seed query for album metadata
+          }}
         >
-          {item.name}
-        </Text>
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          style={{ width: '90%' }}
-          className="font-white text-blue-100"
-        >
-          {item.artist || 'Unknown Artist'}
-        </Text>
-      </Pressable>
+          {!isBigEntry && item.starred ? (
+            <View>
+              <Star size={14} color="white" fill="white" />
+            </View>
+          ) : (
+            <Star size={14} color="none" />
+          )}
+          <Image
+            style={isBigEntry ? styles.coverBig : styles.coverSmall}
+            source={{ uri: resizeCoverArt(item.coverArtURL, 500) }}
+            contentFit="cover"
+            recyclingKey={item.id}
+            cachePolicy="memory-disk"
+            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+            transition={100}
+          />
+          <View
+            style={[
+              isBigEntry ? styles.textContentBig : styles.textContentSmall,
+              isBigEntry && item.starred && { paddingRight: 20 },
+            ]}
+          >
+            <View className="flex-row gap-2 items-center">
+              <Text
+                numberOfLines={1}
+                ellipsizeMode="tail"
+                className={`text-white font-medium ${isBigEntry ? 'text-lg' : 'text-xl'}`}
+              >
+                {item.name || 'Untitled Album'}
+              </Text>
+              {isBigEntry && item.starred && <Star color="white" fill="white" size={14} />}
+            </View>
+            <View className="flex-row gap-2 items-center">
+              {!isBigEntry && <LibrarySquare color="#dbeafe" size={16} />}
+              <Text numberOfLines={1} ellipsizeMode="tail" className="text-blue-100">
+                {!isBigEntry ? 'Album  •  ' : ''}
+                {item.artist ?? 'Unknown Artist'}
+              </Text>
+            </View>
+          </View>
+        </Pressable>
+      </Link>
     );
   },
-  (prev: MediaListEntryProps, next: MediaListEntryProps) => prev.item.id === next.item.id
+  (prev: MediaListEntryProps, next: MediaListEntryProps) =>
+    prev.item.id === next.item.id &&
+    prev.isBigEntry === next.isBigEntry &&
+    (prev.item as Album).starred === (next.item as Album).starred
 );
 
 const styles = StyleSheet.create({
-  vertical: {
+  rowSmall: {
+    minWidth: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+
+    height: 75,
+    paddingHorizontal: 6,
+    paddingTop: 12,
+    backgroundColor: '#60a5fa',
+  },
+  rowBig: {
     flex: 1,
     margin: 2,
-    marginBottom: 12,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
-    height: 210,
+    height: 230,
   },
-  horizontal: {
-    height: 100,
-    width: 150,
-    borderRadius: 16,
-    borderColor: '#fff',
-    borderWidth: 2,
-    display: 'flex',
-    alignItems: 'center',
+  textContentSmall: {
+    flex: 1,
+    height: '100%',
     justifyContent: 'center',
-    padding: 8,
-    backgroundColor: '#000000',
+    alignItems: 'stretch',
+    gap: 4,
+
+    paddingBottom: 8,
+    marginRight: 24,
+    minHeight: 40,
+
+    borderBottomWidth: 1,
+    borderBottomColor: '#adc9ed',
+    borderRadius: 4,
+  },
+  textContentBig: {
+    flex: 1,
+    width: '95%',
+  },
+  coverSmall: {
+    height: 60,
+    aspectRatio: 1,
+    marginRight: 8,
+    borderRadius: 4,
+  },
+  coverBig: {
+    aspectRatio: 1,
+    width: '100%',
+    borderRadius: 8,
+    marginBottom: 6,
   },
 });
