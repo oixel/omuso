@@ -17,7 +17,7 @@ export const GenreEntry: React.FC<MediaListEntryProps> = memo(
         ]}
         onPress={() => router.navigate({ pathname: '/genres/[genre]', params: { genre: item.id } })}
       >
-        <Text className="color-white font-bold">{item.id}</Text>
+        <Text className="text-white font-bold">{item.id}</Text>
       </Pressable>
     );
   },

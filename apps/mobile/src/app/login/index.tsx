@@ -5,7 +5,7 @@ import { Credentials } from '@omuso/types';
 
 const StyledInput = (props: TextInputProps) => (
   <TextInput
-    className="bg-white w-2/3 mb-4 color-black placeholder:color-gray-600"
+    className="bg-white w-2/3 mb-4 text-black placeholder:text-gray-600"
     autoCapitalize="none"
     autoCorrect={false}
     {...props}
@@ -64,7 +64,7 @@ const Login = () => {
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">
       <View className="flex-1 items-center justify-center w-full">
-        <Text className="font-extrabold color-white text-5xl mb-4">omuso</Text>
+        <Text className="font-extrabold text-white text-5xl mb-4">omuso</Text>
         <StyledInput
           placeholder="Enter Server URL"
           value={server}
@@ -114,7 +114,7 @@ const Login = () => {
         />
         {error && (
           <View className="w-3/4 bg-red-500  my-4 p-3 rounded-md border-2 border-red-800">
-            <Text className="color-red-100 font-bold text-center">{error}</Text>
+            <Text className="text-red-100 font-bold text-center">{error}</Text>
           </View>
         )}
       </View>

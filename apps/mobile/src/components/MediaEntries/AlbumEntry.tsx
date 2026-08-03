@@ -1,5 +1,4 @@
 import { isAlbum, resizeCoverArt } from '@omuso/domain';
-import { Media } from '@omuso/types';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -35,7 +34,7 @@ export const AlbumEntry: React.FC<MediaListEntryProps> = memo(
           numberOfLines={1}
           ellipsizeMode="tail"
           style={{ width: '90%' }}
-          className="color-white font-medium pt-2"
+          className="text-white font-medium pt-2"
         >
           {item.name}
         </Text>
@@ -43,7 +42,7 @@ export const AlbumEntry: React.FC<MediaListEntryProps> = memo(
           numberOfLines={1}
           ellipsizeMode="tail"
           style={{ width: '90%' }}
-          className="font-white color-blue-100"
+          className="font-white text-blue-100"
         >
           {item.artist || 'Unknown Artist'}
         </Text>

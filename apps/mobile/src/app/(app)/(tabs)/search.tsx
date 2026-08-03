@@ -11,7 +11,7 @@ const Search = () => {
       <View className="mt-24 items-center justify-center w-full">
         <Text className="text-2xl text-white font-bold">Search</Text>
         <TextInput
-          className="bg-white w-2/3 my-4 color-black placeholder:color-gray-600"
+          className="bg-white w-2/3 my-4 text-black placeholder:text-gray-600"
           autoCapitalize="none"
           autoCorrect={false}
           value={searchQuery}
