@@ -1,5 +1,5 @@
 import { AlbumList } from '@/src/components';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
 const Albums = () => {
   return (
