@@ -51,7 +51,7 @@ const Home = () => {
         />
 
         <Link
-          href={{ pathname: '/albums/[albumId]', params: { albumId: queue[index].albumId } }}
+          href={{ pathname: '/albums/[albumId]', params: { albumId: queue[index]?.albumId ?? '' } }}
           withAnchor
           asChild
         >
@@ -59,7 +59,7 @@ const Home = () => {
             className="w-full"
             onPress={(e) => {
               // Avoid loading album page with Link if no album exists
-              if (!client || !queue.length || !queue[index].albumId) e.preventDefault();
+              if (!client || !queue.length || !queue[index]?.albumId) e.preventDefault();
             }}
           >
             <Text
