@@ -53,8 +53,8 @@ const Home = () => {
         <Text
           onPress={() => {
             if (!client || !queue.length || !queue[index].albumId) return;
-            router.navigate({
-              pathname: '/album/[albumId]',
+            router.push({
+              pathname: '/albums/[albumId]',
               params: { albumId: queue[index].albumId },
             });
           }}

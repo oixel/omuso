@@ -64,7 +64,10 @@ const AlbumPage = () => {
           {album?.genres && (
             <Text
               onPress={() =>
-                router.push({ pathname: '/genre/[genre]', params: { genre: album.genres![0] } })
+                router.push({
+                  pathname: '/genres/[genre]',
+                  params: { genre: album.genres![0] },
+                })
               }
               className="text-lg color-blue-200 font-medium"
             >
@@ -102,7 +105,7 @@ const AlbumPage = () => {
                 {album.genres.slice(0, 3).map((genre, index) => (
                   <Text
                     key={genre}
-                    onPress={() => router.push({ pathname: '/genre/[genre]', params: { genre } })}
+                    onPress={() => router.push({ pathname: '/genres/[genre]', params: { genre } })}
                     className="text-lg color-blue-200 font-medium"
                   >
                     {genre}

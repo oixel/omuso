@@ -15,7 +15,7 @@ export const GenreEntry: React.FC<MediaListEntryProps> = memo(
           horizontal ? styles.horizontal : styles.vertical,
           { backgroundColor: convertStringToColor(item.id, 5, 85, 45) },
         ]}
-        onPress={() => router.navigate({ pathname: '/genre/[genre]', params: { genre: item.id } })}
+        onPress={() => router.navigate({ pathname: '/genres/[genre]', params: { genre: item.id } })}
       >
         <Text className="color-white font-bold">{item.id}</Text>
       </Pressable>

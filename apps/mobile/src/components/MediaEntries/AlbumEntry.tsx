@@ -19,7 +19,7 @@ export const AlbumEntry: React.FC<MediaListEntryProps> = memo(
         style={[horizontal ? styles.horizontal : styles.vertical]}
         onPress={() => {
           queryClient.setQueryData(['album', item.id], item); // Seed query for album metadata
-          router.navigate({ pathname: '/album/[albumId]', params: { albumId: item.id } });
+          router.navigate({ pathname: '/albums/[albumId]', params: { albumId: item.id } });
         }}
       >
         <Image
