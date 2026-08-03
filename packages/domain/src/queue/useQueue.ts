@@ -1,7 +1,7 @@
 import { QueueStore, Song, QueuedSong, Media } from '@omuso/types';
 import { getAudioPlayer, usePlayback } from '../audioPlayer';
 import { create } from 'zustand';
-import { PlayerStorage, useUpdatedMedia } from '../storage';
+import { PlayerStorage } from '../storage';
 import { persist } from 'zustand/middleware';
 import { v4 as uuid } from 'uuid';
 import { isSong } from '../utils';

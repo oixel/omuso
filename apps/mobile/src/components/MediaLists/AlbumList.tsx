@@ -1,11 +1,11 @@
-import { Pressable, StyleProp, View, ViewStyle, Text } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Album, Media } from '@omuso/types';
 import { useAuth } from '@omuso/domain';
 
 import { MediaList } from './MediaList';
-import { AlbumEntry, GenreEntry } from '../MediaEntries';
+import { AlbumEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
 
 type AlbumListProps = {

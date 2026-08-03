@@ -1,7 +1,7 @@
 import * as RequestParam from '@omuso/types/src/requests/requestParams';
 import * as Response from '@omuso/types/src/requests/responses';
 import * as Result from '@omuso/types/src/requests/results';
-import { Album, Credentials, Media } from '@omuso/types';
+import { Credentials, Media } from '@omuso/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
 import { processAlbums, processArtists, processSongs } from './utils/processMedia';

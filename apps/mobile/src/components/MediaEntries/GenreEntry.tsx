@@ -1,5 +1,4 @@
 import { convertStringToColor } from '@omuso/domain';
-import { Media } from '@omuso/types';
 import { useRouter } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';

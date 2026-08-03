@@ -1,4 +1,4 @@
-import { Pressable, StyleProp, View, ViewStyle, Text } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Media } from '@omuso/types';
