@@ -5,6 +5,7 @@ import { View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, MediaList } from '@components';
 import { useAuth, useQueue } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
+import { Play } from 'lucide-react-native';
 
 const Genre = () => {
   const { genre } = useLocalSearchParams();
@@ -13,7 +14,7 @@ const Genre = () => {
   const router = useRouter();
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(true, false, true, true), []);
+  const SongEntry = useMemo(() => SwipeableSongEntry(true, false, true, false, true), []);
 
   useSyncSongs(setSongs);
 
@@ -34,8 +35,14 @@ const Genre = () => {
     <View className="flex-1 items-center justify-center bg-blue-400">
       <Pressable
         onPress={router.back}
-        style={{ marginLeft: 18, marginTop: 75, alignSelf: 'flex-start', borderRadius: 8 }}
-        className="text-xl font-bold  p-2 bg-blue-500"
+        style={{
+          marginLeft: 18,
+          marginTop: 75,
+          alignSelf: 'flex-start',
+          borderRadius: 8,
+          backgroundColor: '#5186dc',
+        }}
+        className="text-xl font-bold p-2 "
       >
         <Text className="font-bold text-white">{'< Go Back'}</Text>
       </Pressable>
@@ -44,10 +51,11 @@ const Genre = () => {
       </Text>
       <Pressable
         onPress={() => useQueue.getState().setQueue(songs)}
-        style={{ borderRadius: 8, marginBottom: 10 }}
-        className="text-xl font-bold py-2 px-5 bg-blue-500"
+        style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
+        className="text-xl font-bold py-2 px-8 flex-row gap-4 justify-center items-center"
       >
-        <Text className="font-bold text-white">Play</Text>
+        <Play color="white" fill="white" size={20} />
+        <Text className="font-medium text-white text-lg">Play</Text>
       </Pressable>
       <View className="flex-1 w-full pb-4">
         <MediaList data={songs} Entry={SongEntry} horizontal={false} />
