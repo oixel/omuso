@@ -2,14 +2,25 @@ import { isAlbum, resizeCoverArt } from '@omuso/domain';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { memo } from 'react';
+import React, { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { MediaListEntryProps } from './MediaListEntry';
+import { Album } from '@omuso/types';
 
-export const AlbumEntry: React.FC<MediaListEntryProps> = memo(
-  ({ item, horizontal }: MediaListEntryProps) => {
-    if (!isAlbum(item)) return;
+// Bail before mounting proper AlbumEntry if item is not an actual Album
+export const AlbumEntry: React.FC<MediaListEntryProps> = memo((props) => {
+  if (!isAlbum(props.item)) return null;
+  return <InnerAlbumEntry {...props} item={props.item} />;
+});
 
+// Type check item to Album since it was proven to be
+interface InnerAlbumEntryProps extends Omit<MediaListEntryProps, 'item'> {
+  item: Album;
+}
+
+// Only rendered if item is Album
+const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
+  ({ item, horizontal }: InnerAlbumEntryProps) => {
     const router = useRouter();
     const queryClient = useQueryClient();
 
