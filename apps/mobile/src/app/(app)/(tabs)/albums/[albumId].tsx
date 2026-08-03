@@ -91,7 +91,7 @@ const AlbumPage = () => {
             )}
             {album?.year && <Text className="text-lg text-blue-200 font-medium">{album.year}</Text>}
           </View>
-          <View className="flex-row gap-2">
+          <View className="flex-row gap-2 mb-4">
             <Pressable
               onPress={() =>
                 useQueue.getState().setQueue([...songs].sort(() => Math.random() - 0.5))
