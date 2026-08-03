@@ -1,20 +1,17 @@
-import { View, Text } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Song } from '@omuso/types';
 
-import { MediaList } from './MediaList';
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { useAuth, useDebounce } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 
-const PAGE_SIZE = 200;
+const PAGE_SIZE = 55;
 
 export function SearchResultList({ searchQuery = '', onlyStarred = false, horizontal = false }) {
   const { client } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
-  const [page, setPage] = useState(0);
   const [isLoadingSongs, setIsLoadingSongs] = useState(false);
-  const [hasReachedEnd, setHasReachedEnd] = useState(false);
 
   const latestQuery = useRef('');
   const debouncedSearch = useDebounce(searchQuery, 300); // Resetart countdown every time the search input is updated
@@ -22,11 +19,10 @@ export function SearchResultList({ searchQuery = '', onlyStarred = false, horizo
   useSyncSongs(setSongs);
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(false, true, true), []);
+  const SongEntry = useMemo(() => SwipeableSongEntry(false, false, true, true), []);
 
   const loadSongs = async (query: string, newPage: number): Promise<Song[]> => {
     latestQuery.current = query;
-    setPage(newPage);
     setIsLoadingSongs(true);
 
     const result = await client?.search({
@@ -44,15 +40,10 @@ export function SearchResultList({ searchQuery = '', onlyStarred = false, horizo
     setSongs((prev) => (newPage === 0 ? newSongs : [...prev, ...newSongs]));
     setIsLoadingSongs(false);
 
-    if (newSongs.length < PAGE_SIZE) setHasReachedEnd(true);
-
     return newSongs;
   };
 
   useEffect(() => {
-    setPage(0);
-    setHasReachedEnd(false);
-
     (async () => {
       await loadSongs(debouncedSearch, 0);
     })();
@@ -60,34 +51,21 @@ export function SearchResultList({ searchQuery = '', onlyStarred = false, horizo
 
   return (
     <View className="flex-1 w-full pb-4">
-      {isLoadingSongs && page === 0 && (
+      {isLoadingSongs && (
         <View className="w-full flex-1 flex justify-start mt-12 items-center">
-          <Text className="font-bold color-white">Searching...</Text>
+          <Text className="font-bold text-white">Searching...</Text>
         </View>
       )}
       {!isLoadingSongs && !songs.length && (
-        <View className="w-full flex-1 flex justify-center items-center">
-          <Text className="font-bold color-white">No results found</Text>
+        <View className="w-full flex-1 flex justify-start mt-12 items-center">
+          <Text className="font-bold text-white">No results found</Text>
         </View>
       )}
-      {!(isLoadingSongs && page === 0) && songs.length > 0 && (
-        <MediaList
+      {!isLoadingSongs && songs.length > 0 && (
+        <FlatList
           data={songs}
-          Entry={SongEntry}
+          renderItem={({ item }) => <SongEntry item={item} horizontal={false} />}
           horizontal={horizontal}
-          footer={() => (
-            <View className="flex items-center justify-center py-2">
-              {isLoadingSongs && (
-                <Text className="color-blue-200 font-medium text-lg">Loading...</Text>
-              )}
-              {hasReachedEnd && (
-                <Text className="color-blue-200 font-medium text-lg">End of results</Text>
-              )}
-            </View>
-          )}
-          onEndReached={async () => {
-            if (!hasReachedEnd) loadSongs(searchQuery, page + 1);
-          }}
         />
       )}
     </View>
