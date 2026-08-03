@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import React, { memo, useCallback } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@omuso/domain';
 import { Image } from 'expo-image';
-import { Star } from 'lucide-react-native';
+import { Music, Star } from 'lucide-react-native';
 import { MediaListEntryProps } from './MediaListEntry';
 import { Song } from '@omuso/types';
 
@@ -10,6 +10,7 @@ interface SongEntryProps extends MediaListEntryProps {
   showIsPlaying: boolean;
   showTrackNumber: boolean;
   showAlbumCover: boolean;
+  showSongLabel: boolean;
   showArtist: boolean;
 }
 
@@ -21,10 +22,11 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
   },
   (prev, next) =>
     prev.item === next.item &&
-    prev.horizontal === next.horizontal &&
+    prev.isBigEntry === next.isBigEntry &&
     prev.showIsPlaying === next.showIsPlaying &&
     prev.showTrackNumber === next.showTrackNumber &&
     prev.showAlbumCover === next.showAlbumCover &&
+    prev.showSongLabel === next.showSongLabel &&
     prev.showArtist === next.showArtist
 );
 
@@ -37,10 +39,11 @@ interface InnerSongEntryProps extends Omit<SongEntryProps, 'item'> {
 export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
   ({
     item,
-    horizontal,
+    isBigEntry,
     showIsPlaying,
     showTrackNumber,
     showAlbumCover,
+    showSongLabel,
     showArtist,
   }: InnerSongEntryProps) => {
     const currentPlayingId = useQueue((state) =>
@@ -59,48 +62,56 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
     return (
       <Pressable
         style={[
-          horizontal ? styles.rowHorizontal : styles.rowVertical,
+          isBigEntry ? styles.rowBig : styles.rowSmall,
           { backgroundColor: isPlaying ? '#5186dc' : '#60a5fa' },
+          !showAlbumCover && { height: 60 },
         ]}
         onPress={playSong}
       >
         {item.starred ? (
-          <View className="pb-2">
+          <View
+            style={[
+              { height: '100%', justifyContent: 'center' },
+              showTrackNumber && { paddingBottom: 8 },
+            ]}
+          >
             <Star size={14} color="white" fill="white" />
           </View>
         ) : (
           <Star size={14} color="none" />
         )}
-        <View style={horizontal ? styles.contentHorizontal : styles.contentVertical}>
-          {showTrackNumber && (
-            <Text
-              style={{ marginRight: 4, alignSelf: 'center' }}
-              className="text-blue-100 w-5 max-w-5"
-            >
-              {item.track}
-            </Text>
-          )}
-          {showAlbumCover && (
-            <Image
-              style={styles.cover}
-              source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
-              contentFit="cover"
-              recyclingKey={item.id}
-              cachePolicy="memory-disk"
-              placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-              transition={100}
-            />
-          )}
-          <View className="flex-1 justify-center">
-            <Text numberOfLines={1} ellipsizeMode="tail" className="text-white font-medium text-xl">
-              {item.title || 'Untitled Song'}
-            </Text>
-            {showArtist && (
+        {showTrackNumber && (
+          <Text
+            style={{ marginRight: 4, paddingBottom: 8 }}
+            className="text-blue-100 w-5 max-w-5 my-auto text-center"
+          >
+            {item.track}
+          </Text>
+        )}
+        {showAlbumCover && (
+          <Image
+            style={styles.cover}
+            source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
+            contentFit="cover"
+            recyclingKey={item.id}
+            cachePolicy="memory-disk"
+            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+            transition={100}
+          />
+        )}
+        <View style={isBigEntry ? styles.textContentBig : styles.textContentSmall}>
+          <Text numberOfLines={1} ellipsizeMode="tail" className="text-white font-medium text-xl">
+            {item.title || 'Untitled Song'}
+          </Text>
+          {showArtist && (
+            <View className="flex-row gap-2 items-center">
+              {showSongLabel && <Music color="#dbeafe" size={16} />}
               <Text numberOfLines={1} ellipsizeMode="tail" className="text-blue-100">
+                {showSongLabel ? 'Song  •  ' : ''}
                 {item.artist ?? 'Unknown Artist'}
               </Text>
-            )}
-          </View>
+            </View>
+          )}
         </View>
       </Pressable>
     );
@@ -109,31 +120,39 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
 );
 
 const styles = StyleSheet.create({
-  rowVertical: {
-    paddingHorizontal: 6,
-    paddingTop: 12,
+  rowSmall: {
     minWidth: '100%',
-    backgroundColor: '#60a5fa',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
+
+    height: 75,
+    paddingHorizontal: 6,
+    paddingTop: 12,
+    backgroundColor: '#60a5fa',
   },
-  contentVertical: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
+  rowBig: {},
+  textContentSmall: {
+    flex: 1,
+    height: '100%',
+    justifyContent: 'center',
     alignItems: 'stretch',
     gap: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: '#adc9ed',
-    borderRadius: 4,
-    flex: 1,
+
     paddingBottom: 8,
     marginRight: 24,
     minHeight: 40,
+
+    borderBottomWidth: 1,
+    borderBottomColor: '#adc9ed',
+    borderRadius: 4,
   },
-  contentHorizontal: {},
-  rowHorizontal: {},
-  cover: { height: 60, aspectRatio: 1, marginRight: 8, borderRadius: 4 },
+  textContentBig: {},
+  cover: {
+    height: 60,
+    aspectRatio: 1,
+    marginRight: 8,
+    borderRadius: 4,
+  },
 });

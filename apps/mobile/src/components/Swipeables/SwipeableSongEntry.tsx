@@ -14,6 +14,7 @@ export const SwipeableSongEntry = (
   showIsPlaying: boolean = false,
   showTrackNumber: boolean = false,
   showAlbumCover: boolean = true,
+  showSongLabel: boolean = false,
   showArtist: boolean = true
 ) => {
   const AlteredSongEntry: React.FC<MediaListEntryProps> = (props) => (
@@ -22,6 +23,7 @@ export const SwipeableSongEntry = (
       showIsPlaying={showIsPlaying}
       showTrackNumber={showTrackNumber}
       showAlbumCover={showAlbumCover}
+      showSongLabel={showSongLabel}
       showArtist={showArtist}
     />
   );
