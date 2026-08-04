@@ -1,7 +1,7 @@
 import { isAlbum, resizeCoverArt } from '@omuso/domain';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import React, { memo } from 'react';
 import { View, Pressable, StyleSheet, Text } from 'react-native';
 import { MediaListEntryProps } from './MediaListEntry';
@@ -22,7 +22,6 @@ interface InnerAlbumEntryProps extends Omit<MediaListEntryProps, 'item'> {
 // Only rendered if item is Album
 const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
   ({ item, isBigEntry }: InnerAlbumEntryProps) => {
-    const router = useRouter();
     const queryClient = useQueryClient();
 
     return (
