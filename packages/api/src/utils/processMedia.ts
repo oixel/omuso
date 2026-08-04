@@ -66,14 +66,6 @@ function attachStreamURL(credentials: Credentials, songs: Song[]): Song[] {
   }));
 }
 
-export function processArtists(
-  credentials: Credentials,
-  artists: Artist[] | undefined
-): Artist[] | undefined {
-  if (!artists) return undefined;
-  return attachCoverArt(credentials, artists);
-}
-
 export function processAlbums(
   credentials: Credentials,
   albums: UnprocessedAlbum[] | undefined
