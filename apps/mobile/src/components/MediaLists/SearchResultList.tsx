@@ -4,7 +4,7 @@ import { Album, Song } from '@omuso/types';
 
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { useAuth, useDebounce } from '@omuso/domain';
-import { useSyncSongs } from '@utils';
+import { useSyncAlbums, useSyncSongs } from '@utils';
 import { AlbumEntry } from '../MediaEntries';
 import { LabelOptions } from '@/src/app/(app)/(tabs)/search';
 import { FlashList } from '@shopify/flash-list';
@@ -63,6 +63,7 @@ export function SearchResultList({
   const latestQuery = useRef('');
   const debouncedSearch = useDebounce(searchQuery, 300); // Resetart countdown every time the search input is updated
 
+  useSyncAlbums(setAlbums);
   useSyncSongs(setSongs);
 
   const loadMedia = async (query: string, newPage: number) => {

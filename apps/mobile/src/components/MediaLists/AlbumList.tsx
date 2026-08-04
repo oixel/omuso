@@ -7,6 +7,7 @@ import { useAuth, useDebounce } from '@omuso/domain';
 import { MediaList } from './MediaList';
 import { AlbumEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
+import { useSyncAlbums } from '@/src/utils';
 
 type AlbumListProps = {
   style?: StyleProp<ViewStyle>;
@@ -24,6 +25,8 @@ export function AlbumList({
   const [albums, setAlbums] = useState<Album[]>([]);
   const [page, setPage] = useState(0);
   const [hasReachedEnd, setHasReachedEnd] = useState(false);
+
+  useSyncAlbums(setAlbums);
 
   const loadAlbums = async (newPage: number) => {
     setPage(newPage);
