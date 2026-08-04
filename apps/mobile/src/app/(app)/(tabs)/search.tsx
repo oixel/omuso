@@ -2,13 +2,13 @@ import { View, Pressable, Text, TextInput, StyleSheet } from 'react-native';
 import { useState } from 'react';
 
 import { SearchResultList } from '@components';
+import { SearchPageLabelOptions } from '@omuso/types';
 
-export type LabelOptions = 'all' | 'songs' | 'albums' | 'artists';
-const labels: LabelOptions[] = ['all', 'songs', 'albums', 'artists'];
+const labels: SearchPageLabelOptions[] = ['all', 'songs', 'albums', 'artists'];
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [tab, setTab] = useState<LabelOptions>('all');
+  const [tab, setTab] = useState<SearchPageLabelOptions>('all');
 
   return (
     <View className="flex-1 items-center justify-center bg-blue-400">

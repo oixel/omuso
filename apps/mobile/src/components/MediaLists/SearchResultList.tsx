@@ -1,12 +1,11 @@
-import { View, Text, FlatList } from 'react-native';
+import { View, Text } from 'react-native';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Album, Song } from '@omuso/types';
+import { Album, SearchPageLabelOptions, Song } from '@omuso/types';
 
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { useAuth, useDebounce } from '@omuso/domain';
 import { useSyncAlbums, useSyncSongs } from '@utils';
 import { AlbumEntry } from '../MediaEntries';
-import { LabelOptions } from '@/src/app/(app)/(tabs)/search';
 import { FlashList } from '@shopify/flash-list';
 
 const PAGE_SIZE = 55;
@@ -44,7 +43,7 @@ function scoreMedia(item: ResultItem, query: string): number {
 
 interface SearchResultListProps {
   searchQuery: string;
-  tab?: LabelOptions;
+  tab?: SearchPageLabelOptions;
   onlyStarred?: boolean;
   horizontal?: boolean;
 }
