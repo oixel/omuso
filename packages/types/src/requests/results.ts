@@ -17,6 +17,10 @@ export interface GetArtistResult extends Result {
   artist?: Artist;
 }
 
+export interface GetArtistsResult extends Result {
+  artists?: Artist[];
+}
+
 export interface GetAlbumResult extends Result {
   album?: Album;
 }

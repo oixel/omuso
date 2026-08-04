@@ -47,6 +47,10 @@ export interface GetArtistResponse extends SubsonicResponse {
   artist?: Artist;
 }
 
+export interface GetArtistsResponse extends SubsonicResponse {
+  artists?: { index: { name: string; artist: Artist[] }[] };
+}
+
 export interface GetAlbumResponse extends SubsonicResponse {
   album?: UnprocessedAlbum;
 }

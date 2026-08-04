@@ -4,7 +4,7 @@ import * as Result from '@omuso/types/src/requests/results';
 import { Credentials, Media } from '@omuso/types';
 import { SubsonicError } from './SubsonicError';
 import { buildRequestURL, cleanParams } from './utils';
-import { processAlbums, processArtists, processSongs } from './utils/processMedia';
+import { processAlbums, processSongs } from './utils/processMedia';
 import { isAlbum, isArtist } from '@omuso/domain/src/utils/verifyMedia';
 
 export class SubsonicClient {
@@ -56,7 +56,15 @@ export class SubsonicClient {
   getArtist = async (id: string): Promise<Result.GetArtistResult> => {
     const response = await this.request<Response.GetArtistResponse>('getArtist', { id });
     if (!response || response.status !== 'ok' || !response.artist) return { success: false };
-    return { success: true, artist: processArtists(this.credentials, [response.artist])?.at(0) };
+    return { success: true, artist: response.artist };
+  };
+
+  getArtists = async (): Promise<Result.GetArtistsResult> => {
+    const response = await this.request<Response.GetArtistsResponse>('getArtists');
+    if (!response || response.status !== 'ok' || !response?.artists?.index)
+      return { success: false };
+    const artists = response.artists.index.map((c) => c.artist.map((artist) => artist)).flat();
+    return { success: true, artists };
   };
 
   getAlbum = async (id: string): Promise<Result.GetAlbumResult> => {
@@ -123,7 +131,7 @@ export class SubsonicClient {
 
     return {
       success: true,
-      artists: processArtists(this.credentials, response.searchResult3?.artist),
+      artists: response.searchResult3?.artist,
       albums: processAlbums(this.credentials, response.searchResult3?.album),
       songs: processSongs(this.credentials, response.searchResult3?.song),
     };
