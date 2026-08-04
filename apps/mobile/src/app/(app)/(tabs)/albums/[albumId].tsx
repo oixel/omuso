@@ -3,14 +3,15 @@ import { useLocalSearchParams, useRouter, Link } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable } from 'react-native';
 import { SwipeableSongEntry, CoverArt } from '@components';
-import { months, msToDuration, useAuth, useQueue } from '@omuso/domain';
+import { isAlbum, months, msToDuration, useAuth, useQueue, useUpdatedMedia } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Download, Play, Shuffle, Star } from 'lucide-react-native';
+import { Play, Shuffle, Star } from 'lucide-react-native';
 
 const AlbumPage = () => {
   const { client } = useAuth();
+  const queryClient = useQueryClient();
   const { albumId } = useLocalSearchParams();
   const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
@@ -32,6 +33,16 @@ const AlbumPage = () => {
   const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
 
   useSyncSongs(setSongs);
+
+  // Independently track whether album has been updated
+  const updatedMedia = useUpdatedMedia(client);
+
+  useEffect(() => {
+    // If this page's album has been updated, update its data in the query cache to reflect the changes
+    // On exact key match, react-query notifies subscribers which forces a re-render
+    if (!updatedMedia || !isAlbum(updatedMedia) || updatedMedia.id !== albumId) return;
+    queryClient.setQueryData(['album', albumId], updatedMedia);
+  }, [updatedMedia, albumId, queryClient]);
 
   return (
     <ScrollView
