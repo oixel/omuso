@@ -1,4 +1,4 @@
-import { AlbumList } from '@/src/components';
+import { AlbumList } from '@components';
 import { View, Text } from 'react-native';
 
 const Albums = () => {

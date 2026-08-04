@@ -1,13 +1,13 @@
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Album, Media } from '@omuso/types';
-import { useAuth, useDebounce } from '@omuso/domain';
+import { useAuth } from '@omuso/domain';
 
 import { MediaList } from './MediaList';
 import { AlbumEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
-import { useSyncAlbums } from '@/src/utils';
+import { useSyncAlbums } from '@utils';
 
 type AlbumListProps = {
   style?: StyleProp<ViewStyle>;
@@ -40,8 +40,6 @@ export function AlbumList({
 
     setAlbums((prev) => (newPage === 0 ? newAlbums : [...prev, ...newAlbums]));
     if (newAlbums.length < PAGE_SIZE) setHasReachedEnd(true);
-
-    return newAlbums;
   };
 
   useEffect(() => {
