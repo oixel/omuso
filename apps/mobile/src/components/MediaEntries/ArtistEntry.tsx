@@ -1,4 +1,4 @@
-import { isArtist, resizeCoverArt } from '@omuso/domain';
+import { isArtist } from '@omuso/domain';
 import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
@@ -19,7 +19,6 @@ interface InnerArtistEntryProps extends Omit<MediaListEntryProps, 'item'> {
   item: Artist;
 }
 
-// Only rendered if item is Artist
 const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
   ({ item, isBigEntry }: InnerArtistEntryProps) => {
     const queryClient = useQueryClient();
@@ -45,7 +44,7 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
           )}
           <Image
             style={isBigEntry ? styles.coverBig : styles.coverSmall}
-            source={{ uri: resizeCoverArt('TODO', 500) }} // TODO
+            source={{ uri: item.artistPictureURLs?.medium ?? item.coverArtURL }}
             contentFit="cover"
             recyclingKey={item.id}
             cachePolicy="memory-disk"
@@ -82,7 +81,14 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
   (prev: MediaListEntryProps, next: MediaListEntryProps) =>
     prev.item.id === next.item.id &&
     prev.isBigEntry === next.isBigEntry &&
-    (prev.item as Artist).starred === (next.item as Artist).starred
+    (prev.item as Artist).starred === (next.item as Artist).starred &&
+    (prev.item as Artist).coverArt === (next.item as Artist).coverArt &&
+    (prev.item as Artist).artistPictureURLs?.small ===
+      (next.item as Artist).artistPictureURLs?.small &&
+    (prev.item as Artist).artistPictureURLs?.medium ===
+      (next.item as Artist).artistPictureURLs?.medium &&
+    (prev.item as Artist).artistPictureURLs?.big === (next.item as Artist).artistPictureURLs?.big &&
+    (prev.item as Artist).artistPictureURLs?.xl === (next.item as Artist).artistPictureURLs?.xl
 );
 
 const styles = StyleSheet.create({
