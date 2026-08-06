@@ -44,14 +44,12 @@ function scoreMedia(item: ResultItem, query: string): number {
 interface SearchResultListProps {
   searchQuery: string;
   tab?: SearchPageLabelOptions;
-  onlyStarred?: boolean;
   horizontal?: boolean;
 }
 
 export function SearchResultList({
   searchQuery = '',
   tab = 'all',
-  onlyStarred = false,
   horizontal = false,
 }: SearchResultListProps) {
   const { client } = useAuth();
@@ -60,22 +58,16 @@ export function SearchResultList({
   const [songs, setSongs] = useState<Song[]>([]);
 
   const latestQuery = useRef('');
-  const debouncedSearch = useDebounce(searchQuery, 300); // Resetart countdown every time the search input is updated
+  const debouncedSearch = useDebounce(searchQuery, 300); // Restart countdown every time the search input is updated
 
   useSyncAlbums(setAlbums);
   useSyncSongs(setSongs);
 
-  const loadMedia = async (query: string, newPage: number) => {
+  const loadMedia = async (query: string) => {
     latestQuery.current = query;
     setIsLoading(true);
 
-    const result = await client?.search({
-      query,
-      artistCount: 0,
-      albumCount: PAGE_SIZE,
-      songCount: PAGE_SIZE,
-      songOffset: newPage * PAGE_SIZE,
-    });
+    const result = await client?.search({ query });
 
     const newAlbums = result?.albums ?? [];
     const newSongs = result?.songs ?? [];
@@ -83,17 +75,15 @@ export function SearchResultList({
     // Discard current result if a newer query exists
     if (latestQuery.current !== query) return;
 
-    setAlbums((prev) => (newPage === 0 ? newAlbums : [...prev, ...newAlbums]));
-    setSongs((prev) => (newPage === 0 ? newSongs : [...prev, ...newSongs]));
+    setAlbums(newAlbums);
+    setSongs(newSongs);
 
     setIsLoading(false);
-
-    return newSongs;
   };
 
   useEffect(() => {
-    loadMedia(debouncedSearch, 0);
-  }, [debouncedSearch, onlyStarred]);
+    loadMedia(debouncedSearch);
+  }, [debouncedSearch]);
 
   // Wrap songs in shared type
   const songData: ResultItem[] = useMemo(

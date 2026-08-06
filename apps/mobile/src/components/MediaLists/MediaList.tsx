@@ -22,7 +22,7 @@ export function MediaList({
   // Only re-render if the entry itself has changed
   const renderItem = useCallback(
     ({ item }: { item: Media }) => <Entry item={item} isBigEntry={isBigEntry} />,
-    [Entry, horizontal]
+    [Entry, isBigEntry, horizontal]
   );
 
   return (

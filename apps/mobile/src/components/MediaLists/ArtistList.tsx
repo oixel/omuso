@@ -1,5 +1,5 @@
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Artist, Media } from '@omuso/types';
 import { useAuth } from '@omuso/domain';
