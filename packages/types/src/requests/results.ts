@@ -21,6 +21,11 @@ export interface GetArtistsResult extends Result {
   artists?: Artist[];
 }
 
+export interface GetArtistInfoResult extends Result {
+  biography?: string;
+  similarArtists?: Artist[];
+}
+
 export interface GetAlbumResult extends Result {
   album?: Album;
 }
