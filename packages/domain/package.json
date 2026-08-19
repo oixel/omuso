@@ -6,6 +6,7 @@
   "dependencies": {
     "@omuso/api": "workspace:*",
     "@omuso/types": "workspace:*",
+    "@react-native-async-storage/async-storage": "^3.1.1",
     "uuid": "^14.0.0",
     "zustand": "^4.5.0"
   },
