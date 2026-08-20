@@ -66,44 +66,17 @@ function attachStreamURL(credentials: Credentials, songs: Song[]): Song[] {
   }));
 }
 
-interface DeezerResponse {
-  data: {
-    picture_small: string;
-    picture_medium: string;
-    picture_big: string;
-    picture_xl: string;
-  }[];
-}
-
-// TODO: Split into requests not made all at once on Artist fetch
-export async function processArtists(
+export function processArtists(
   credentials: Credentials,
   artists: Artist[] | undefined
-): Promise<Artist[] | undefined> {
+): Artist[] | undefined {
   if (!artists) return undefined;
-  return await Promise.all(
-    artists.map(async (artist) => {
-      const response = await fetch(`https://api.deezer.com/search/artist?q="${artist.name}"`);
-      const data = (await response.json()) as DeezerResponse;
-      if (!data?.data?.length)
-        return {
-          ...artist,
-          coverArtURL: artist.coverArt ? getCoverArtURL(credentials, artist.coverArt) : undefined,
-        };
-
-      const top = data.data[0];
-      return {
-        ...artist,
-        coverArtURL: artist.coverArt ? getCoverArtURL(credentials, artist.coverArt) : undefined,
-        artistPictureURLs: {
-          small: top.picture_small,
-          medium: top.picture_medium,
-          big: top.picture_big,
-          xl: top.picture_xl,
-        },
-      };
-    })
-  );
+  return artists.map((artist) => {
+    return {
+      ...artist,
+      coverArtURL: artist.coverArt ? getCoverArtURL(credentials, artist.coverArt) : undefined,
+    };
+  });
 }
 
 export function processAlbums(
