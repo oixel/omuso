@@ -29,7 +29,7 @@ export function MediaList({
     <FlashList
       key={horizontal ? 'horizontal' : 'vertical'} // Force a remount on horizontal change
       horizontal={horizontal}
-      contentContainerStyle={{ padding: 4 }}
+      contentContainerStyle={{ padding: 4, paddingBottom: 12 }}
       keyExtractor={(item) => {
         return item.id;
       }}
