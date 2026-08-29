@@ -52,7 +52,7 @@ export interface GetArtistsResponse extends SubsonicResponse {
 }
 
 export interface GetArtistInfoResponse extends SubsonicResponse {
-  artistInfo2?: {
+  artistInfo?: {
     biography?: string;
     similarArtist?: Artist[];
   };
