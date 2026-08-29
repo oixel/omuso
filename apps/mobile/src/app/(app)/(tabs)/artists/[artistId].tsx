@@ -12,6 +12,8 @@ const ArtistPage = () => {
   const { client } = useAuth();
   const queryClient = useQueryClient();
   const { artistId } = useLocalSearchParams();
+  const [biography, setBiography] = useState<string>();
+  const [similarArtists, setSimiliarArtists] = useState<Artist[]>();
   const [songs, setSongs] = useState<Song[]>([]);
   const [starred, setStarred] = useState(false);
 
@@ -37,6 +39,14 @@ const ArtistPage = () => {
   useEffect(() => {
     setSongs([]);
     setStarred(!!artist?.starred);
+    if (artist) {
+      (async () => {
+        const artistInfo = await client?.getArtistInfo(artist.id);
+        console.log(artistInfo);
+        setBiography(artistInfo?.biography);
+        setSimiliarArtists(artistInfo?.similarArtists);
+      })();
+    }
   }, [artist]);
 
   const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
@@ -85,6 +95,11 @@ const ArtistPage = () => {
           <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
             {artist?.name ?? 'Unknown Artist'}
           </Text>
+          {biography && (
+            <Text numberOfLines={3} className="font-bold text-blue-100">
+              {biography}
+            </Text>
+          )}
         </Animated.View>
       )}
     </ScrollView>
