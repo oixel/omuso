@@ -80,12 +80,12 @@ export class SubsonicClient {
       })
     );
 
-    if (!response || response.status !== 'ok' || !response.artistInfo2) return { success: false };
+    if (!response || response.status !== 'ok' || !response.artistInfo) return { success: false };
 
     return {
       success: true,
-      biography: response.artistInfo2.biography,
-      similarArtists: response.artistInfo2.similarArtist,
+      biography: response.artistInfo.biography,
+      similarArtists: response.artistInfo.similarArtist,
     };
   };
 
