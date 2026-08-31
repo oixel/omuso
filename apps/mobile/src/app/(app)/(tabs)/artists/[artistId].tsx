@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getArtistImage, isArtist, useAuth, useUpdatedMedia } from '@omuso/domain';
+import { getArtistData, isArtist, useAuth, useUpdatedMedia } from '@omuso/domain';
 import { useEffect, useMemo, useState } from 'react';
 import { Artist, Song } from '@omuso/types';
 import { CoverArt, SwipeableSongEntry } from '@components';
@@ -12,8 +12,6 @@ const ArtistPage = () => {
   const { client } = useAuth();
   const queryClient = useQueryClient();
   const { artistId } = useLocalSearchParams();
-  const [biography, setBiography] = useState<string>();
-  const [similarArtists, setSimiliarArtists] = useState<Artist[]>();
   const [songs, setSongs] = useState<Song[]>([]);
   const [starred, setStarred] = useState(false);
 
@@ -29,36 +27,18 @@ const ArtistPage = () => {
         throw new Error(`Artist not found: ${artistId}`);
       }
 
-      const artistImageURLs = await getArtistImage(result.artist);
+      const artistData = await getArtistData(result.artist);
 
-      return { ...result.artist, artistImageURLs };
+      return { ...result.artist, ...artistData } as Artist;
     },
     enabled: !!client, // Only attempt to query for artist if a client exists
   });
 
   useEffect(() => {
     if (!artist) return;
-    let cancelled = false;
 
     setSongs([]);
     setStarred(!!artist.starred);
-    setBiography(undefined);
-    setSimiliarArtists(undefined);
-
-    (async () => {
-      try {
-        const artistInfo = await client?.getArtistInfo(artist.id);
-        if (cancelled) return; // Cancel out if artist changed while in load
-        setBiography(artistInfo?.biography);
-        setSimiliarArtists(artistInfo?.similarArtists);
-      } catch (err) {
-        if (!cancelled) console.error(`Failed to load artist info: ${err}`);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
   }, [artist?.id, client]);
 
   const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
@@ -107,9 +87,9 @@ const ArtistPage = () => {
           <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
             {artist?.name ?? 'Unknown Artist'}
           </Text>
-          {biography && (
+          {artist?.biography && (
             <Text numberOfLines={3} className="font-bold text-blue-100">
-              {biography}
+              {artist?.biography}
             </Text>
           )}
         </Animated.View>
