@@ -1,6 +1,6 @@
 import { AuthStore, Credentials } from '@omuso/types';
 import { create } from 'zustand';
-import { SecureStorage } from '../storage';
+import { SecureStorage } from '../storage/secure';
 import { SubsonicClient } from '@omuso/api';
 
 export const useAuth = create<AuthStore>()((set, get) => ({
