@@ -13,6 +13,8 @@ export interface Artist extends Media {
   coverArt?: string;
   coverArtURL?: string;
   artistImageURLs?: ArtistImageURLs;
+  biography?: string;
+  similarArtists?: Artist[];
   albumCount?: number;
   albums?: Album[];
 }
