@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ViewToken } from 'react-native';
 
 import { Artist, Media } from '@omuso/types';
-import { useAuth, getArtistImage } from '@omuso/domain';
+import { useAuth, getArtistData } from '@omuso/domain';
 
 import { MediaList } from './MediaList';
 import { ArtistEntry } from '../MediaEntries';
@@ -62,10 +62,12 @@ export function ArtistList({
 
       fetched.current.add(artist.id);
 
-      getArtistImage(artist).then((imageURLs) => {
-        if (!imageURLs) return;
+      getArtistData(artist, true).then((data) => {
+        if (!data.artistImageURLs) return;
         setArtists((prev) =>
-          prev.map((curr) => (curr.id === artist.id ? { ...curr, imageURLs } : curr))
+          prev.map((curr) =>
+            curr.id === artist.id ? { ...curr, artistImageURLs: data.artistImageURLs } : curr
+          )
         );
       });
     });
