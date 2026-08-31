@@ -29,25 +29,37 @@ const ArtistPage = () => {
         throw new Error(`Artist not found: ${artistId}`);
       }
 
-      const imageURLs = await getArtistImage(result.artist);
+      const artistImageURLs = await getArtistImage(result.artist);
 
-      return { ...result.artist, artistImageURLs: imageURLs };
+      return { ...result.artist, artistImageURLs };
     },
     enabled: !!client, // Only attempt to query for artist if a client exists
   });
 
   useEffect(() => {
+    if (!artist) return;
+    let cancelled = false;
+
     setSongs([]);
-    setStarred(!!artist?.starred);
-    if (artist) {
-      (async () => {
+    setStarred(!!artist.starred);
+    setBiography(undefined);
+    setSimiliarArtists(undefined);
+
+    (async () => {
+      try {
         const artistInfo = await client?.getArtistInfo(artist.id);
-        console.log(artistInfo);
+        if (cancelled) return; // Cancel out if artist changed while in load
         setBiography(artistInfo?.biography);
         setSimiliarArtists(artistInfo?.similarArtists);
-      })();
-    }
-  }, [artist]);
+      } catch (err) {
+        if (!cancelled) console.error(`Failed to load artist info: ${err}`);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [artist?.id, client]);
 
   const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
 
