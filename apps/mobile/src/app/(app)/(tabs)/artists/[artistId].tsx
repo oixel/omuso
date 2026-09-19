@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getArtistData, isArtist, useAuth, useUpdatedMedia } from '@omuso/domain';
+import { isArtist, useAuth, useUpdatedMedia } from '@omuso/domain';
 import { useEffect, useMemo, useState } from 'react';
 import { Album, Artist, Song } from '@omuso/types';
 import { CoverArt, SwipeableSongEntry } from '@components';
@@ -30,11 +30,11 @@ const ArtistPage = () => {
         throw new Error(`Artist not found: ${artistId}`);
       }
 
-      const artistData = await getArtistData(result.artist);
+      const artistInfo = await client?.getArtistInfo(artistId as string);
 
       setLoaded(true);
 
-      return { ...result.artist, ...artistData } as Artist;
+      return { ...result.artist, ...artistInfo } as Artist;
     },
     enabled: !!client, // Only attempt to query for artist if a client exists
   });
@@ -87,7 +87,7 @@ const ArtistPage = () => {
           <Animated.View entering={FadeInDown.duration(200)}>
             <CoverArt
               style={{ width: '100%', aspectRatio: 1 }}
-              uri={artist.artistImageURLs?.xl}
+              uri={artist.coverArtURL}
               recyclingKey={artist?.id}
             />
           </Animated.View>
