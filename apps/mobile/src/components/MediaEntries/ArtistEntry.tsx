@@ -44,7 +44,7 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
           )}
           <Image
             style={isBigEntry ? styles.coverBig : styles.coverSmall}
-            source={{ uri: item.artistImageURLs?.medium ?? item.coverArtURL }}
+            source={{ uri: item.coverArtURL }}
             contentFit="cover"
             recyclingKey={item.id}
             cachePolicy="memory-disk"
@@ -82,12 +82,7 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
     prev.item.id === next.item.id &&
     prev.isBigEntry === next.isBigEntry &&
     (prev.item as Artist).starred === (next.item as Artist).starred &&
-    (prev.item as Artist).coverArt === (next.item as Artist).coverArt &&
-    (prev.item as Artist).artistImageURLs?.small === (next.item as Artist).artistImageURLs?.small &&
-    (prev.item as Artist).artistImageURLs?.medium ===
-      (next.item as Artist).artistImageURLs?.medium &&
-    (prev.item as Artist).artistImageURLs?.big === (next.item as Artist).artistImageURLs?.big &&
-    (prev.item as Artist).artistImageURLs?.xl === (next.item as Artist).artistImageURLs?.xl
+    (prev.item as Artist).coverArt === (next.item as Artist).coverArt
 );
 
 const styles = StyleSheet.create({
