@@ -28,7 +28,10 @@ function getRelevance(text: string, query: string): number {
 
 // Calculates highest relevance score for passed in Media element
 function scoreMedia(item: ResultItem, query: string): number {
-  // if (item.type === 'artist') return 0;
+  if (item.type === 'artist') {
+    const nameScore = getRelevance(item.data.name, query);
+    return nameScore;
+  }
   if (item.type === 'album') {
     const nameScore = getRelevance(item.data.name, query);
     const artistScore = getRelevance(item.data.artist ?? '', query);
@@ -110,7 +113,7 @@ export function SearchResultList({
 
   // Merge all Media data and get top PAGE_SIZE results sorted by relevance
   const allData: ResultItem[] = useMemo(() => {
-    const merged: ResultItem[] = [...songData, ...albumData];
+    const merged: ResultItem[] = [...albumData, ...artistData, ...songData];
 
     if (!debouncedSearch) return merged;
 
