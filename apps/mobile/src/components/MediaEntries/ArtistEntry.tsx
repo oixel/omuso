@@ -6,7 +6,7 @@ import React, { memo } from 'react';
 import { View, Pressable, StyleSheet, Text } from 'react-native';
 import { MediaListEntryProps } from './MediaListEntry';
 import { Artist } from '@omuso/types';
-import { LibrarySquare, Star } from 'lucide-react-native';
+import { User2, Star } from 'lucide-react-native';
 
 // Bail before mounting proper ArtistEntry if item is not an actual Artist
 export const ArtistEntry: React.FC<MediaListEntryProps> = memo((props) => {
@@ -68,8 +68,9 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
               {isBigEntry && item.starred && <Star color="white" fill="white" size={14} />}
             </View>
             <View className="flex-row gap-2 items-center">
-              {!isBigEntry && <LibrarySquare color="#dbeafe" size={16} />}
+              {!isBigEntry && <User2 color="#dbeafe" size={16} />}
               <Text numberOfLines={1} ellipsizeMode="tail" className="text-blue-100">
+                {!isBigEntry ? `Artist${item.albumCount ? '  •  ' : ''}` : ''}
                 {item.albumCount ? item.albumCount + ' albums' : ''}
               </Text>
             </View>

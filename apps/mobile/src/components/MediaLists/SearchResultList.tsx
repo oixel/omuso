@@ -1,16 +1,17 @@
 import { View, Text } from 'react-native';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Album, SearchPageLabelOptions, Song } from '@omuso/types';
+import { Album, Artist, SearchPageLabelOptions, Song } from '@omuso/types';
 
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
 import { useAuth, useDebounce } from '@omuso/domain';
-import { useSyncAlbums, useSyncSongs } from '@utils';
-import { AlbumEntry } from '../MediaEntries';
+import { useSyncAlbums, useSyncArtists, useSyncSongs } from '@utils';
+import { AlbumEntry, ArtistEntry } from '../MediaEntries';
 import { FlashList } from '@shopify/flash-list';
 
 const PAGE_SIZE = 55;
 
-type ResultItem = { type: 'song'; data: Song } | { type: 'album'; data: Album };
+type ResultItem =
+  { type: 'artist'; data: Artist } | { type: 'album'; data: Album } | { type: 'song'; data: Song };
 
 // Helper function to compare the relevance between results for sorting 'all' tab data
 function getRelevance(text: string, query: string): number {
@@ -54,12 +55,14 @@ export function SearchResultList({
 }: SearchResultListProps) {
   const { client } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [artists, setArtists] = useState<Artist[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
 
   const latestQuery = useRef('');
   const debouncedSearch = useDebounce(searchQuery, 300); // Restart countdown every time the search input is updated
 
+  useSyncArtists(setArtists);
   useSyncAlbums(setAlbums);
   useSyncSongs(setSongs);
 
@@ -69,12 +72,14 @@ export function SearchResultList({
 
     const result = await client?.search({ query });
 
+    const newArtists = result?.artists ?? [];
     const newAlbums = result?.albums ?? [];
     const newSongs = result?.songs ?? [];
 
     // Discard current result if a newer query exists
     if (latestQuery.current !== query) return;
 
+    setArtists(newArtists);
     setAlbums(newAlbums);
     setSongs(newSongs);
 
@@ -85,16 +90,22 @@ export function SearchResultList({
     loadMedia(debouncedSearch);
   }, [debouncedSearch]);
 
-  // Wrap songs in shared type
-  const songData: ResultItem[] = useMemo(
-    () => songs.map((song) => ({ type: 'song', data: song })),
-    [songs]
+  // Wrap artists in shared type
+  const artistData: ResultItem[] = useMemo(
+    () => artists.map((artist) => ({ type: 'artist', data: artist })),
+    [artists]
   );
 
   // Wrap albums in shared type
   const albumData: ResultItem[] = useMemo(
     () => albums.map((album) => ({ type: 'album', data: album })),
     [albums]
+  );
+
+  // Wrap songs in shared type
+  const songData: ResultItem[] = useMemo(
+    () => songs.map((song) => ({ type: 'song', data: song })),
+    [songs]
   );
 
   // Merge all Media data and get top PAGE_SIZE results sorted by relevance
@@ -112,8 +123,9 @@ export function SearchResultList({
 
   const hasMedia =
     (tab === 'all' && allData.length > 9) ||
-    (tab === 'songs' && songData.length > 0) ||
-    (tab === 'albums' && albumData.length > 0);
+    (tab == 'artists' && artistData.length > 0) ||
+    (tab === 'albums' && albumData.length > 0) ||
+    (tab === 'songs' && songData.length > 0);
 
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
   const SongEntry = useMemo(() => SwipeableSongEntry(false, false, true, true, true), []);
@@ -122,10 +134,12 @@ export function SearchResultList({
   const getItemType = useCallback((item: ResultItem) => item.type, []);
   const renderItem = useCallback(
     ({ item }: { item: ResultItem }) =>
-      item.type === 'song' ? (
-        <SongEntry item={item.data} isBigEntry={false} />
-      ) : (
+      item.type === 'artist' ? (
+        <ArtistEntry item={item.data} isBigEntry={false} />
+      ) : item.type === 'album' ? (
         <AlbumEntry item={item.data} isBigEntry={false} />
+      ) : (
+        <SongEntry item={item.data} isBigEntry={false} />
       ),
     [SongEntry]
   );
@@ -164,6 +178,15 @@ export function SearchResultList({
       <View style={{ flex: 1, display: !isLoading && tab === 'albums' ? 'flex' : 'none' }}>
         <FlashList
           data={albumData}
+          keyExtractor={keyExtractor}
+          getItemType={getItemType}
+          renderItem={renderItem}
+          horizontal={horizontal}
+        />
+      </View>
+      <View style={{ flex: 1, display: !isLoading && tab === 'artists' ? 'flex' : 'none' }}>
+        <FlashList
+          data={artistData}
           keyExtractor={keyExtractor}
           getItemType={getItemType}
           renderItem={renderItem}
