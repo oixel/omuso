@@ -133,7 +133,7 @@ const AlbumPage = () => {
                 marginBottom: 10,
                 backgroundColor: '#5186dc',
               }}
-              className="text-xl font-bold py-2 px-4 flex-row gap-4 justify-center items-center"
+              className="py-2 px-4 flex-row justify-center items-center"
             >
               <Star color="white" fill={starred ? 'white' : 'none'} size={20} />
             </Pressable>

@@ -7,6 +7,7 @@ import { CoverArt, SwipeableSongEntry } from '@components';
 import { useSyncSongs } from '@utils';
 import { ScrollView, Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Play, Shuffle, Star } from 'lucide-react-native';
 
 const ArtistPage = () => {
   const { client } = useAuth();
@@ -86,14 +87,20 @@ const ArtistPage = () => {
         >
           <Animated.View entering={FadeInDown.duration(200)}>
             <CoverArt
-              style={{ width: '100%', aspectRatio: 1 }}
+              style={{ width: '95%', aspectRatio: 1, borderRadius: 8 }}
               uri={artist.coverArtURL}
               recyclingKey={artist?.id}
             />
           </Animated.View>
-          <View style={{ width: '95%' }}>
-            <Animated.View entering={FadeInDown.duration(200).delay(50)}>
-              <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold w-full ">
+          <View className="w-[95%] mb-4">
+            <Animated.View
+              entering={FadeInDown.duration(200).delay(50)}
+              className="flex max-w-full gap-2 items-center justify-center"
+            >
+              <Text
+                style={{ paddingTop: 18, paddingBottom: 8 }}
+                className="text-2xl text-white font-bold "
+              >
                 {artist?.name ?? 'Unknown Artist'}
               </Text>
             </Animated.View>
@@ -105,6 +112,33 @@ const ArtistPage = () => {
                 </Text>
               </Animated.View>
             )}
+          </View>
+          <View className="flex-row gap-2 mb-4">
+            <Pressable
+              // onPress={() => useQueue.getState().setQueue(songs)}
+              style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
+              className="text-xl font-bold py-2 px-8 flex-row gap-4 justify-center items-center"
+            >
+              <Play color="white" fill="white" size={20} />
+              <Text className="font-medium text-white text-lg">Play</Text>
+            </Pressable>
+            <Pressable
+              disabled={!artist}
+              onPress={async () => {
+                setStarred(!starred); // Toggle star excitedly
+                const newStatus = (await client?.toggleStarred(artist, starred))?.starred;
+                setStarred(!!newStatus);
+              }}
+              style={{
+                opacity: !artist ? 0.5 : 1,
+                borderRadius: 24,
+                marginBottom: 10,
+                backgroundColor: '#5186dc',
+              }}
+              className="py-2 px-4 flex-row justify-center items-center"
+            >
+              <Star color="white" fill={starred ? 'white' : 'none'} size={20} />
+            </Pressable>
           </View>
         </View>
       )}
