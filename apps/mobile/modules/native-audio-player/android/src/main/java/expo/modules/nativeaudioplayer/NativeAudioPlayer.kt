@@ -8,8 +8,8 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 
 //
-// Implements Android's ExpoPlayer
-// Simply takes events and input from AudioSessionService.kt
+// Implements Android's ExoPlayer
+// Takes events and input from AudioSessionService.kt to manage playback
 //
 
 class NativeAudioPlayer(context: Context, onReady: (ExoPlayer) -> Unit) {
