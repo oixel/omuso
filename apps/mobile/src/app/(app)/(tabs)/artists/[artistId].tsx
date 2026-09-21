@@ -35,7 +35,12 @@ const ArtistPage = () => {
       }
 
       const artistInfo = await client?.getArtistInfo(artistId as string);
-      if (result.artist.albums) setAlbums(result.artist.albums);
+      if (result.artist.albums)
+        setAlbums(
+          result.artist.albums.sort(
+            (a, b) => (b.originalReleaseDate?.year ?? 0) - (a.originalReleaseDate?.year ?? 0)
+          )
+        );
 
       setLoaded(true);
 
@@ -149,10 +154,16 @@ const ArtistPage = () => {
                   return item.id + item.starred;
                 }}
                 showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => <AlbumEntry item={item} isBigEntry={true} />}
+                renderItem={({ item }) => (
+                  <AlbumEntry
+                    item={item}
+                    isBigEntry={true}
+                    showArtistName={false}
+                    showYear={true}
+                  />
+                )}
                 contentContainerStyle={{ paddingBottom: 24 }}
               />
-              {/* <MediaList Entry={AlbumEntry} data={albums} /> */}
             </View>
           )}
           {artist.biography && (
