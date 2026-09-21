@@ -71,13 +71,32 @@ const Home = () => {
             </Text>
           </Pressable>
         </Link>
-        <Text
-          numberOfLines={1}
-          ellipsizeMode="tail"
-          className="mb-2 font-medium text-xl self-start pl-10 text-blue-100"
+        {/* Access artist page by clicking their name */}
+        <Link
+          href={{
+            pathname: '/artists/[artistId]',
+            params: { artistId: queue[index]?.artistId ?? '' },
+          }}
+          withAnchor
+          asChild
         >
-          {queue[index]?.artist ?? (queue.length ? 'Unknown artist' : 'No artist')}
-        </Text>
+          <Pressable
+            className="w-full"
+            onPress={(e) => {
+              // Avoid loading artist page with Link if no artist exists
+              if (!client || !queue.length || !queue[index]?.artistId) e.preventDefault();
+            }}
+          >
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              className="mb-2 font-medium text-xl self-start pl-10 text-blue-100"
+            >
+              {queue[index]?.artist ?? (queue.length ? 'Unknown artist' : 'No artist')}
+            </Text>
+          </Pressable>
+        </Link>
+
         <Slider
           disabled={!queue.length}
           style={{ width: '90%', height: 20 }}
