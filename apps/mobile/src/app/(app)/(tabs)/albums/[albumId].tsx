@@ -123,7 +123,7 @@ const AlbumPage = () => {
             <Pressable
               disabled={!album}
               onPress={async () => {
-                setStarred(!starred); // Toggle star excitedly
+                setStarred((prev) => !prev); // Toggle star excitedly
                 const newStatus = (await client?.toggleStarred(album, starred))?.starred;
                 setStarred(!!newStatus);
               }}

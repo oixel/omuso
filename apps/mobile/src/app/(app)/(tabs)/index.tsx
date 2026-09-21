@@ -139,7 +139,7 @@ const Home = () => {
           </Pressable>
           <Pressable
             onPress={async () => {
-              setStarred(!starred); // Toggle star excitedly
+              setStarred((prev) => !prev); // Toggle star excitedly
               const newStatus = (await client?.toggleStarred(queue[index], starred))?.starred;
               setStarred(!!newStatus);
             }}
