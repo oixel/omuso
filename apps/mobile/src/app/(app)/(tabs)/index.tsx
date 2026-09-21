@@ -1,11 +1,12 @@
 import { View, Text, Button, Pressable } from 'react-native';
-import { useRouter, Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { destroyAudioPlayer, msToTime, useAuth } from '@omuso/domain';
 import { useQueue, usePlayback } from '@omuso/domain';
 import { Play, Pause, SkipBack, SkipForward, ListX, Star } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { CoverArt } from '@components';
+import { CoverArt, MediaNameLink } from '@components';
 import Slider from '@react-native-community/slider';
+import { Media } from '@omuso/types';
 
 const Home = () => {
   const router = useRouter();
@@ -50,52 +51,23 @@ const Home = () => {
           recyclingKey={queue[index]?.id}
         />
 
-        <Link
-          href={{ pathname: '/albums/[albumId]', params: { albumId: queue[index]?.albumId ?? '' } }}
-          withAnchor
-          asChild
-        >
-          <Pressable
-            className="w-full"
-            onPress={(e) => {
-              // Avoid loading album page with Link if no album exists
-              if (!client || !queue.length || !queue[index]?.albumId) e.preventDefault();
-            }}
-          >
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              className="text-xl font-bold text-white mt-5 self-start px-10"
-            >
-              {queue[index]?.title ?? (queue.length ? 'Unknown song' : 'No song')}
-            </Text>
-          </Pressable>
-        </Link>
-        {/* Access artist page by clicking their name */}
-        <Link
-          href={{
-            pathname: '/artists/[artistId]',
-            params: { artistId: queue[index]?.artistId ?? '' },
-          }}
-          withAnchor
-          asChild
-        >
-          <Pressable
-            className="w-full"
-            onPress={(e) => {
-              // Avoid loading artist page with Link if no artist exists
-              if (!client || !queue.length || !queue[index]?.artistId) e.preventDefault();
-            }}
-          >
-            <Text
-              numberOfLines={1}
-              ellipsizeMode="tail"
-              className="mb-2 font-medium text-xl self-start pl-10 text-blue-100"
-            >
-              {queue[index]?.artist ?? (queue.length ? 'Unknown artist' : 'No artist')}
-            </Text>
-          </Pressable>
-        </Link>
+        {/* Access album page by clicking song name */}
+        <MediaNameLink
+          pathname="/albums"
+          media={queue[index]?.albumId ? ({ id: queue[index].albumId } as Media) : undefined}
+          label={queue[index]?.title ?? (queue.length ? 'Unknown song' : 'No song')}
+          pressableClassName="w-full"
+          textClassName="text-xl font-bold text-white mt-5 self-start px-10"
+        />
+
+        {/* Access artist page by clicking artist name */}
+        <MediaNameLink
+          pathname="/artists"
+          media={queue[index]?.artistId ? ({ id: queue[index].artistId } as Media) : undefined}
+          label={queue[index]?.artist ?? (queue.length ? 'Unknown artist' : 'No artist')}
+          pressableClassName="w-full"
+          textClassName="mb-2 font-medium text-xl self-start pl-10 text-blue-100"
+        />
 
         <Slider
           disabled={!queue.length}

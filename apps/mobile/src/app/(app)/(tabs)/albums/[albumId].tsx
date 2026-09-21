@@ -1,8 +1,8 @@
-import { Album, Artist, Song } from '@omuso/types';
-import { useLocalSearchParams, useRouter, Link } from 'expo-router';
+import { Album, Artist, Media, Song } from '@omuso/types';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, Pressable, FlatList } from 'react-native';
-import { SwipeableSongEntry, CoverArt, AlbumEntry } from '@components';
+import { SwipeableSongEntry, CoverArt, AlbumEntry, MediaNameLink } from '@components';
 import { isAlbum, months, msToDuration, useAuth, useQueue, useUpdatedMedia } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -95,45 +95,22 @@ const AlbumPage = () => {
           </Text>
 
           {/* Access artist page by clicking their name */}
-          <Link
-            href={{
-              pathname: '/artists/[artistId]',
-              params: { artistId: album?.artistId ?? '' },
-            }}
-            withAnchor
-            asChild
-          >
-            <Pressable
-              onPress={(e) => {
-                if (!client || !artist) {
-                  e.preventDefault();
-                  return;
-                }
-
-                queryClient.setQueryData(['artist', artist.id], artist); // Seed query for artist metadata
-              }}
-            >
-              <Text className="text-lg text-blue-200 font-medium">{album.artist}</Text>
-            </Pressable>
-          </Link>
+          <MediaNameLink
+            queryClient={queryClient}
+            queryKey="artist"
+            pathname="/artists"
+            media={artist}
+            label={album.artist ?? artist?.name ?? 'Unknown artist'}
+          />
 
           <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
             {album?.genres && (
-              <Link
-                href={{ pathname: '/genres/[genre]', params: { genre: album.genres![0] } }}
-                withAnchor
-                asChild
-              >
-                <Pressable
-                  onPress={(e) => {
-                    if (!album.genres?.length) e.preventDefault();
-                  }}
-                >
-                  <Text className="text-lg text-blue-200 font-medium">
-                    {album.genres[0] + (album?.year ? ' • ' : '')}
-                  </Text>
-                </Pressable>
-              </Link>
+              <MediaNameLink
+                pathname="/genres"
+                // Use genre as ID to route to use it as key for routing
+                media={album.genres?.length ? ({ id: album.genres[0] } as Media) : undefined}
+                label={album.genres[0] + (album?.year ? ' • ' : '')}
+              />
             )}
             {album?.year && <Text className="text-lg text-blue-200 font-medium">{album.year}</Text>}
           </View>
@@ -194,17 +171,12 @@ const AlbumPage = () => {
             {album?.genres && (
               <View className="flex-row">
                 {album.genres.slice(0, 3).map((genre, index) => (
-                  <Link
-                    key={genre}
-                    href={{ pathname: '/genres/[genre]', params: { genre: genre } }}
-                    withAnchor
-                    asChild
-                  >
-                    <Text key={genre} className="text-lg text-blue-200 font-medium">
-                      {genre}
-                      {index !== album.genres!.length - 1 ? '; ' : ''}
-                    </Text>
-                  </Link>
+                  <MediaNameLink
+                    pathname="/genres"
+                    // Use genre as ID to route to use it as key for routing
+                    media={album.genres?.length ? ({ id: genre } as Media) : undefined}
+                    label={genre + (index !== album.genres!.length - 1 ? '; ' : '')}
+                  />
                 ))}
               </View>
             )}
@@ -221,15 +193,13 @@ const AlbumPage = () => {
                 <Text className="text-lg text-blue-200 font-medium">Released in {album.year}</Text>
               ))}
 
-            {artist?.albums && (
+            {album && artist?.albums && (
               <View className="pt-8">
-                <Text className="text-xl text-white font-bold">
-                  More by {album?.artist ?? 'Unknown artist'}
-                </Text>
+                <Text className="text-xl text-white font-bold">More by {artist.name}</Text>
                 <FlatList
                   style={{ flex: 1 }}
                   horizontal={true}
-                  data={artist?.albums.filter((curr) => curr.name !== album?.name)}
+                  data={artist?.albums.filter((curr) => curr.name !== album.name)}
                   keyExtractor={(item) => {
                     return item.id + item.starred;
                   }}
