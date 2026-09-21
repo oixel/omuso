@@ -4,10 +4,11 @@ import { isArtist, useAuth, useUpdatedMedia } from '@omuso/domain';
 import { useEffect, useMemo, useState } from 'react';
 import { Album, Artist, Song } from '@omuso/types';
 import { AlbumEntry, CoverArt, SwipeableSongEntry } from '@components';
-import { useSyncSongs } from '@utils';
+import { useSyncAlbums, useSyncSongs } from '@utils';
 import { ScrollView, Pressable, Text, View, FlatList } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Play, Star } from 'lucide-react-native';
+import { FlashList } from '@shopify/flash-list';
 
 const ArtistPage = () => {
   const { client } = useAuth();
@@ -53,6 +54,7 @@ const ArtistPage = () => {
   const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
 
   useSyncSongs(setSongs);
+  useSyncAlbums(setAlbums);
 
   const updatedMedia = useUpdatedMedia(client);
 
@@ -137,17 +139,18 @@ const ArtistPage = () => {
             </Pressable>
           </Animated.View>
           {albums && (
-            <View style={{ height: 'auto', width: '95%', paddingBottom: 24 }}>
+            <View style={{ height: 290, width: '95%', paddingBottom: 24 }}>
               <Text className="font-bold text-white text-2xl">Albums</Text>
               <FlatList
+                style={{ flex: 1 }}
                 horizontal={true}
                 data={albums}
                 keyExtractor={(item) => {
-                  return item.id;
+                  return item.id + item.starred;
                 }}
                 showsHorizontalScrollIndicator={false}
                 renderItem={({ item }) => <AlbumEntry item={item} isBigEntry={true} />}
-                style={{ paddingBottom: 25 }}
+                contentContainerStyle={{ paddingBottom: 24 }}
               />
               {/* <MediaList Entry={AlbumEntry} data={albums} /> */}
             </View>
