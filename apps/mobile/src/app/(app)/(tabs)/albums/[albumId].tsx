@@ -1,8 +1,8 @@
-import { Song } from '@omuso/types';
+import { Album, Artist, Song } from '@omuso/types';
 import { useLocalSearchParams, useRouter, Link } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View, Text, Pressable } from 'react-native';
-import { SwipeableSongEntry, CoverArt } from '@components';
+import { ScrollView, View, Text, Pressable, FlatList } from 'react-native';
+import { SwipeableSongEntry, CoverArt, AlbumEntry } from '@components';
 import { isAlbum, months, msToDuration, useAuth, useQueue, useUpdatedMedia } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,12 +15,26 @@ const AlbumPage = () => {
   const { albumId } = useLocalSearchParams();
   const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
+  const [artist, setArtist] = useState<Artist>();
   const [starred, setStarred] = useState(false);
 
   // Instantly load album metadata from cache, and then fetch songs using ID
   const { data: album } = useQuery({
     queryKey: ['album', albumId],
-    queryFn: async () => (await client!.getAlbum(albumId as string)).album,
+    queryFn: async (): Promise<Album> => {
+      const result = await client!.getAlbum(albumId as string);
+
+      if (!result.album) {
+        throw new Error(`Album not found: ${albumId}`);
+      }
+
+      // Fetch list of other albums created by same artist for "More by <Artist> section"
+      if (result.album.artistId) {
+        await client?.getArtist(result.album.artistId).then((result) => setArtist(result.artist));
+      }
+
+      return result.album;
+    },
     enabled: !!client, // Do not attempt to query for album if no client exists
   });
 
@@ -79,9 +93,30 @@ const AlbumPage = () => {
           <Text style={{ paddingTop: 18 }} className="text-2xl text-white font-bold">
             {album?.name ?? 'Unknown Album'}
           </Text>
-          <Text style={{ width: '80%' }} className="text-2xl text-blue-100 font-medium text-center">
-            {album?.artist ?? 'Unknown Artist'}
-          </Text>
+
+          {/* Access artist page by clicking their name */}
+          <Link
+            href={{
+              pathname: '/artists/[artistId]',
+              params: { artistId: album?.artistId ?? '' },
+            }}
+            withAnchor
+            asChild
+          >
+            <Pressable
+              onPress={(e) => {
+                if (!client || !artist) {
+                  e.preventDefault();
+                  return;
+                }
+
+                queryClient.setQueryData(['artist', artist.id], artist); // Seed query for artist metadata
+              }}
+            >
+              <Text className="text-lg text-blue-200 font-medium">{album.artist}</Text>
+            </Pressable>
+          </Link>
+
           <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
             {album?.genres && (
               <Link
@@ -185,11 +220,32 @@ const AlbumPage = () => {
               (album?.year && (
                 <Text className="text-lg text-blue-200 font-medium">Released in {album.year}</Text>
               ))}
-            <View className="pt-8">
-              <Text className="text-xl text-white font-bold">
-                More by {album?.artist ?? 'Unknown artist'}
-              </Text>
-            </View>
+
+            {artist?.albums && (
+              <View className="pt-8">
+                <Text className="text-xl text-white font-bold">
+                  More by {album?.artist ?? 'Unknown artist'}
+                </Text>
+                <FlatList
+                  style={{ flex: 1 }}
+                  horizontal={true}
+                  data={artist?.albums.filter((curr) => curr.name !== album?.name)}
+                  keyExtractor={(item) => {
+                    return item.id + item.starred;
+                  }}
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({ item }) => (
+                    <AlbumEntry
+                      item={item}
+                      isBigEntry={true}
+                      showArtistName={false}
+                      showYear={true}
+                    />
+                  )}
+                  contentContainerStyle={{ paddingBottom: 24 }}
+                />
+              </View>
+            )}
           </View>
         </>
       ) : (
