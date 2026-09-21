@@ -8,20 +8,30 @@ import { MediaListEntryProps } from './MediaListEntry';
 import { Album } from '@omuso/types';
 import { LibrarySquare, Star } from 'lucide-react-native';
 
+interface AlbumEntryProps extends MediaListEntryProps {
+  showArtistName?: boolean;
+  showYear?: boolean;
+}
+
 // Bail before mounting proper AlbumEntry if item is not an actual Album
-export const AlbumEntry: React.FC<MediaListEntryProps> = memo((props) => {
+export const AlbumEntry: React.FC<AlbumEntryProps> = memo((props) => {
   if (!isAlbum(props.item)) return null;
   return <InnerAlbumEntry {...props} item={props.item} />;
 });
 
 // Type check item to Album since it was proven to be
-interface InnerAlbumEntryProps extends Omit<MediaListEntryProps, 'item'> {
+interface InnerAlbumEntryProps extends Omit<AlbumEntryProps, 'item'> {
   item: Album;
 }
 
 // Only rendered if item is Album
 const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
-  ({ item, isBigEntry }: InnerAlbumEntryProps) => {
+  ({
+    item,
+    isBigEntry,
+    showArtistName: showArtist = true,
+    showYear: showDate = false,
+  }: InnerAlbumEntryProps) => {
     const queryClient = useQueryClient();
 
     return (
@@ -72,7 +82,8 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
               {!isBigEntry && <LibrarySquare color="#dbeafe" size={16} />}
               <Text numberOfLines={1} ellipsizeMode="tail" className="text-blue-100">
                 {!isBigEntry ? 'Album  •  ' : ''}
-                {item.artist ?? 'Unknown Artist'}
+                {(showDate && item.originalReleaseDate?.year) ?? ''}
+                {(showArtist && item.artist) ?? 'Unknown Artist'}
               </Text>
             </View>
           </View>
