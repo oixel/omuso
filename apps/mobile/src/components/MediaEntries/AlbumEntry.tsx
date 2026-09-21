@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 8,
     height: 230,
+    width: 180,
   },
   textContentSmall: {
     flex: 1,
