@@ -3,11 +3,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { isArtist, useAuth, useUpdatedMedia } from '@omuso/domain';
 import { useEffect, useMemo, useState } from 'react';
 import { Album, Artist, Song } from '@omuso/types';
-import { CoverArt, SwipeableSongEntry } from '@components';
+import { AlbumEntry, CoverArt, SwipeableSongEntry } from '@components';
 import { useSyncSongs } from '@utils';
-import { ScrollView, Pressable, Text, View } from 'react-native';
+import { ScrollView, Pressable, Text, View, FlatList } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Play, Shuffle, Star } from 'lucide-react-native';
+import { Play, Star } from 'lucide-react-native';
 
 const ArtistPage = () => {
   const { client } = useAuth();
@@ -18,6 +18,8 @@ const ArtistPage = () => {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
   const [starred, setStarred] = useState(false);
+
+  const [bioExpanded, setBioExpanded] = useState(false);
 
   const router = useRouter();
 
@@ -32,6 +34,7 @@ const ArtistPage = () => {
       }
 
       const artistInfo = await client?.getArtistInfo(artistId as string);
+      if (result.artist.albums) setAlbums(result.artist.albums);
 
       setLoaded(true);
 
@@ -92,28 +95,21 @@ const ArtistPage = () => {
               recyclingKey={artist?.id}
             />
           </Animated.View>
-          <View className="w-[95%] mb-4">
-            <Animated.View
-              entering={FadeInDown.duration(200).delay(50)}
-              className="flex max-w-full gap-2 items-center justify-center"
+          <Animated.View
+            entering={FadeInDown.duration(200).delay(50)}
+            className="flex max-w-full gap-2 items-center justify-center"
+          >
+            <Text
+              style={{ paddingTop: 18, paddingBottom: 8 }}
+              className="text-2xl text-white font-bold "
             >
-              <Text
-                style={{ paddingTop: 18, paddingBottom: 8 }}
-                className="text-2xl text-white font-bold "
-              >
-                {artist?.name ?? 'Unknown Artist'}
-              </Text>
-            </Animated.View>
-
-            {artist.biography && (
-              <Animated.View entering={FadeInDown.duration(200).delay(100)}>
-                <Text numberOfLines={3} className="font-bold text-blue-100">
-                  {artist.biography}
-                </Text>
-              </Animated.View>
-            )}
-          </View>
-          <View className="flex-row gap-2 mb-4">
+              {artist?.name ?? 'Unknown Artist'}
+            </Text>
+          </Animated.View>
+          <Animated.View
+            entering={FadeInDown.duration(200).delay(60)}
+            className="flex-row gap-2 mb-4"
+          >
             <Pressable
               // onPress={() => useQueue.getState().setQueue(songs)}
               style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
@@ -125,7 +121,7 @@ const ArtistPage = () => {
             <Pressable
               disabled={!artist}
               onPress={async () => {
-                setStarred(!starred); // Toggle star excitedly
+                setStarred((prev) => !prev); // Toggle star excitedly
                 const newStatus = (await client?.toggleStarred(artist, starred))?.starred;
                 setStarred(!!newStatus);
               }}
@@ -139,7 +135,40 @@ const ArtistPage = () => {
             >
               <Star color="white" fill={starred ? 'white' : 'none'} size={20} />
             </Pressable>
-          </View>
+          </Animated.View>
+          {albums && (
+            <View style={{ height: 'auto', width: '95%', paddingBottom: 24 }}>
+              <Text className="font-bold text-white text-2xl">Albums</Text>
+              <FlatList
+                horizontal={true}
+                data={albums}
+                keyExtractor={(item) => {
+                  return item.id;
+                }}
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) => <AlbumEntry item={item} isBigEntry={true} />}
+                style={{ paddingBottom: 25 }}
+              />
+              {/* <MediaList Entry={AlbumEntry} data={albums} /> */}
+            </View>
+          )}
+          {artist.biography && (
+            <Animated.View entering={FadeInDown.duration(200).delay(100)} className="w-[95%] pb-12">
+              <Text className="font-bold text-white text-2xl pb-2">Biography</Text>
+              <Text numberOfLines={bioExpanded ? undefined : 3} className="font-bold text-blue-100">
+                {artist.biography}
+              </Text>
+              <Pressable
+                onPress={() => setBioExpanded((prev) => !prev)}
+                accessibilityRole="button"
+                accessibilityState={{ expanded: bioExpanded }}
+              >
+                <Text className="font-bold text-blue-200">
+                  {bioExpanded ? 'Show less' : 'Read more'}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          )}
         </View>
       )}
     </ScrollView>
