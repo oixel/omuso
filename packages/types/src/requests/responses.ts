@@ -10,6 +10,10 @@ export interface SubsonicResponse {
   status: string;
 }
 
+export interface UnprocessedArtist extends Artist {
+  album: UnprocessedAlbum[];
+}
+
 export interface UnprocessedAlbum extends Omit<Album, 'genres'> {
   genres?: { name: string }[];
   genre?: string;
@@ -23,7 +27,7 @@ export interface UnprocessedSong extends Omit<Song, 'genres'> {
 
 export interface SearchResponse extends SubsonicResponse {
   searchResult3?: {
-    artist: Artist[];
+    artist: UnprocessedArtist[];
     album: UnprocessedAlbum[]; // Regular Subsonic API uses a singles tring 'genre' parameter
     song: UnprocessedSong[];
   };
@@ -44,11 +48,11 @@ export interface GetSongsByGenreResponse extends SubsonicResponse {
 }
 
 export interface GetArtistResponse extends SubsonicResponse {
-  artist?: Artist;
+  artist?: UnprocessedArtist;
 }
 
 export interface GetArtistsResponse extends SubsonicResponse {
-  artists?: { index: { name: string; artist: Artist[] }[] };
+  artists?: { index: { name: string; artist: UnprocessedArtist[] }[] };
 }
 
 export interface GetArtistInfoResponse extends SubsonicResponse {

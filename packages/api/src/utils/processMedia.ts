@@ -2,7 +2,15 @@
 // A collection of helper functions to convert from OpenSubsonic's results to functional Media types
 //
 
-import { Album, Artist, Credentials, Song, UnprocessedAlbum, UnprocessedSong } from '@omuso/types';
+import {
+  Album,
+  Artist,
+  Credentials,
+  Song,
+  UnprocessedAlbum,
+  UnprocessedArtist,
+  UnprocessedSong,
+} from '@omuso/types';
 import { buildRequestURL } from './buildRequestURL';
 
 type Processed<T> = T extends UnprocessedAlbum ? Album : Song;
@@ -68,12 +76,13 @@ function attachStreamURL(credentials: Credentials, songs: Song[]): Song[] {
 
 export function processArtists(
   credentials: Credentials,
-  artists: Artist[] | undefined
+  artists: UnprocessedArtist[] | undefined
 ): Artist[] | undefined {
   if (!artists) return undefined;
   return artists.map((artist) => {
     return {
       ...artist,
+      albums: processAlbums(credentials, artist.album),
       coverArtURL: artist.coverArt ? getCoverArtURL(credentials, artist.coverArt) : undefined,
     };
   });
