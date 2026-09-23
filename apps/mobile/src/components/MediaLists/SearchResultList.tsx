@@ -140,7 +140,7 @@ export function SearchResultList({
       item.type === 'artist' ? (
         <ArtistEntry item={item.data} pathRelativity="./" isBigEntry={false} />
       ) : item.type === 'album' ? (
-        <AlbumEntry item={item.data} pathRelativity={'./'} isBigEntry={false} />
+        <AlbumEntry item={item.data} pathRelativity="./" isBigEntry={false} />
       ) : (
         <SongEntry item={item.data} isBigEntry={false} />
       ),

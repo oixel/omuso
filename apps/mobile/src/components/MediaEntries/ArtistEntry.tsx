@@ -29,7 +29,7 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
 
     return (
       <Link
-        href={{ pathname: `${pathRelativity}/artist/[artistId]`, params: { artistId: item.id } }}
+        href={{ pathname: `${pathRelativity}artist/[artistId]`, params: { artistId: item.id } }}
         relativeToDirectory
         withAnchor
         asChild

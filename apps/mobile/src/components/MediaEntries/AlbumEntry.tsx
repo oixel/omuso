@@ -38,7 +38,7 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
 
     return (
       <Link
-        href={{ pathname: `${pathRelativity}/album/[albumId]`, params: { albumId: item.id } }}
+        href={{ pathname: `${pathRelativity}album/[albumId]`, params: { albumId: item.id } }}
         relativeToDirectory
         withAnchor
         asChild
