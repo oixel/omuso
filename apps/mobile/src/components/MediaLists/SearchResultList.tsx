@@ -138,9 +138,9 @@ export function SearchResultList({
   const renderItem = useCallback(
     ({ item }: { item: ResultItem }) =>
       item.type === 'artist' ? (
-        <ArtistEntry item={item.data} isBigEntry={false} />
+        <ArtistEntry item={item.data} pathRelativity="./" isBigEntry={false} />
       ) : item.type === 'album' ? (
-        <AlbumEntry item={item.data} isBigEntry={false} />
+        <AlbumEntry item={item.data} pathRelativity={'./'} isBigEntry={false} />
       ) : (
         <SongEntry item={item.data} isBigEntry={false} />
       ),

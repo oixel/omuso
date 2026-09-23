@@ -8,9 +8,8 @@ import { useSyncAlbums, useSyncSongs } from '@utils';
 import { ScrollView, Pressable, Text, View, FlatList } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Play, Star } from 'lucide-react-native';
-import { FlashList } from '@shopify/flash-list';
 
-const ArtistPage = () => {
+export default function ArtistScreen() {
   const { client } = useAuth();
   const queryClient = useQueryClient();
   const { artistId } = useLocalSearchParams();
@@ -157,6 +156,7 @@ const ArtistPage = () => {
                 renderItem={({ item }) => (
                   <AlbumEntry
                     item={item}
+                    pathRelativity="../../"
                     isBigEntry={true}
                     showArtistName={false}
                     showYear={true}
@@ -187,6 +187,4 @@ const ArtistPage = () => {
       )}
     </ScrollView>
   );
-};
-
-export default ArtistPage;
+}

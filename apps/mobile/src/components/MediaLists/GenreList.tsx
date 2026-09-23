@@ -7,11 +7,16 @@ import { useAuth } from '@omuso/domain';
 import { MediaList } from './MediaList';
 import { GenreEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
+import { MediaListEntryProps } from '../MediaEntries/MediaListEntry';
 
 type GenreListProps = {
   style?: StyleProp<ViewStyle>;
   horizontal?: boolean;
 } & Omit<FlashListProps<Media>, 'renderItem' | 'data'>;
+
+const ConstructedGenreEntry = (props: MediaListEntryProps) => (
+  <GenreEntry {...props} pathRelativity="./" />
+);
 
 export function GenreList({
   style = { height: 150, width: '100%' },
@@ -42,7 +47,7 @@ export function GenreList({
     <View style={style}>
       <MediaList
         data={genres}
-        Entry={GenreEntry}
+        Entry={ConstructedGenreEntry}
         horizontal={horizontal}
         separator={() => <View style={{ width: 6, height: 6 }} />}
         {...props}

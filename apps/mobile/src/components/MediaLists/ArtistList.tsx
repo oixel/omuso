@@ -8,6 +8,7 @@ import { MediaList } from './MediaList';
 import { ArtistEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
 import { useSyncArtists } from '@utils';
+import { MediaListEntryProps } from '../MediaEntries/MediaListEntry';
 
 type ArtistListProps = {
   style?: StyleProp<ViewStyle>;
@@ -15,6 +16,10 @@ type ArtistListProps = {
 } & Omit<FlashListProps<Media>, 'renderItem' | 'data'>;
 
 const PAGE_SIZE = 500;
+
+const ConstructedArtistEntry = (props: MediaListEntryProps) => (
+  <ArtistEntry {...props} pathRelativity="./" />
+);
 
 export function ArtistList({
   style = { height: 150, width: '100%' },
@@ -48,7 +53,7 @@ export function ArtistList({
     <View style={style}>
       <MediaList
         data={artists}
-        Entry={ArtistEntry}
+        Entry={ConstructedArtistEntry}
         isBigEntry={true}
         horizontal={horizontal}
         separator={() => <View style={{ width: 6, height: 4 }} />}

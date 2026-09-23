@@ -9,7 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Play, Shuffle, Star } from 'lucide-react-native';
 
-const AlbumPage = () => {
+export default function AlbumScreen() {
   const { client } = useAuth();
   const queryClient = useQueryClient();
   const { albumId } = useLocalSearchParams();
@@ -98,7 +98,7 @@ const AlbumPage = () => {
           <MediaNameLink
             queryClient={queryClient}
             queryKey="artist"
-            pathname="/artists"
+            pathname="../../artist"
             media={artist}
             label={album.artist ?? artist?.name ?? 'Unknown artist'}
           />
@@ -106,7 +106,7 @@ const AlbumPage = () => {
           <View style={{ paddingBottom: 18, width: '80%' }} className="flex-row justify-center">
             {album?.genres && (
               <MediaNameLink
-                pathname="/genres"
+                pathname="../../genre"
                 // Use genre as ID to route to use it as key for routing
                 media={album.genres?.length ? ({ id: album.genres[0] } as Media) : undefined}
                 label={album.genres[0] + (album?.year ? ' • ' : '')}
@@ -172,7 +172,7 @@ const AlbumPage = () => {
               <View className="flex-row">
                 {album.genres.slice(0, 3).map((genre, index) => (
                   <MediaNameLink
-                    pathname="/genres"
+                    pathname="../../genre"
                     // Use genre as ID to route to use it as key for routing
                     media={album.genres?.length ? ({ id: genre } as Media) : undefined}
                     label={genre + (index !== album.genres!.length - 1 ? '; ' : '')}
@@ -207,6 +207,7 @@ const AlbumPage = () => {
                   renderItem={({ item }) => (
                     <AlbumEntry
                       item={item}
+                      pathRelativity="../../"
                       isBigEntry={true}
                       showArtistName={false}
                       showYear={true}
@@ -225,6 +226,4 @@ const AlbumPage = () => {
       )}
     </ScrollView>
   );
-};
-
-export default AlbumPage;
+}

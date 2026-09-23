@@ -9,6 +9,7 @@ import { Album } from '@omuso/types';
 import { LibrarySquare, Star } from 'lucide-react-native';
 
 interface AlbumEntryProps extends MediaListEntryProps {
+  pathRelativity: './' | '../../';
   showArtistName?: boolean;
   showYear?: boolean;
 }
@@ -28,6 +29,7 @@ interface InnerAlbumEntryProps extends Omit<AlbumEntryProps, 'item'> {
 const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
   ({
     item,
+    pathRelativity,
     isBigEntry,
     showArtistName: showArtist = true,
     showYear: showDate = false,
@@ -36,7 +38,8 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
 
     return (
       <Link
-        href={{ pathname: '/albums/[albumId]', params: { albumId: item.id } }}
+        href={{ pathname: `${pathRelativity}/album/[albumId]`, params: { albumId: item.id } }}
+        relativeToDirectory
         withAnchor
         asChild
       >

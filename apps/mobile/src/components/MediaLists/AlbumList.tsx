@@ -8,6 +8,7 @@ import { MediaList } from './MediaList';
 import { AlbumEntry } from '../MediaEntries';
 import { FlashListProps } from '@shopify/flash-list';
 import { useSyncAlbums } from '@utils';
+import { MediaListEntryProps } from '../MediaEntries/MediaListEntry';
 
 type AlbumListProps = {
   style?: StyleProp<ViewStyle>;
@@ -15,6 +16,10 @@ type AlbumListProps = {
 } & Omit<FlashListProps<Media>, 'renderItem' | 'data'>;
 
 const PAGE_SIZE = 500;
+
+const ConstructedAlbumEntry = (props: MediaListEntryProps) => (
+  <AlbumEntry {...props} pathRelativity="./" />
+);
 
 export function AlbumList({
   style = { height: 150, width: '100%' },
@@ -52,7 +57,7 @@ export function AlbumList({
     <View style={style}>
       <MediaList
         data={albums}
-        Entry={AlbumEntry}
+        Entry={ConstructedAlbumEntry}
         isBigEntry={true}
         horizontal={horizontal}
         separator={() => <View style={{ width: 6, height: 4 }} />}

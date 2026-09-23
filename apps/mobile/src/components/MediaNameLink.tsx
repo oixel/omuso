@@ -25,9 +25,10 @@ export function MediaNameLink({
   return (
     <Link
       href={{
-        pathname: pathname + '/[key]',
-        params: { key: media?.id ?? '' },
+        pathname: pathname + '/[id]',
+        params: { id: media?.id ?? '' },
       }}
+      relativeToDirectory
       withAnchor
       asChild
     >

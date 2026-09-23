@@ -7,8 +7,8 @@ import { useAuth, useQueue } from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { Play } from 'lucide-react-native';
 
-const Genre = () => {
-  const { genre } = useLocalSearchParams();
+export default function GenreScreen() {
+  const { genreId } = useLocalSearchParams();
   const { client } = useAuth();
   const [songs, setSongs] = useState<Song[]>([]);
   const router = useRouter();
@@ -22,7 +22,7 @@ const Genre = () => {
     if (!client) return;
 
     (async () => {
-      const response = await client.getSongsByGenre({ genre: genre as string });
+      const response = await client.getSongsByGenre({ genre: genreId as string });
       if (response.success) setSongs(response.songs ?? []);
     })();
 
@@ -47,7 +47,7 @@ const Genre = () => {
         <Text className="font-bold text-white">{'< Go Back'}</Text>
       </Pressable>
       <Text style={{ paddingTop: 25, paddingBottom: 18 }} className="text-2xl text-white font-bold">
-        {genre}
+        {genreId}
       </Text>
       <Pressable
         onPress={() => useQueue.getState().setQueue(songs)}
@@ -62,6 +62,4 @@ const Genre = () => {
       </View>
     </View>
   );
-};
-
-export default Genre;
+}

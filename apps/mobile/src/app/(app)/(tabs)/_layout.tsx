@@ -4,8 +4,10 @@ import { House, Users, SquareLibrary, Music, Disc3, Search } from 'lucide-react-
 const TabLayout = () => {
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#2563eb' }}>
+      {/* Hidden index tab for Tabs bar that redirect to Home page */}
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
           title: 'Home',
           tabBarIcon: ({ color }) => <House color={color} />,

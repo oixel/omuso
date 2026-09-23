@@ -8,24 +8,29 @@ import { MediaListEntryProps } from './MediaListEntry';
 import { Artist } from '@omuso/types';
 import { User2, Star } from 'lucide-react-native';
 
+interface ArtistEntryProps extends MediaListEntryProps {
+  pathRelativity: './' | '../../';
+}
+
 // Bail before mounting proper ArtistEntry if item is not an actual Artist
-export const ArtistEntry: React.FC<MediaListEntryProps> = memo((props) => {
+export const ArtistEntry: React.FC<ArtistEntryProps> = memo((props) => {
   if (!isArtist(props.item)) return null;
   return <InnerArtistEntry {...props} item={props.item} />;
 });
 
 // Type check item to Artist since it was proven to be
-interface InnerArtistEntryProps extends Omit<MediaListEntryProps, 'item'> {
+interface InnerArtistEntryProps extends Omit<ArtistEntryProps, 'item'> {
   item: Artist;
 }
 
 const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
-  ({ item, isBigEntry }: InnerArtistEntryProps) => {
+  ({ item, pathRelativity, isBigEntry }: InnerArtistEntryProps) => {
     const queryClient = useQueryClient();
 
     return (
       <Link
-        href={{ pathname: '/artists/[artistId]', params: { artistId: item.id } }}
+        href={{ pathname: `${pathRelativity}/artist/[artistId]`, params: { artistId: item.id } }}
+        relativeToDirectory
         withAnchor
         asChild
       >

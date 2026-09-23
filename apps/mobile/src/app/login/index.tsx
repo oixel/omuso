@@ -51,7 +51,7 @@ const Login = () => {
     const success = await validateLogin(credentials);
 
     if (success) {
-      // Store credentials, triggers transfer to (app) home page via Stack.Protected in RootLayour
+      // Store credentials, triggers transfer to (app) home page via Stack.Protected in RootLayout
       login(credentials);
     } else
       setError(
