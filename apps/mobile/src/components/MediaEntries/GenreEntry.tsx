@@ -4,17 +4,26 @@ import { memo } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { MediaListEntryProps } from './MediaListEntry';
 
-export const GenreEntry: React.FC<MediaListEntryProps> = memo(
-  ({ item, horizontal }: MediaListEntryProps) => {
+interface GenreEntryProps extends MediaListEntryProps {
+  pathRelativity: './' | '../../';
+}
+
+export const GenreEntry: React.FC<GenreEntryProps> = memo(
+  ({ item, pathRelativity, isBigEntry }: GenreEntryProps) => {
     const router = useRouter();
 
     return (
       <Pressable
         style={[
-          horizontal ? styles.horizontal : styles.vertical,
+          isBigEntry ? styles.horizontal : styles.vertical,
           { backgroundColor: convertStringToColor(item.id, 5, 85, 45) },
         ]}
-        onPress={() => router.navigate({ pathname: '/genres/[genre]', params: { genre: item.id } })}
+        onPress={() =>
+          router.navigate(
+            { pathname: `${pathRelativity}genre/[genre]`, params: { genre: item.id } },
+            { relativeToDirectory: true }
+          )
+        }
       >
         <Text className="text-white font-bold">{item.id}</Text>
       </Pressable>
