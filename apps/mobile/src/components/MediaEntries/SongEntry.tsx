@@ -27,7 +27,8 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
     prev.showTrackNumber === next.showTrackNumber &&
     prev.showAlbumCover === next.showAlbumCover &&
     prev.showSongLabel === next.showSongLabel &&
-    prev.showArtist === next.showArtist
+    prev.showArtist === next.showArtist &&
+    prev.onPress === next.onPress
 );
 
 // Type item to Song since it was proven to be
@@ -45,6 +46,7 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
     showAlbumCover,
     showSongLabel,
     showArtist,
+    onPress,
   }: InnerSongEntryProps) => {
     const currentPlayingId = useQueue((state) =>
       showIsPlaying ? state.queue[state.index]?.id : undefined
@@ -66,7 +68,10 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
           { backgroundColor: isPlaying ? '#5186dc' : '#60a5fa' },
           !showAlbumCover && { height: 60 },
         ]}
-        onPress={playSong}
+        onPress={() => {
+          playSong();
+          if (onPress) onPress(item);
+        }}
       >
         {item.starred ? (
           <View
@@ -116,7 +121,8 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
       </Pressable>
     );
   },
-  (prev: SongEntryProps, next: SongEntryProps) => prev.item === next.item
+  (prev: SongEntryProps, next: SongEntryProps) =>
+    prev.item === next.item && prev.onPress === next.onPress // TODO memoize properly
 );
 
 const styles = StyleSheet.create({

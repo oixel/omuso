@@ -24,7 +24,7 @@ interface InnerArtistEntryProps extends Omit<ArtistEntryProps, 'item'> {
 }
 
 const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
-  ({ item, pathRelativity, isBigEntry }: InnerArtistEntryProps) => {
+  ({ item, pathRelativity, isBigEntry, onPress }: InnerArtistEntryProps) => {
     const queryClient = useQueryClient();
 
     return (
@@ -38,6 +38,7 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
           style={isBigEntry ? styles.rowBig : styles.rowSmall}
           onPress={() => {
             queryClient.setQueryData(['artist', item.id], item); // Seed query for artist metadata
+            if (onPress) onPress(item);
           }}
         >
           {!isBigEntry && item.starred ? (
@@ -88,7 +89,8 @@ const InnerArtistEntry: React.FC<InnerArtistEntryProps> = memo(
     prev.item.id === next.item.id &&
     prev.isBigEntry === next.isBigEntry &&
     (prev.item as Artist).starred === (next.item as Artist).starred &&
-    (prev.item as Artist).coverArt === (next.item as Artist).coverArt
+    (prev.item as Artist).coverArt === (next.item as Artist).coverArt &&
+    prev.onPress === next.onPress
 );
 
 const styles = StyleSheet.create({

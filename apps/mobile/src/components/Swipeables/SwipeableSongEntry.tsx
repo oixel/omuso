@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { asSwipeable } from './asSwipeable';
 import { ActionButton } from './ActionButton';
 import { MediaListEntryProps } from '../MediaEntries/MediaListEntry';
+import { Media } from '@omuso/types';
 
 const PlusIcon = () => <Plus color="white" />;
 const ListStartIcon = () => <ListStart color="white" />;
@@ -15,7 +16,8 @@ export const SwipeableSongEntry = (
   showTrackNumber: boolean = false,
   showAlbumCover: boolean = true,
   showSongLabel: boolean = false,
-  showArtist: boolean = true
+  showArtist: boolean = true,
+  onPress?: (media: Media) => void
 ) => {
   const AlteredSongEntry: React.FC<MediaListEntryProps> = (props) => (
     <SongEntry
@@ -25,6 +27,7 @@ export const SwipeableSongEntry = (
       showAlbumCover={showAlbumCover}
       showSongLabel={showSongLabel}
       showArtist={showArtist}
+      onPress={onPress}
     />
   );
   return asSwipeable(AlteredSongEntry, {

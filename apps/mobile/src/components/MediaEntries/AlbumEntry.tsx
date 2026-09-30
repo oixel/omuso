@@ -33,6 +33,7 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
     isBigEntry,
     showArtistName: showArtist = true,
     showYear: showDate = false,
+    onPress,
   }: InnerAlbumEntryProps) => {
     const queryClient = useQueryClient();
 
@@ -47,6 +48,7 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
           style={isBigEntry ? styles.rowBig : styles.rowSmall}
           onPress={() => {
             queryClient.setQueryData(['album', item.id], item); // Seed query for album metadata
+            if (onPress) onPress(item);
           }}
         >
           {!isBigEntry && item.starred ? (
@@ -97,7 +99,8 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
   (prev: MediaListEntryProps, next: MediaListEntryProps) =>
     prev.item.id === next.item.id &&
     prev.isBigEntry === next.isBigEntry &&
-    (prev.item as Album).starred === (next.item as Album).starred
+    (prev.item as Album).starred === (next.item as Album).starred &&
+    prev.onPress === next.onPress
 );
 
 const styles = StyleSheet.create({
