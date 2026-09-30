@@ -17,6 +17,7 @@ export default function AlbumScreen() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [artist, setArtist] = useState<Artist>();
   const [starred, setStarred] = useState(false);
+  const setQueue = useQueue((state) => state.setQueue);
 
   // Instantly load album metadata from cache, and then fetch songs using ID
   const { data: album } = useQuery({
@@ -116,16 +117,14 @@ export default function AlbumScreen() {
           </View>
           <View className="flex-row gap-2 mb-4">
             <Pressable
-              onPress={() =>
-                useQueue.getState().setQueue([...songs].sort(() => Math.random() - 0.5))
-              } // TODO: Make a proper shuffle rather than randomize
+              onPress={() => setQueue([...songs].sort(() => Math.random() - 0.5))} // TODO: Make a proper shuffle rather than randomize
               style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
               className="text-xl font-bold py-2 px-4 flex-row gap-4 justify-center items-center"
             >
               <Shuffle color="white" size={20} />
             </Pressable>
             <Pressable
-              onPress={() => useQueue.getState().setQueue(songs)}
+              onPress={() => setQueue(songs)}
               style={{ borderRadius: 24, marginBottom: 10, backgroundColor: '#5186dc' }}
               className="text-xl font-bold py-2 px-8 flex-row gap-4 justify-center items-center"
             >
