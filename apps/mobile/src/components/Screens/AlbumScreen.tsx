@@ -171,6 +171,7 @@ export default function AlbumScreen() {
               <View className="flex-row">
                 {album.genres.slice(0, 3).map((genre, index) => (
                   <MediaNameLink
+                    key={genre}
                     pathname="../../genre"
                     // Use genre as ID to route to use it as key for routing
                     media={album.genres?.length ? ({ id: genre } as Media) : undefined}
