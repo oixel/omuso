@@ -4,3 +4,4 @@ export * from './auth';
 export * from './requests';
 export * from './media';
 export * from './misc';
+export * from './storage';
