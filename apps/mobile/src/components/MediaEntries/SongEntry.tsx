@@ -122,7 +122,15 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
     );
   },
   (prev: SongEntryProps, next: SongEntryProps) =>
-    prev.item === next.item && prev.onPress === next.onPress // TODO memoize properly
+    prev.item.id === next.item.id &&
+    prev.isBigEntry === next.isBigEntry &&
+    (prev.item as Song).starred === (next.item as Song).starred &&
+    prev.showIsPlaying === next.showIsPlaying &&
+    prev.showTrackNumber === next.showTrackNumber &&
+    prev.showAlbumCover === next.showAlbumCover &&
+    prev.showSongLabel === next.showSongLabel &&
+    prev.showArtist === next.showArtist &&
+    prev.onPress === next.onPress
 );
 
 const styles = StyleSheet.create({
