@@ -98,9 +98,12 @@ export function SearchResultList({
     setIsLoading(false);
   };
 
+  const history = useHistory((state) => state.history);
+  const addToHistory = useHistory((state) => state.addToHistory);
+
   useEffect(() => {
     loadMedia(debouncedSearch);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, history]);
 
   // Wrap artists in shared type
   const artistData: ResultItem[] = useMemo(
@@ -131,22 +134,28 @@ export function SearchResultList({
       .sort((a, b) => b.score - a.score)
       .map(({ item }) => item)
       .slice(0, PAGE_SIZE);
-  }, [albumData, songData, debouncedSearch]);
+  }, [artistData, albumData, songData, debouncedSearch]);
+
+  // Cast history from Media[] to ResultItem[]
+  const historyData: ResultItem[] = useMemo(() => {
+    return history.map(
+      (data) =>
+        ({
+          type: isArtist(data) ? 'artist' : isAlbum(data) ? 'album' : 'song',
+          data,
+        }) as ResultItem
+    );
+  }, [history]);
 
   const hasMedia =
-    (tab === 'all' && allData.length > 9) ||
+    (tab === 'all' && allData.length > 0) ||
     (tab == 'artists' && artistData.length > 0) ||
     (tab === 'albums' && albumData.length > 0) ||
     (tab === 'songs' && songData.length > 0);
 
-  const history = useHistory((state) => state.history);
-
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
   const SongEntry = useMemo(
-    () =>
-      SwipeableSongEntry(false, false, true, true, true, (media) =>
-        useHistory.getState().addToHistory(media)
-      ),
+    () => SwipeableSongEntry(false, false, true, true, true, (song) => addToHistory(song)),
     []
   );
 
@@ -159,14 +168,14 @@ export function SearchResultList({
           item={item.data}
           pathRelativity="./"
           isBigEntry={false}
-          onPress={(artist) => useHistory.getState().addToHistory(artist)}
+          onPress={(artist) => addToHistory(artist)}
         />
       ) : item.type === 'album' ? (
         <AlbumEntry
           item={item.data}
           pathRelativity="./"
           isBigEntry={false}
-          onPress={(album) => useHistory.getState().addToHistory(album)}
+          onPress={(album) => addToHistory(album)}
         />
       ) : (
         <SongEntry item={item.data} isBigEntry={false} />
@@ -174,53 +183,42 @@ export function SearchResultList({
     [SongEntry]
   );
 
+  // Update what data is rendered in result list based on current tab (or if viewing history)
+  const listData =
+    searchQuery.length === 0
+      ? historyData
+      : tab === 'all'
+        ? allData
+        : tab === 'artists'
+          ? artistData
+          : tab === 'albums'
+            ? albumData
+            : songData;
+
   return (
     <View className="flex-1 w-full pb-4">
-      {isLoading && (
-        <View className="w-full flex-1 flex justify-start mt-12 items-center">
-          <Text className="font-bold text-white">Searching...</Text>
+      {!isLoading && !hasMedia && (
+        <View className="w-full flex-1 flex justify-center items-center mt-12">
+          <Text className="text-white font-bold">
+            {isLoading
+              ? 'Searching...'
+              : searchQuery.length === 0
+                ? history.length === 0 && 'No previous search history'
+                : 'No results found'}
+          </Text>
         </View>
       )}
-      {!isLoading && !hasMedia && history.length === 0 && (
-        <View className="w-full flex-1 flex justify-start mt-12 items-center">
-          <Text className="font-bold text-white">No results found</Text>
-        </View>
-      )}
+
       {/* Render all lists, but swap display status based on current tab */}
-      <View style={{ flex: 1, display: !isLoading && tab === 'all' ? 'flex' : 'none' }}>
+      <View style={{ flex: 1 }}>
         <FlashList
-          data={allData}
+          key={tab}
+          data={listData}
           keyExtractor={keyExtractor}
           getItemType={getItemType}
           renderItem={renderItem}
           horizontal={horizontal}
-        />
-      </View>
-      <View style={{ flex: 1, display: !isLoading && tab === 'songs' ? 'flex' : 'none' }}>
-        <FlashList
-          data={songData}
-          keyExtractor={keyExtractor}
-          getItemType={getItemType}
-          renderItem={renderItem}
-          horizontal={horizontal}
-        />
-      </View>
-      <View style={{ flex: 1, display: !isLoading && tab === 'albums' ? 'flex' : 'none' }}>
-        <FlashList
-          data={albumData}
-          keyExtractor={keyExtractor}
-          getItemType={getItemType}
-          renderItem={renderItem}
-          horizontal={horizontal}
-        />
-      </View>
-      <View style={{ flex: 1, display: !isLoading && tab === 'artists' ? 'flex' : 'none' }}>
-        <FlashList
-          data={artistData}
-          keyExtractor={keyExtractor}
-          getItemType={getItemType}
-          renderItem={renderItem}
-          horizontal={horizontal}
+          style={{ opacity: isLoading ? 0 : 1 }}
         />
       </View>
     </View>
