@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Album, Artist, SearchPageLabelOptions, Song } from '@omuso/types';
 
 import { SwipeableSongEntry } from '../Swipeables/SwipeableSongEntry';
-import { useAuth, useDebounce } from '@omuso/domain';
+import { isAlbum, isArtist, isSong, useAuth, useDebounce, useHistory } from '@omuso/domain';
 import { useSyncAlbums, useSyncArtists, useSyncSongs } from '@utils';
 import { AlbumEntry, ArtistEntry } from '../MediaEntries';
 import { FlashList } from '@shopify/flash-list';
@@ -73,11 +73,20 @@ export function SearchResultList({
     latestQuery.current = query;
     setIsLoading(true);
 
-    const result = await client?.search({ query });
+    let newArtists: Artist[] = [];
+    let newAlbums: Album[] = [];
+    let newSongs: Song[] = [];
 
-    const newArtists = result?.artists ?? [];
-    const newAlbums = result?.albums ?? [];
-    const newSongs = result?.songs ?? [];
+    if (query.length !== 0) {
+      const result = await client?.search({ query });
+      newArtists = result?.artists ?? [];
+      newAlbums = result?.albums ?? [];
+      newSongs = result?.songs ?? [];
+    } else {
+      newArtists = history.filter((media) => isArtist(media));
+      newAlbums = history.filter((media) => isAlbum(media));
+      newSongs = history.filter((media) => isSong(media));
+    }
 
     // Discard current result if a newer query exists
     if (latestQuery.current !== query) return;
@@ -130,17 +139,35 @@ export function SearchResultList({
     (tab === 'albums' && albumData.length > 0) ||
     (tab === 'songs' && songData.length > 0);
 
+  const history = useHistory((state) => state.history);
+
   // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(false, false, true, true, true), []);
+  const SongEntry = useMemo(
+    () =>
+      SwipeableSongEntry(false, false, true, true, true, (media) =>
+        useHistory.getState().addToHistory(media)
+      ),
+    []
+  );
 
   const keyExtractor = useCallback((item: ResultItem) => `${item.type}-${item.data.id}`, []);
   const getItemType = useCallback((item: ResultItem) => item.type, []);
   const renderItem = useCallback(
     ({ item }: { item: ResultItem }) =>
       item.type === 'artist' ? (
-        <ArtistEntry item={item.data} pathRelativity="./" isBigEntry={false} />
+        <ArtistEntry
+          item={item.data}
+          pathRelativity="./"
+          isBigEntry={false}
+          onPress={(artist) => useHistory.getState().addToHistory(artist)}
+        />
       ) : item.type === 'album' ? (
-        <AlbumEntry item={item.data} pathRelativity="./" isBigEntry={false} />
+        <AlbumEntry
+          item={item.data}
+          pathRelativity="./"
+          isBigEntry={false}
+          onPress={(album) => useHistory.getState().addToHistory(album)}
+        />
       ) : (
         <SongEntry item={item.data} isBigEntry={false} />
       ),
@@ -154,7 +181,7 @@ export function SearchResultList({
           <Text className="font-bold text-white">Searching...</Text>
         </View>
       )}
-      {!isLoading && !hasMedia && (
+      {!isLoading && !hasMedia && history.length === 0 && (
         <View className="w-full flex-1 flex justify-start mt-12 items-center">
           <Text className="font-bold text-white">No results found</Text>
         </View>
