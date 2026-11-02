@@ -18,5 +18,5 @@ export function luminance(hex: string) {
 
 // Return black or white text based on threshold of equal contrast (roughly 0.179)
 export function getTextColor(background: string) {
-  return luminance(background) > 0.179 ? '#000000' : '#ffffff';
+  return luminance(background) > 0.2 ? '#000000' : '#ffffff';
 }
