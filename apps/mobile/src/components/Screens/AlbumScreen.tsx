@@ -1,9 +1,17 @@
 import { Album, Artist, Media, Song } from '@omuso/types';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, useWindowDimensions } from 'react-native';
 import { SwipeableSongEntry, CoverArt, AlbumEntry, MediaNameLink } from '@components';
-import { isAlbum, months, msToDuration, useAuth, useQueue, useUpdatedMedia } from '@omuso/domain';
+import {
+  isAlbum,
+  months,
+  msToDuration,
+  useAuth,
+  useQueue,
+  useTheme,
+  useUpdatedMedia,
+} from '@omuso/domain';
 import { useSyncSongs } from '@utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Animated, {
@@ -77,10 +85,7 @@ export default function AlbumScreen() {
     (async () => {
       const colors = coverArtURL ? await extractColors(coverArtURL) : DEFAULT_COLORS;
 
-      if (!ignore) {
-        console.log(colors);
-        setColors(colors);
-      }
+      if (!ignore) setColors(colors);
     })();
 
     return () => {
@@ -142,6 +147,19 @@ export default function AlbumScreen() {
       ],
     };
   });
+
+  const setTabColors = useTheme((s) => s.setTabColors);
+  const resetTabColors = useTheme((s) => s.reset);
+  useFocusEffect(
+    useCallback(() => {
+      setTabColors({
+        background: colors.primary,
+        foreground: theme.onPrimary,
+        inactive: theme.muted,
+      });
+      return resetTabColors;
+    }, [colors.primary, theme.onPrimary, theme.muted, setTabColors, resetTabColors])
+  );
 
   return (
     <View style={{ flex: 1 }}>

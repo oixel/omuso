@@ -1,9 +1,18 @@
+import { useTheme } from '@omuso/domain';
 import { Tabs } from 'expo-router';
 import { House, Users, SquareLibrary, Music, Disc3, Search } from 'lucide-react-native';
 
 const TabLayout = () => {
+  const { background, foreground, inactive } = useTheme((s) => s.tabColors);
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#2563eb' }}>
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: { backgroundColor: background, borderTopColor: foreground, borderTopWidth: 1 },
+        tabBarActiveTintColor: foreground,
+        tabBarInactiveTintColor: inactive,
+      }}
+    >
       {/* Hidden index tab for Tabs bar that redirect to Home page */}
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
