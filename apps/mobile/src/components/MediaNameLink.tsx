@@ -11,6 +11,7 @@ interface MediaNameLinkProps {
   label: string;
   pressableClassName?: string;
   textClassName?: string;
+  color?: string;
 }
 
 export function MediaNameLink({
@@ -21,6 +22,7 @@ export function MediaNameLink({
   label,
   pressableClassName,
   textClassName,
+  color = '#dbeafe',
 }: MediaNameLinkProps) {
   return (
     <Link
@@ -47,7 +49,8 @@ export function MediaNameLink({
         <Text
           numberOfLines={1}
           ellipsizeMode="tail"
-          className={textClassName ?? 'text-lg text-blue-200 font-medium'}
+          className={textClassName ?? 'text-lg font-medium'}
+          style={{ color: color }}
         >
           {label}
         </Text>
