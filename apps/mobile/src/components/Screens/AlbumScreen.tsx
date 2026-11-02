@@ -127,7 +127,7 @@ export default function AlbumScreen() {
     scrollY.value = e.contentOffset.y;
   });
 
-  const topBarBgStyle = useAnimatedStyle(() => ({
+  const topBarBackgroundStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       scrollY.value,
       [COVER_HEIGHT - HEADER_HEIGHT * 2, COVER_HEIGHT - HEADER_HEIGHT], // Range for opacity shift while scrolling is based on album cover
@@ -350,7 +350,7 @@ export default function AlbumScreen() {
           </>
         ) : (
           <View className="w-full flex-1 flex justify-start mt-12 items-center">
-            <Text style={{ color: theme.onPrimary }} className="font-bold text-white">
+            <Text style={{ color: theme.onPrimary }} className="font-bold">
               Loading...
             </Text>
           </View>
@@ -384,9 +384,9 @@ export default function AlbumScreen() {
               bottom: 0,
               backgroundColor: colors.primary,
               borderBottomWidth: 1,
-              borderBottomColor: 'white',
+              borderBottomColor: theme.onPrimary,
             },
-            topBarBgStyle,
+            topBarBackgroundStyle,
           ]}
         />
 
@@ -415,7 +415,7 @@ export default function AlbumScreen() {
               top: insets.top,
               lineHeight: BAR_CONTENT_HEIGHT,
               textAlign: 'center',
-              color: 'white',
+              color: theme.onPrimary,
               fontWeight: 'bold',
               fontSize: 17,
             },
