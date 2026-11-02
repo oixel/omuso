@@ -11,6 +11,13 @@ const PlusIcon = () => <Plus color="white" />;
 const ListStartIcon = () => <ListStart color="white" />;
 const ListEndIcon = () => <ListEnd color="white" />;
 
+interface SongEntryProps extends MediaListEntryProps {
+  primaryColor?: string;
+  onPrimary?: string;
+  secondaryColor?: string;
+  onSecondary?: string;
+}
+
 export const SwipeableSongEntry = (
   showIsPlaying: boolean = false,
   showTrackNumber: boolean = false,
@@ -19,7 +26,7 @@ export const SwipeableSongEntry = (
   showArtist: boolean = true,
   onPress?: (media: Media) => void
 ) => {
-  const AlteredSongEntry: React.FC<MediaListEntryProps> = (props) => (
+  const AlteredSongEntry: React.FC<SongEntryProps> = (props) => (
     <SongEntry
       {...props}
       showIsPlaying={showIsPlaying}

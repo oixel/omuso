@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import React, { memo, useCallback } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@omuso/domain';
 import { Image } from 'expo-image';
@@ -12,6 +12,10 @@ interface SongEntryProps extends MediaListEntryProps {
   showAlbumCover: boolean;
   showSongLabel: boolean;
   showArtist: boolean;
+  primaryColor?: string;
+  onPrimary?: string;
+  secondaryColor?: string;
+  onSecondary?: string;
 }
 
 // Bail before mounting proper SongEntry if item is not an actual Song
@@ -28,6 +32,10 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
     prev.showAlbumCover === next.showAlbumCover &&
     prev.showSongLabel === next.showSongLabel &&
     prev.showArtist === next.showArtist &&
+    prev.primaryColor === next.primaryColor &&
+    prev.onPrimary === next.onPrimary &&
+    prev.secondaryColor === next.secondaryColor &&
+    prev.onSecondary === next.onSecondary &&
     prev.onPress === next.onPress
 );
 
@@ -46,6 +54,10 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
     showAlbumCover,
     showSongLabel,
     showArtist,
+    primaryColor = '#5186dc',
+    onPrimary = 'white',
+    secondaryColor = '#60a5fa',
+    onSecondary = 'white',
     onPress,
   }: InnerSongEntryProps) => {
     const currentPlayingId = useQueue((state) =>
@@ -65,7 +77,7 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
       <Pressable
         style={[
           isBigEntry ? styles.rowBig : styles.rowSmall,
-          { backgroundColor: isPlaying ? '#5186dc' : '#60a5fa' },
+          { backgroundColor: isPlaying ? secondaryColor : primaryColor },
           !showAlbumCover && { height: 60 },
         ]}
         onPress={() => {
@@ -80,15 +92,19 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
               showTrackNumber && { paddingBottom: 8 },
             ]}
           >
-            <Star size={14} color="white" fill="white" />
+            <Star
+              size={14}
+              color={isPlaying ? onSecondary : onPrimary}
+              fill={isPlaying ? onSecondary : onPrimary}
+            />
           </View>
         ) : (
           <Star size={14} color="none" />
         )}
         {showTrackNumber && (
           <Text
-            style={{ marginRight: 4, paddingBottom: 8 }}
-            className="text-blue-100 w-5 max-w-5 my-auto text-center"
+            style={{ marginRight: 4, paddingBottom: 8, color: isPlaying ? onSecondary : onPrimary }}
+            className="w-5 max-w-5 my-auto text-center"
           >
             {item.track}
           </Text>
@@ -104,14 +120,28 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
             transition={100}
           />
         )}
-        <View style={isBigEntry ? styles.textContentBig : styles.textContentSmall}>
-          <Text numberOfLines={1} ellipsizeMode="tail" className="text-white font-medium text-xl">
+        <View
+          style={
+            isBigEntry
+              ? styles.textContentBig
+              : [
+                  styles.textContentSmall,
+                  { borderBottomColor: isPlaying ? onSecondary : onPrimary },
+                ]
+          }
+        >
+          <Text
+            numberOfLines={1}
+            style={{ color: isPlaying ? onSecondary : onPrimary }}
+            ellipsizeMode="tail"
+            className="font-medium text-xl"
+          >
             {item.title || 'Untitled Song'}
           </Text>
           {showArtist && (
             <View className="flex-row gap-2 items-center">
-              {showSongLabel && <Music color="#dbeafe" size={16} />}
-              <Text numberOfLines={1} ellipsizeMode="tail" className="text-blue-100">
+              {showSongLabel && <Music color={onPrimary} size={16} />}
+              <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: onPrimary }}>
                 {showSongLabel ? 'Song  •  ' : ''}
                 {item.artist ?? 'Unknown Artist'}
               </Text>
@@ -130,6 +160,10 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
     prev.showAlbumCover === next.showAlbumCover &&
     prev.showSongLabel === next.showSongLabel &&
     prev.showArtist === next.showArtist &&
+    prev.primaryColor === next.primaryColor &&
+    prev.onPrimary === next.onPrimary &&
+    prev.secondaryColor === next.secondaryColor &&
+    prev.onSecondary === next.onSecondary &&
     prev.onPress === next.onPress
 );
 
@@ -144,7 +178,6 @@ const styles = StyleSheet.create({
     height: 75,
     paddingHorizontal: 6,
     paddingTop: 12,
-    backgroundColor: '#60a5fa',
   },
   rowBig: {},
   textContentSmall: {
@@ -159,7 +192,6 @@ const styles = StyleSheet.create({
     minHeight: 40,
 
     borderBottomWidth: 1,
-    borderBottomColor: '#adc9ed',
     borderRadius: 4,
   },
   textContentBig: {},
