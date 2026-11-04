@@ -397,12 +397,12 @@ export default function AlbumScreen() {
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: 'rgba(0,0,0,0.35)',
+            backgroundColor: colors.secondary,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <ChevronLeft color={theme.onPrimary} size={22} />
+          <ChevronLeft color={theme.onSecondary} size={22} />
         </Pressable>
 
         <Animated.Text
