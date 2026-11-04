@@ -10,7 +10,8 @@ interface Colors {
 function distance(a: string, b: string) {
   const [r1, g1, b1] = hexToRGB(a);
   const [r2, g2, b2] = hexToRGB(b);
-  return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 + b2) ** 2);
+
+  return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
 }
 
 // amount > 0 lightens the color, < 0 darkens it
@@ -51,6 +52,7 @@ export async function extractColors(url: string): Promise<Colors> {
     ];
     const secondary =
       options.find((c) => c && distance(primary, c) > MIN_DISTANCE) ?? shift(primary, 0.25);
+
     return { primary, secondary };
   }
 
