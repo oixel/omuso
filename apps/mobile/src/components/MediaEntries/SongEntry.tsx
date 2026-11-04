@@ -54,9 +54,9 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
     showAlbumCover,
     showSongLabel,
     showArtist,
-    primaryColor = '#5186dc',
+    primaryColor = '#60a5fa',
     onPrimary = 'white',
-    secondaryColor = '#60a5fa',
+    secondaryColor = '#5186dc',
     onSecondary = 'white',
     onPress,
   }: InnerSongEntryProps) => {
