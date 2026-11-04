@@ -127,19 +127,14 @@ export default function AlbumScreen() {
     scrollY.value = e.contentOffset.y;
   });
 
+  const bottom = COVER_HEIGHT - overlayHeight.value + titleHeight.value - 8;
+  const end = bottom - HEADER_HEIGHT;
+
   const topBarBackgroundStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      scrollY.value,
-      [COVER_HEIGHT - HEADER_HEIGHT * 2, COVER_HEIGHT - HEADER_HEIGHT], // Range for opacity shift while scrolling is based on album cover
-      [0, 1],
-      Extrapolation.CLAMP
-    ),
+    opacity: interpolate(scrollY.value, [end, end + 16], [0, 1], Extrapolation.CLAMP),
   }));
 
   const topBarTitleStyle = useAnimatedStyle(() => {
-    const bottom = COVER_HEIGHT - overlayHeight.value + titleHeight.value - 8;
-    const end = bottom - HEADER_HEIGHT;
-
     return {
       opacity: interpolate(scrollY.value, [end, end + 16], [0, 1], Extrapolation.CLAMP),
       transform: [
