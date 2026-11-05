@@ -1,4 +1,4 @@
-import { Album, Media, Song } from '@omuso/types';
+import { Album, DEFAULT_COLORS, Media, Song } from '@omuso/types';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, useWindowDimensions } from 'react-native';
@@ -12,7 +12,6 @@ import {
   useTheme,
   useUpdatedMedia,
 } from '@omuso/domain';
-import { useSyncSongs } from '@utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Animated, {
   Extrapolation,
@@ -27,9 +26,7 @@ import { ChevronLeft, Play, Shuffle, Star } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { extractColors } from '@utils/extractColors';
-import { getTextColor } from '@utils/contrast';
-import { useFadedStyle } from '@/src/utils/useFadedStyle';
+import { useSyncSongs, extractColors, getTextColor, useFadedStyle } from '@utils';
 
 const BAR_CONTENT_HEIGHT = 48; // How tall the dynamic album name top bar should be
 
@@ -37,8 +34,6 @@ const BAR_CONTENT_HEIGHT = 48; // How tall the dynamic album name top bar should
 const SongEntry = SwipeableSongEntry(true, true, false, false, false);
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const DEFAULT_COLORS = { primary: '#5186dc', secondary: '#60a5fa' };
 
 export default function AlbumScreen() {
   const { client } = useAuth();
@@ -87,7 +82,6 @@ export default function AlbumScreen() {
   useEffect(() => setImageDisplayed(false), [albumId]);
   const imageReady = !coverArtURL || imageDisplayed;
   const handleDisplay = useCallback(() => setImageDisplayed(true), []);
-
   const { data: extracted, isError: colorsFailed } = useQuery({
     queryKey: ['albumColors', albumId],
     queryFn: () => extractColors(coverArtURL!),
@@ -98,12 +92,10 @@ export default function AlbumScreen() {
   });
 
   const colors = extracted ?? DEFAULT_COLORS;
-  const fadedPrimaryBg = useFadedStyle('backgroundColor', colors.primary);
   const fadedSecondaryBg = useFadedStyle('backgroundColor', colors.secondary);
   const colorsReady = !!album && (!coverArtURL || !!extracted || colorsFailed);
 
   const ready = colorsReady && imageReady;
-
   const theme = useMemo(() => {
     const onPrimary = getTextColor(colors.primary);
     const onSecondary = getTextColor(colors.secondary);
@@ -199,7 +191,7 @@ export default function AlbumScreen() {
         onScroll={onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
-        style={fadedPrimaryBg}
+        style={{ backgroundColor: colors.primary }}
       >
         {album && (
           <Animated.View
@@ -428,8 +420,8 @@ export default function AlbumScreen() {
               bottom: 0,
               borderBottomWidth: 1,
               borderBottomColor: theme.onPrimary,
+              backgroundColor: colors.primary,
             },
-            fadedPrimaryBg,
             topBarBackgroundStyle,
           ]}
         />
