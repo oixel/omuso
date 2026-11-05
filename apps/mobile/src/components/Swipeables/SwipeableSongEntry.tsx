@@ -16,6 +16,7 @@ interface SongEntryProps extends MediaListEntryProps {
   onPrimary?: string;
   secondaryColor?: string;
   onSecondary?: string;
+  muted?: string;
 }
 
 export const SwipeableSongEntry = (
