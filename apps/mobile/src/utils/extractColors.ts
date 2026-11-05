@@ -1,7 +1,7 @@
 import { hexToRGB } from './hexToRGB';
 import { getColors } from 'react-native-image-colors';
 
-interface Colors {
+export interface Colors {
   primary: string;
   secondary: string;
 }
