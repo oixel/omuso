@@ -29,11 +29,14 @@ import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { extractColors } from '@utils/extractColors';
 import { getTextColor } from '@utils/contrast';
+import { useFadedStyle } from '@/src/utils/useFadedStyle';
 
 const BAR_CONTENT_HEIGHT = 48; // How tall the dynamic album name top bar should be
 
 // Use SwipeableSongEntry factory
 const SongEntry = SwipeableSongEntry(true, true, false, false, false);
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const DEFAULT_COLORS = { primary: '#5186dc', secondary: '#60a5fa' };
 
@@ -95,6 +98,8 @@ export default function AlbumScreen() {
   });
 
   const colors = extracted ?? DEFAULT_COLORS;
+  const fadedPrimaryBg = useFadedStyle('backgroundColor', colors.primary);
+  const fadedSecondaryBg = useFadedStyle('backgroundColor', colors.secondary);
   const colorsReady = !!album && (!coverArtURL || !!extracted || colorsFailed);
 
   const ready = colorsReady && imageReady;
@@ -105,6 +110,9 @@ export default function AlbumScreen() {
     const muted = onPrimary === '#000000' ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)';
     return { onPrimary, onSecondary, muted };
   }, [colors.primary, colors.secondary]);
+
+  const fadedOnPrimary = useFadedStyle('color', theme.onPrimary);
+  const fadedMuted = useFadedStyle('color', theme.muted);
 
   // Update tab bar colors to match dynamic background when focused on album page
   const setTabColors = useTheme((s) => s.setTabColors);
@@ -191,14 +199,14 @@ export default function AlbumScreen() {
         onScroll={onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
-        style={{ backgroundColor: colors.primary }}
+        style={fadedPrimaryBg}
       >
         {album && (
           <Animated.View
             className="w-full items-center"
             style={{ height: COVER_HEIGHT, opacity: ready ? 1 : 0 }}
           >
-            <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: colors.secondary }]}>
+            <Animated.View style={[StyleSheet.absoluteFill, fadedSecondaryBg]}>
               <CoverArt
                 uri={coverArtURL}
                 recyclingKey={album.id}
@@ -219,12 +227,12 @@ export default function AlbumScreen() {
             >
               {/* Left side album detail text */}
               <View style={{ maxWidth: '50%' }}>
-                <Text
-                  style={{ paddingTop: 18, color: theme.onPrimary }}
+                <Animated.Text
+                  style={[{ paddingTop: 18 }, fadedOnPrimary]}
                   className="text-2xl font-bold"
                 >
-                  {album.name ?? 'Unknown Album'}
-                </Text>
+                  {album.name}
+                </Animated.Text>
                 {/* Access artist page by clicking their name */}
                 <MediaNameLink
                   queryClient={queryClient}
@@ -245,30 +253,30 @@ export default function AlbumScreen() {
                     />
                   )}
                   {!!album.year && (
-                    <Text style={{ color: theme.muted }} className="text-lg font-medium">
+                    <Animated.Text style={fadedMuted} className="text-lg font-medium">
                       {album.year}
-                    </Text>
+                    </Animated.Text>
                   )}
                 </View>
               </View>
 
               {/* Right side interaction buttons */}
               <View className="flex flex-row gap-2 items-end">
-                <Pressable
+                <AnimatedPressable
                   onPress={() => setQueue(songs)}
-                  style={{ backgroundColor: colors.secondary, borderRadius: 24 }}
+                  style={[fadedSecondaryBg, { borderRadius: 24 }]}
                   className="aspect-square w-14 flex items-center justify-center"
                 >
                   <Play color={theme.onSecondary} fill={theme.onSecondary} size={20} />
-                </Pressable>
-                <Pressable
+                </AnimatedPressable>
+                <AnimatedPressable
                   onPress={() => setQueue([...songs].sort(() => Math.random() - 0.5))} // TODO: Make a proper shuffle rather than randomize
-                  style={{ backgroundColor: colors.secondary, borderRadius: 24 }}
+                  style={[fadedSecondaryBg, { borderRadius: 24 }]}
                   className="aspect-square w-14 flex items-center justify-center"
                 >
                   <Shuffle color={theme.onSecondary} size={20} />
-                </Pressable>
-                <Pressable
+                </AnimatedPressable>
+                <AnimatedPressable
                   disabled={!album}
                   onPress={async () => {
                     if (!client || !album) return;
@@ -282,11 +290,13 @@ export default function AlbumScreen() {
                       setStarred(prev);
                     }
                   }}
-                  style={{
-                    opacity: !album ? 0.5 : 1,
-                    borderRadius: 24,
-                    backgroundColor: colors.secondary,
-                  }}
+                  style={[
+                    fadedSecondaryBg,
+                    {
+                      opacity: !album ? 0.5 : 1,
+                      borderRadius: 24,
+                    },
+                  ]}
                   className="aspect-square w-14 flex items-center justify-center"
                 >
                   <Star
@@ -294,7 +304,7 @@ export default function AlbumScreen() {
                     fill={starred ? theme.onSecondary : 'none'}
                     size={20}
                   />
-                </Pressable>
+                </AnimatedPressable>
               </View>
             </View>
           </Animated.View>
@@ -320,13 +330,13 @@ export default function AlbumScreen() {
               ))}
             </View>
             <View className="w-full px-8 pt-4 pb-12">
-              <Text style={{ color: theme.muted }} className="text-lg  font-medium">
+              <Animated.Text style={fadedMuted} className="text-lg  font-medium">
                 {album?.songCount} songs
-              </Text>
+              </Animated.Text>
               {!!album?.duration && (
-                <Text style={{ color: theme.muted }} className="text-lg  font-medium">
+                <Animated.Text style={fadedMuted} className="text-lg  font-medium">
                   {msToDuration(album.duration * 1000)}
-                </Text>
+                </Animated.Text>
               )}
               {footerGenres.length > 0 && (
                 <View className="flex-row">
@@ -345,18 +355,18 @@ export default function AlbumScreen() {
                 !!album.originalReleaseDate.month &&
                 !!album.originalReleaseDate.day &&
                 !!album.originalReleaseDate.year && (
-                  <Text style={{ color: theme.muted }} className="text-lg font-medium">
+                  <Animated.Text style={fadedMuted} className="text-lg font-medium">
                     Released on {months[album.originalReleaseDate.month]}{' '}
                     {album.originalReleaseDate.day}, {album.originalReleaseDate.year}
-                  </Text>
+                  </Animated.Text>
                 )) ||
                 (!!album?.year && (
-                  <Text style={{ color: theme.muted }} className="text-lg font-medium">
+                  <Animated.Text style={fadedMuted} className="text-lg font-medium">
                     Released in {album.year}
-                  </Text>
+                  </Animated.Text>
                 ))}
 
-              {album && artist?.albums?.length > 1 && (
+              {album && artist?.albums && artist?.albums?.length > 1 && (
                 <View className="pt-8">
                   <Text style={{ color: theme.onPrimary }} className="text-xl font-bold">
                     More by {artist.name}
@@ -416,28 +426,30 @@ export default function AlbumScreen() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: colors.primary,
               borderBottomWidth: 1,
               borderBottomColor: theme.onPrimary,
             },
+            fadedPrimaryBg,
             topBarBackgroundStyle,
           ]}
         />
 
-        <Pressable
+        <AnimatedPressable
           onPress={() => router.back()}
           hitSlop={8}
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 18,
-            backgroundColor: colors.secondary,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          style={[
+            {
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+            fadedSecondaryBg,
+          ]}
         >
           <ChevronLeft color={theme.onSecondary} size={22} />
-        </Pressable>
+        </AnimatedPressable>
 
         <Animated.Text
           numberOfLines={1}
