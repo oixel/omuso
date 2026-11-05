@@ -27,6 +27,7 @@ export function msToDuration(ms: number): string {
 }
 
 export const months = [
+  '', // Empty to account for 1-indexed months in metadata
   'January',
   'February',
   'March',
