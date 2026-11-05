@@ -46,8 +46,11 @@ const InnerAlbumEntry: React.FC<InnerAlbumEntryProps> = memo(
       >
         <Pressable
           style={isBigEntry ? styles.rowBig : styles.rowSmall}
-          onPress={() => {
-            queryClient.setQueryData(['album', item.id], item); // Seed query for album metadata
+          onPress={async () => {
+            queryClient.setQueryData(['album', item.id], (old: Album | undefined) =>
+              old ? { ...item, ...old } : item
+            ); // Seed query for album metadata, reuse any previously visited album data
+
             if (onPress) onPress(item);
           }}
         >
