@@ -16,6 +16,7 @@ interface SongEntryProps extends MediaListEntryProps {
   onPrimary?: string;
   secondaryColor?: string;
   onSecondary?: string;
+  muted?: string;
 }
 
 // Bail before mounting proper SongEntry if item is not an actual Song
@@ -36,6 +37,7 @@ export const SongEntry: React.FC<SongEntryProps> = memo(
     prev.onPrimary === next.onPrimary &&
     prev.secondaryColor === next.secondaryColor &&
     prev.onSecondary === next.onSecondary &&
+    prev.muted === next.muted &&
     prev.onPress === next.onPress
 );
 
@@ -57,6 +59,7 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = ({
   onPrimary = 'white',
   secondaryColor = '#5186dc',
   onSecondary = 'white',
+  muted = 'white',
   onPress,
 }: InnerSongEntryProps) => {
   const currentPlayingId = useQueue((state) =>
@@ -129,7 +132,7 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = ({
         style={
           isBigEntry
             ? styles.textContentBig
-            : [styles.textContentSmall, { borderBottomColor: isPlaying ? onSecondary : onPrimary }]
+            : [styles.textContentSmall, { borderBottomColor: muted }]
         }
       >
         <Text
