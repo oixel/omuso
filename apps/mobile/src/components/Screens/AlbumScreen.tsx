@@ -29,7 +29,6 @@ import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { extractColors } from '@utils/extractColors';
 import { getTextColor } from '@utils/contrast';
-import { Image } from 'expo-image';
 
 const BAR_CONTENT_HEIGHT = 48; // How tall the dynamic album name top bar should be
 
@@ -315,6 +314,7 @@ export default function AlbumScreen() {
                     onPrimary={theme.onPrimary}
                     secondaryColor={colors.secondary}
                     onSecondary={theme.onSecondary}
+                    muted={theme.muted}
                   />
                 </Animated.View>
               ))}
@@ -356,7 +356,7 @@ export default function AlbumScreen() {
                   </Text>
                 ))}
 
-              {album && artist?.albums && (
+              {album && artist?.albums?.length > 1 && (
                 <View className="pt-8">
                   <Text style={{ color: theme.onPrimary }} className="text-xl font-bold">
                     More by {artist.name}
