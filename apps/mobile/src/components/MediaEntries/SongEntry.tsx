@@ -1,5 +1,5 @@
-import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import React, { memo, useCallback } from 'react';
+import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import React, { memo, useCallback, useMemo } from 'react';
 import { isSong, resizeCoverArt, usePlayback, useQueue } from '@omuso/domain';
 import { Image } from 'expo-image';
 import { Music, Star } from 'lucide-react-native';
@@ -45,127 +45,118 @@ interface InnerSongEntryProps extends Omit<SongEntryProps, 'item'> {
 }
 
 // Only rendered if item is Song, so all hooks are free to run safely
-export const InnerSongEntry: React.FC<InnerSongEntryProps> = memo(
-  ({
-    item,
-    isBigEntry,
-    showIsPlaying,
-    showTrackNumber,
-    showAlbumCover,
-    showSongLabel,
-    showArtist,
-    primaryColor = '#60a5fa',
-    onPrimary = 'white',
-    secondaryColor = '#5186dc',
-    onSecondary = 'white',
-    onPress,
-  }: InnerSongEntryProps) => {
-    const currentPlayingId = useQueue((state) =>
-      showIsPlaying ? state.queue[state.index]?.id : undefined
-    );
+export const InnerSongEntry: React.FC<InnerSongEntryProps> = ({
+  item,
+  isBigEntry,
+  showIsPlaying,
+  showTrackNumber,
+  showAlbumCover,
+  showSongLabel,
+  showArtist,
+  primaryColor = '#60a5fa',
+  onPrimary = 'white',
+  secondaryColor = '#5186dc',
+  onSecondary = 'white',
+  onPress,
+}: InnerSongEntryProps) => {
+  const currentPlayingId = useQueue((state) =>
+    showIsPlaying ? state.queue[state.index]?.id : undefined
+  );
 
-    // Memoize method to avoid every render giving a new function reference
-    const playSong = useCallback(() => {
-      useQueue.getState().setQueue([item]);
-      usePlayback.getState().play();
-    }, [item]);
+  // Memoize method to avoid every render giving a new function reference
+  const playSong = useCallback(() => {
+    useQueue.getState().setQueue([item]);
+    usePlayback.getState().play();
+  }, [item]);
 
-    // Only cause a re-render when the state actively changes
-    const isPlaying = showIsPlaying && currentPlayingId === item.id;
+  // Only cause a re-render when the state actively changes
+  const isPlaying = showIsPlaying && currentPlayingId === item.id;
 
-    return (
-      <Pressable
-        style={[
-          isBigEntry ? styles.rowBig : styles.rowSmall,
-          { backgroundColor: isPlaying ? secondaryColor : primaryColor },
-          !showAlbumCover && { height: 60 },
-        ]}
-        onPress={() => {
-          playSong();
-          if (onPress) onPress(item);
-        }}
-      >
-        {item.starred ? (
-          <View
-            style={[
-              { height: '100%', justifyContent: 'center' },
-              showTrackNumber && { paddingBottom: 8 },
-            ]}
-          >
-            <Star
-              size={14}
-              color={isPlaying ? onSecondary : onPrimary}
-              fill={isPlaying ? onSecondary : onPrimary}
-            />
-          </View>
-        ) : (
-          <Star size={14} color="none" />
-        )}
-        {showTrackNumber && (
-          <Text
-            style={{ marginRight: 4, paddingBottom: 8, color: isPlaying ? onSecondary : onPrimary }}
-            className="w-5 max-w-5 my-auto text-center"
-          >
-            {item.track}
-          </Text>
-        )}
-        {showAlbumCover && (
-          <Image
-            style={styles.cover}
-            source={{ uri: resizeCoverArt(item.coverArtURL, 100) }}
-            contentFit="cover"
-            recyclingKey={item.id}
-            cachePolicy="memory-disk"
-            placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
-            transition={100}
-          />
-        )}
+  // Memoize to avoid re-rendering for color change
+  const source = useMemo(
+    () => ({ uri: resizeCoverArt(item.coverArtURL, 100) }),
+    [item.coverArtURL]
+  );
+
+  return (
+    <Pressable
+      style={[
+        isBigEntry ? styles.rowBig : styles.rowSmall,
+        { backgroundColor: isPlaying ? secondaryColor : primaryColor },
+        !showAlbumCover && { height: 60 },
+      ]}
+      onPress={() => {
+        playSong();
+        if (onPress) onPress(item);
+      }}
+    >
+      {item.starred ? (
         <View
-          style={
-            isBigEntry
-              ? styles.textContentBig
-              : [
-                  styles.textContentSmall,
-                  { borderBottomColor: isPlaying ? onSecondary : onPrimary },
-                ]
-          }
+          style={[
+            { height: '100%', justifyContent: 'center' },
+            showTrackNumber && { paddingBottom: 8 },
+          ]}
         >
-          <Text
-            numberOfLines={1}
-            style={{ color: isPlaying ? onSecondary : onPrimary }}
-            ellipsizeMode="tail"
-            className="font-medium text-xl"
-          >
-            {item.title || 'Untitled Song'}
-          </Text>
-          {showArtist && (
-            <View className="flex-row gap-2 items-center">
-              {showSongLabel && <Music color={onPrimary} size={16} />}
-              <Text numberOfLines={1} ellipsizeMode="tail" style={{ color: onPrimary }}>
-                {showSongLabel ? 'Song  •  ' : ''}
-                {item.artist ?? 'Unknown Artist'}
-              </Text>
-            </View>
-          )}
+          <Star
+            size={14}
+            color={isPlaying ? onSecondary : onPrimary}
+            fill={isPlaying ? onSecondary : onPrimary}
+          />
         </View>
-      </Pressable>
-    );
-  },
-  (prev: SongEntryProps, next: SongEntryProps) =>
-    prev.item.id === next.item.id &&
-    prev.isBigEntry === next.isBigEntry &&
-    (prev.item as Song).starred === (next.item as Song).starred &&
-    prev.showIsPlaying === next.showIsPlaying &&
-    prev.showTrackNumber === next.showTrackNumber &&
-    prev.showAlbumCover === next.showAlbumCover &&
-    prev.showSongLabel === next.showSongLabel &&
-    prev.showArtist === next.showArtist &&
-    prev.primaryColor === next.primaryColor &&
-    prev.onPrimary === next.onPrimary &&
-    prev.secondaryColor === next.secondaryColor &&
-    prev.onSecondary === next.onSecondary &&
-    prev.onPress === next.onPress
-);
+      ) : (
+        <Star size={14} color="none" />
+      )}
+      {showTrackNumber && (
+        <Text
+          style={{ marginRight: 4, paddingBottom: 8, color: isPlaying ? onSecondary : onPrimary }}
+          className="w-5 max-w-5 my-auto text-center"
+        >
+          {item.track}
+        </Text>
+      )}
+      {showAlbumCover && (
+        <Image
+          style={styles.cover}
+          source={source}
+          contentFit="cover"
+          recyclingKey={item.id}
+          cachePolicy="memory-disk"
+          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+          transition={100}
+        />
+      )}
+      <View
+        style={
+          isBigEntry
+            ? styles.textContentBig
+            : [styles.textContentSmall, { borderBottomColor: isPlaying ? onSecondary : onPrimary }]
+        }
+      >
+        <Text
+          numberOfLines={1}
+          style={{ color: isPlaying ? onSecondary : onPrimary }}
+          ellipsizeMode="tail"
+          className="font-medium text-xl"
+        >
+          {item.title || 'Untitled Song'}
+        </Text>
+        {showArtist && (
+          <View className="flex-row gap-2 items-center">
+            {showSongLabel && <Music color={isPlaying ? onSecondary : onPrimary} size={16} />}
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ color: isPlaying ? onSecondary : onPrimary }}
+            >
+              {showSongLabel ? 'Song  •  ' : ''}
+              {item.artist ?? 'Unknown Artist'}
+            </Text>
+          </View>
+        )}
+      </View>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   rowSmall: {
