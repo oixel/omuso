@@ -1,4 +1,4 @@
-import { Album, Artist, Media, Song } from '@omuso/types';
+import { Album, Media, Song } from '@omuso/types';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, FlatList, useWindowDimensions } from 'react-native';
@@ -20,6 +20,7 @@ import Animated, {
   interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
 import { ChevronLeft, Play, Shuffle, Star } from 'lucide-react-native';
@@ -28,21 +29,76 @@ import { StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { extractColors } from '@utils/extractColors';
 import { getTextColor } from '@utils/contrast';
+import { Image } from 'expo-image';
 
 const BAR_CONTENT_HEIGHT = 48; // How tall the dynamic album name top bar should be
+
+// Use SwipeableSongEntry factory
+const SongEntry = SwipeableSongEntry(true, true, false, false, false);
+
 const DEFAULT_COLORS = { primary: '#5186dc', secondary: '#60a5fa' };
 
 export default function AlbumScreen() {
   const { client } = useAuth();
   const queryClient = useQueryClient();
-  const { albumId } = useLocalSearchParams();
+  const { albumId: rawId } = useLocalSearchParams<{ albumId: string | string[] }>();
+  const albumId = Array.isArray(rawId) ? rawId[0] : rawId;
   const router = useRouter();
   const [songs, setSongs] = useState<Song[]>([]);
-  const [artist, setArtist] = useState<Artist>();
   const [starred, setStarred] = useState(false);
   const setQueue = useQueue((state) => state.setQueue);
 
-  const [colors, setColors] = useState(DEFAULT_COLORS);
+  // Undo dynamic tab bar colors on focus loss
+  const resetTabColors = useTheme((s) => s.reset);
+  useFocusEffect(useCallback(() => () => resetTabColors(), [resetTabColors]));
+
+  // Instantly load album metadata from cache, and then fetch songs using ID
+  const { data: album } = useQuery({
+    queryKey: ['album', albumId],
+    queryFn: async (): Promise<Album> => {
+      const result = await client!.getAlbum(albumId);
+
+      if (!result.album) {
+        throw new Error(`Album not found: ${albumId}`);
+      }
+
+      return result.album;
+    },
+    enabled: !!client, // Do not attempt to query for album if no client exists
+  });
+
+  // Fetch artist to access list of other albums created by them
+  const { data: artist } = useQuery({
+    queryKey: ['artist', album?.artistId],
+    queryFn: async () => (await client!.getArtist(album!.artistId!)).artist,
+    enabled: !!client && !!album?.artistId,
+  });
+
+  useEffect(() => {
+    setSongs(album?.songs ?? []);
+    setStarred(!!album?.starred);
+  }, [album]);
+
+  const coverArtURL = useMemo(() => album?.coverArtURL, [album?.id]);
+
+  const [imageDisplayed, setImageDisplayed] = useState(false);
+  useEffect(() => setImageDisplayed(false), [albumId]);
+  const imageReady = !coverArtURL || imageDisplayed;
+  const handleDisplay = useCallback(() => setImageDisplayed(true), []);
+
+  const { data: extracted, isError: colorsFailed } = useQuery({
+    queryKey: ['albumColors', albumId],
+    queryFn: () => extractColors(coverArtURL!),
+    enabled: !!coverArtURL,
+    staleTime: Infinity,
+    gcTime: Infinity,
+    retry: false,
+  });
+
+  const colors = extracted ?? DEFAULT_COLORS;
+  const colorsReady = !!album && (!coverArtURL || !!extracted || colorsFailed);
+
+  const ready = colorsReady && imageReady;
 
   const theme = useMemo(() => {
     const onPrimary = getTextColor(colors.primary);
@@ -51,50 +107,18 @@ export default function AlbumScreen() {
     return { onPrimary, onSecondary, muted };
   }, [colors.primary, colors.secondary]);
 
-  // Instantly load album metadata from cache, and then fetch songs using ID
-  const { data: album } = useQuery({
-    queryKey: ['album', albumId],
-    queryFn: async (): Promise<Album> => {
-      const result = await client!.getAlbum(albumId as string);
-
-      if (!result.album) {
-        throw new Error(`Album not found: ${albumId}`);
-      }
-
-      // Fetch list of other albums created by same artist for "More by <Artist> section"
-      if (result.album.artistId) {
-        await client?.getArtist(result.album.artistId).then((result) => setArtist(result.artist));
-      }
-
-      return result.album;
-    },
-    enabled: !!client, // Do not attempt to query for album if no client exists
-  });
-
-  useEffect(() => {
-    setSongs(album?.songs ?? []);
-    setStarred(!!album?.starred);
-  }, [album]);
-
-  const coverArtURL = album?.coverArtURL;
-
-  useEffect(() => {
-    // Update cover art only when its URL changes
-    let ignore = false;
-
-    (async () => {
-      const colors = coverArtURL ? await extractColors(coverArtURL) : DEFAULT_COLORS;
-
-      if (!ignore) setColors(colors);
-    })();
-
-    return () => {
-      ignore = true;
-    };
-  }, [coverArtURL]);
-
-  // Use SwipeableSongEntry factory to create song entry that only changes on mount
-  const SongEntry = useMemo(() => SwipeableSongEntry(true, true, false, false, false), []);
+  // Update tab bar colors to match dynamic background when focused on album page
+  const setTabColors = useTheme((s) => s.setTabColors);
+  useFocusEffect(
+    useCallback(() => {
+      if (!colorsReady) return;
+      setTabColors({
+        background: colors.primary,
+        foreground: theme.onPrimary,
+        inactive: theme.muted,
+      });
+    }, [colorsReady, colors.primary, theme.onPrimary, theme.muted, setTabColors])
+  );
 
   useSyncSongs(setSongs);
 
@@ -127,33 +151,39 @@ export default function AlbumScreen() {
     scrollY.value = e.contentOffset.y;
   });
 
-  const bottom = COVER_HEIGHT - overlayHeight.value + titleHeight.value - 8;
-  const end = bottom - HEADER_HEIGHT;
+  // Trigger point for hidden top bar
+  const end = useDerivedValue(
+    () => COVER_HEIGHT - overlayHeight.value + titleHeight.value - 8 - HEADER_HEIGHT
+  );
 
-  const topBarBackgroundStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.value, [end, end + 16], [0, 1], Extrapolation.CLAMP),
-  }));
+  const topBarBackgroundStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(scrollY.value, [end.value, end.value + 16], [0, 1], Extrapolation.CLAMP),
+    };
+  });
 
   const topBarTitleStyle = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [end, end + 16], [0, 1], Extrapolation.CLAMP),
+      opacity: interpolate(scrollY.value, [end.value, end.value + 16], [0, 1], Extrapolation.CLAMP),
       transform: [
-        { translateY: interpolate(scrollY.value, [end, end + 16], [8, 0], Extrapolation.CLAMP) },
+        {
+          translateY: interpolate(
+            scrollY.value,
+            [end.value, end.value + 16],
+            [8, 0],
+            Extrapolation.CLAMP
+          ),
+        },
       ],
     };
   });
 
-  const setTabColors = useTheme((s) => s.setTabColors);
-  const resetTabColors = useTheme((s) => s.reset);
-  useFocusEffect(
-    useCallback(() => {
-      setTabColors({
-        background: colors.primary,
-        foreground: theme.onPrimary,
-        inactive: theme.muted,
-      });
-      return resetTabColors;
-    }, [colors.primary, theme.onPrimary, theme.muted, setTabColors, resetTabColors])
+  const footerGenres = album?.genres?.slice(0, 3) ?? [];
+  const primaryGenre = album?.genres?.[0];
+
+  const moreAlbums = useMemo(
+    () => artist?.albums?.filter((a) => a.id !== album?.id) ?? [],
+    [artist?.albums, album?.id]
   );
 
   return (
@@ -162,19 +192,21 @@ export default function AlbumScreen() {
         onScroll={onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{ flexGrow: 1, alignItems: 'center' }}
-        style={{ overflow: 'scroll', backgroundColor: colors.primary }}
+        style={{ backgroundColor: colors.primary }}
       >
         {album && (
           <Animated.View
-            entering={FadeInDown.duration(200)}
             className="w-full items-center"
-            style={{ height: COVER_HEIGHT }}
+            style={{ height: COVER_HEIGHT, opacity: ready ? 1 : 0 }}
           >
-            <Animated.View style={[StyleSheet.absoluteFill]}>
+            <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: colors.secondary }]}>
               <CoverArt
                 uri={coverArtURL}
-                recyclingKey={album?.id}
+                recyclingKey={album.id}
                 style={{ width: '100%', height: '100%' }}
+                placeholder={null}
+                priority="high"
+                onDisplay={handleDisplay}
               />
               <LinearGradient
                 pointerEvents="none"
@@ -192,7 +224,7 @@ export default function AlbumScreen() {
                   style={{ paddingTop: 18, color: theme.onPrimary }}
                   className="text-2xl font-bold"
                 >
-                  {album?.name ?? 'Unknown Album'}
+                  {album.name ?? 'Unknown Album'}
                 </Text>
                 {/* Access artist page by clicking their name */}
                 <MediaNameLink
@@ -204,16 +236,16 @@ export default function AlbumScreen() {
                   color={theme.muted}
                 />
                 <View className="flex flex-row">
-                  {album?.genres && (
+                  {!!primaryGenre && (
                     <MediaNameLink
                       pathname="../../genre"
                       // Use genre as ID to route to use it as key for routing
-                      media={album.genres?.length ? ({ id: album.genres[0] } as Media) : undefined}
-                      label={album.genres[0] + (album?.year ? ' • ' : '')}
+                      media={{ id: primaryGenre } as Media}
+                      label={primaryGenre + (album.year ? ' • ' : '')}
                       color={theme.muted}
                     />
                   )}
-                  {album?.year && (
+                  {!!album.year && (
                     <Text style={{ color: theme.muted }} className="text-lg font-medium">
                       {album.year}
                     </Text>
@@ -240,9 +272,16 @@ export default function AlbumScreen() {
                 <Pressable
                   disabled={!album}
                   onPress={async () => {
-                    setStarred((prev) => !prev); // Toggle star excitedly
-                    const newStatus = (await client?.toggleStarred(album, starred))?.starred;
-                    setStarred(!!newStatus);
+                    if (!client || !album) return;
+                    const prev = starred;
+                    setStarred(!prev); // Toggle star excitedly
+                    try {
+                      const res = await client.toggleStarred(album, prev);
+                      setStarred(!!res.starred);
+                      queryClient.invalidateQueries({ queryKey: ['artist', album.artistId] }); // Trigger re-render where album is visible
+                    } catch {
+                      setStarred(prev);
+                    }
                   }}
                   style={{
                     opacity: !album ? 0.5 : 1,
@@ -261,11 +300,14 @@ export default function AlbumScreen() {
             </View>
           </Animated.View>
         )}
-        {songs.length ? (
+        {songs.length > 0 && colorsReady ? (
           <>
             <View className="w-full pb-4">
               {songs.map((song, index) => (
-                <Animated.View key={song.id} entering={FadeInDown.duration(300).delay(index * 40)}>
+                <Animated.View
+                  key={song.id}
+                  entering={FadeInDown.duration(300).delay(Math.min(index, 10) * 40)} // Only plays for first 10 tracks
+                >
                   <SongEntry
                     item={song}
                     isBigEntry={false}
@@ -281,35 +323,34 @@ export default function AlbumScreen() {
               <Text style={{ color: theme.muted }} className="text-lg  font-medium">
                 {album?.songCount} songs
               </Text>
-              {album?.duration && (
+              {!!album?.duration && (
                 <Text style={{ color: theme.muted }} className="text-lg  font-medium">
                   {msToDuration(album.duration * 1000)}
                 </Text>
               )}
-              {album?.genres && (
+              {footerGenres.length > 0 && (
                 <View className="flex-row">
-                  {album.genres.slice(0, 3).map((genre, index) => (
+                  {footerGenres.map((genre, index) => (
                     <MediaNameLink
                       key={genre}
                       pathname="../../genre"
-                      // Use genre as ID to route to use it as key for routing
-                      media={album.genres?.length ? ({ id: genre } as Media) : undefined}
-                      label={genre + (index !== album.genres!.length - 1 ? '; ' : '')}
+                      media={{ id: genre } as Media}
+                      label={genre + (index < footerGenres.length - 1 ? '; ' : '')}
                       color={theme.muted}
                     />
                   ))}
                 </View>
               )}
               {(album?.originalReleaseDate &&
-                album.originalReleaseDate.month &&
-                album.originalReleaseDate.day &&
-                album.originalReleaseDate.year && (
+                !!album.originalReleaseDate.month &&
+                !!album.originalReleaseDate.day &&
+                !!album.originalReleaseDate.year && (
                   <Text style={{ color: theme.muted }} className="text-lg font-medium">
                     Released on {months[album.originalReleaseDate.month]}{' '}
                     {album.originalReleaseDate.day}, {album.originalReleaseDate.year}
                   </Text>
                 )) ||
-                (album?.year && (
+                (!!album?.year && (
                   <Text style={{ color: theme.muted }} className="text-lg font-medium">
                     Released in {album.year}
                   </Text>
@@ -323,10 +364,8 @@ export default function AlbumScreen() {
                   <FlatList
                     style={{ flex: 1 }}
                     horizontal={true}
-                    data={artist?.albums.filter((curr) => curr.name !== album.name)}
-                    keyExtractor={(item) => {
-                      return item.id + item.starred;
-                    }}
+                    data={moreAlbums}
+                    keyExtractor={(item) => item.id}
                     showsHorizontalScrollIndicator={false}
                     renderItem={({ item }) => (
                       <AlbumEntry
@@ -386,7 +425,7 @@ export default function AlbumScreen() {
         />
 
         <Pressable
-          onPress={router.back}
+          onPress={() => router.back()}
           hitSlop={8}
           style={{
             width: 36,
