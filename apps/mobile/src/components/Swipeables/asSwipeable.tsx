@@ -1,6 +1,6 @@
-import { memo, useLayoutEffect, useMemo, useState } from 'react';
-import { StyleSheet } from 'react-native';
-import { Dimensions, StyleProp, View, ViewStyle } from 'react-native';
+import { memo, useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -9,10 +9,9 @@ import Animated, {
   withDelay,
   cancelAnimation,
   SharedValue,
+  withSequence,
 } from 'react-native-reanimated';
 import { runOnJS } from 'react-native-worklets';
-
-const { width } = Dimensions.get('window');
 
 interface SwipeableProps<T extends object> {
   getId: (props: T) => string | number;
@@ -41,13 +40,20 @@ const styles = StyleSheet.create({
   divider: { flex: 1 },
 });
 
+// Ensure entry is not the same
+const shallowCompare = (a: object, b: object) => {
+  const aKeys = Object.keys(a) as (keyof typeof a)[]; // Weird typing to allow indexing of a
+  const bKeys = Object.keys(b);
+  return aKeys.length === bKeys.length && aKeys.every((key) => a[key] === b[key]);
+};
+
 export function asSwipeable<T extends object>( // Note: `extends object` is to avoid TS quirk of generic spread props since T is unconstrained
   Entry: React.FC<T>,
   {
     getId,
     leftSoloSwipe,
     rightSoloSwipe,
-    soloSwipeHoldDelay = 250,
+    soloSwipeHoldDelay = 150,
     leftContent,
     rightContent,
     swipeThreshold = 100,
@@ -64,7 +70,8 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
       const translationX = useSharedValue(0); // Tracks how far the entry has been swiped
       const [hasInteracted, setHasInteracted] = useState(false);
 
-      // Reset swip when entry gets recycled in FlashList
+      const width = useWindowDimensions().width;
+
       useLayoutEffect(() => {
         cancelAnimation(translationX);
         translationX.value = 0;
@@ -90,6 +97,18 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
         opacity: translationX.value < 0 ? 1 : 0,
       }));
 
+      // Keep props fresh
+      const propsRef = useRef(props);
+      propsRef.current = props;
+      const fireLeftSoloSwipe = useCallback(
+        () => leftSoloSwipe?.(propsRef.current),
+        [leftSoloSwipe]
+      );
+      const fireRightSoloSwipe = useCallback(
+        () => rightSoloSwipe?.(propsRef.current),
+        [rightSoloSwipe]
+      );
+
       const panGesture = useMemo(
         () =>
           Gesture.Pan()
@@ -107,15 +126,19 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
 
               // Run defined action when only one element exists (e.g. add to playlist by swiping song left)
               if (canSwipeLeft && leftContent?.length === 1 && leftSoloSwipe) {
-                runOnJS(leftSoloSwipe)(props);
-                translationX.value = withSpring(width * 2);
-                translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
+                runOnJS(fireLeftSoloSwipe)();
+                translationX.value = withSequence(
+                  withSpring(width * 2),
+                  withDelay(soloSwipeHoldDelay, withSpring(0))
+                );
                 return;
               }
               if (canSwipeRight && rightContent?.length === 1 && rightSoloSwipe) {
-                runOnJS(rightSoloSwipe)(props);
-                translationX.value = withSpring(-width * 2);
-                translationX.value = withDelay(soloSwipeHoldDelay, withSpring(0));
+                runOnJS(fireRightSoloSwipe)();
+                translationX.value = withSequence(
+                  withSpring(-width * 2),
+                  withDelay(soloSwipeHoldDelay, withSpring(0))
+                );
                 return;
               }
 
@@ -123,7 +146,7 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
               const springDirection = canSwipeLeft ? 1 : canSwipeRight ? -1 : 0;
               translationX.value = withSpring(springDirection * swipeThreshold);
             }),
-        [id]
+        [id, width, swipeThreshold, leftContent, rightContent, leftSoloSwipe, rightSoloSwipe]
       );
 
       const animatedStyle = useAnimatedStyle(() => ({
@@ -169,6 +192,6 @@ export function asSwipeable<T extends object>( // Note: `extends object` is to a
         </View>
       );
     },
-    (prev, next) => getId(prev) === getId(next) && (prev as any).item === (next as any).item
+    (prev, next) => getId(prev) === getId(next) && shallowCompare(prev, next)
   );
 }
