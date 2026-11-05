@@ -1,10 +1,6 @@
+import { Colors } from '@omuso/types';
 import { hexToRGB } from './hexToRGB';
 import { getColors } from 'react-native-image-colors';
-
-export interface Colors {
-  primary: string;
-  secondary: string;
-}
 
 // Return difference between the primary and secondary colors
 function distance(a: string, b: string) {
