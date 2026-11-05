@@ -4,9 +4,9 @@ export default function ArtistsLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ title: 'Artists' }} />
-      <Stack.Screen name="artist/[artistId]" options={{ title: 'Artist' }} />
-      <Stack.Screen name="album/[albumId]" options={{ title: 'Album' }} />
-      <Stack.Screen name="genre/[genreId]" options={{ title: 'Genre' }} />
+      <Stack.Screen name="artist/[artistId]" options={{ title: 'Artist', animation: 'none' }} />
+      <Stack.Screen name="album/[albumId]" options={{ title: 'Album', animation: 'none' }} />
+      <Stack.Screen name="genre/[genreId]" options={{ title: 'Genre', animation: 'none' }} />
     </Stack>
   );
 }
