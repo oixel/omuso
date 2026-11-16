@@ -8,6 +8,7 @@ import {
   months,
   msToDuration,
   useAuth,
+  usePlayback,
   useQueue,
   useTheme,
   useUpdatedMedia,
@@ -130,6 +131,16 @@ export default function AlbumScreen() {
     if (!updatedMedia || !isAlbum(updatedMedia) || updatedMedia.id !== albumId) return;
     queryClient.setQueryData(['album', albumId], updatedMedia);
   }, [updatedMedia, albumId, queryClient]);
+
+  // Queue up rest of songs past selected song
+  const onPressSong = useCallback(
+    (song: Song) => {
+      const index = songs.findIndex((s) => s.id === song.id);
+      useQueue.getState().setQueue(songs.slice(index));
+      usePlayback.getState().play();
+    },
+    [songs]
+  );
 
   /*
       Animation properties
@@ -317,6 +328,7 @@ export default function AlbumScreen() {
                     secondaryColor={colors.secondary}
                     onSecondary={theme.onSecondary}
                     muted={theme.muted}
+                    onPress={onPressSong}
                   />
                 </Animated.View>
               ))}

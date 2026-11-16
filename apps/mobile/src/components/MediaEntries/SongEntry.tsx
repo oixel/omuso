@@ -1,17 +1,18 @@
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
-import React, { memo, useCallback, useMemo } from 'react';
-import { isSong, resizeCoverArt, usePlayback, useQueue } from '@omuso/domain';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { memo, useMemo } from 'react';
+import { isSong, resizeCoverArt, useQueue } from '@omuso/domain';
 import { Image } from 'expo-image';
 import { Music, Star } from 'lucide-react-native';
 import { MediaListEntryProps } from './MediaListEntry';
 import { Song } from '@omuso/types';
 
-interface SongEntryProps extends MediaListEntryProps {
+interface SongEntryProps extends Omit<MediaListEntryProps, 'onPress'> {
   showIsPlaying: boolean;
   showTrackNumber: boolean;
   showAlbumCover: boolean;
   showSongLabel: boolean;
   showArtist: boolean;
+  onPress: (song: Song) => void;
   primaryColor?: string;
   onPrimary?: string;
   secondaryColor?: string;
@@ -66,12 +67,6 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = ({
     showIsPlaying ? state.queue[state.index]?.id : undefined
   );
 
-  // Memoize method to avoid every render giving a new function reference
-  const playSong = useCallback(() => {
-    useQueue.getState().setQueue([item]);
-    usePlayback.getState().play();
-  }, [item]);
-
   // Only cause a re-render when the state actively changes
   const isPlaying = showIsPlaying && currentPlayingId === item.id;
 
@@ -88,10 +83,7 @@ export const InnerSongEntry: React.FC<InnerSongEntryProps> = ({
         { backgroundColor: isPlaying ? secondaryColor : primaryColor },
         !showAlbumCover && { height: 60 },
       ]}
-      onPress={() => {
-        playSong();
-        if (onPress) onPress(item);
-      }}
+      onPress={() => onPress(item)}
     >
       {item.starred ? (
         <View
